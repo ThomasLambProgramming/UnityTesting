@@ -1,8 +1,0 @@
-component Agent_e05acd0eff16f7f4789ba8326e1fc526_UnityEngine__char_46_Transform_2401503736823553349
-  position Vector3 [compression "None"]
-  rotation Quaternion [bits "32"]
-
-component Player_ddb8f3d3da706e44f9c5ebbefbda560f_UnityEngine__char_46_Transform_369928427897039242
-  position Vector3 [compression "None"]
-  rotation Quaternion [bits "32"]
-

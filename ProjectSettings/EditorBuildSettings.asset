@@ -4,9 +4,5 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes:
-  - enabled: 1
-    path: Assets/Scenes/MultiplayerTest.unity
-    guid: 024b38a2cdb42204a9669ba5c327d4a2
-  m_configObjects:
-    io.coherence.simulator.build.options: {fileID: 11400000, guid: 688c908732d52ff4dac78546438df401, type: 2}
+  m_Scenes: []
+  m_configObjects: {}
