@@ -8,48 +8,68 @@ namespace Graph
         [SerializeField] private GameObject m_GraphPrefab;
         private GameObject[] m_GraphPoints;
         [SerializeField] private float step = 2f;
-        [Range(10, 150)]
         [SerializeField] private int m_GraphCount;
-
-        private int m_previousGraphCount;
-
-        [Range(0.01f, 3)]
         [SerializeField] private float m_GraphPointScale = 0.1f;
-
         [SerializeField] private float m_TimeMultiplier = 1.5f;
+        [SerializeField] private bool m_RemakeGraph = false;
+
+        [SerializeField, Range(0.01f, 20)] private float m_TimeOffsetForMultiwave;
+        [SerializeField] private LibraryFunctions.WaveFunctions m_Function = LibraryFunctions.WaveFunctions.Wave;
         private void Start()
         {
             CreateGraphArray();
-            m_previousGraphCount = m_GraphCount;
         }
 
         private void Update()
         {
-            if (m_previousGraphCount != m_GraphCount)
+            if (m_GraphPoints == null)
             {
-                DestroyGraphArray();
-                CreateGraphArray();
-                Debug.Log("Graph count not the same");
-                m_previousGraphCount = m_GraphCount;
+                m_GraphPoints = new GameObject[transform.childCount];
+                for (int i = 0; i < transform.childCount; i++)
+                {
+                    m_GraphPoints[i] = transform.GetChild(i).gameObject;
+                }
+                m_RemakeGraph = true;
+            }
+            if (m_RemakeGraph)
+            {
+                RemakeGraphArray();
+                m_RemakeGraph = false;
             }
             for (int i = 0; i < m_GraphPoints.Length; i++)
             {
-                m_GraphPoints[i].transform.localScale = new Vector3(m_GraphPointScale, m_GraphPointScale, m_GraphPointScale);
                 Vector3 localPos = m_GraphPoints[i].transform.localPosition;
-                //Local pos setting of x acts as an offset to make curve, sin time*pi = 2 seconds for full change? something like that
-                localPos.y = Mathf.Sin(Mathf.PI * (localPos.x + Time.time * m_TimeMultiplier));
-                localPos.x = (i + 0.5f) * step - 1f;
+                switch (m_Function)
+                {
+                    case LibraryFunctions.WaveFunctions.Wave:
+                        localPos.y = LibraryFunctions.Wave(localPos.x, Time.time * m_TimeMultiplier);
+                        break;
+                    case LibraryFunctions.WaveFunctions.MultiWave:
+                        localPos.y = LibraryFunctions.MultiWave(localPos.x, m_TimeOffsetForMultiwave, Time.time * m_TimeMultiplier);
+                        break;
+                    case LibraryFunctions.WaveFunctions.Ripple:
+                        localPos.y = LibraryFunctions.Ripple(localPos.x, Time.time * m_TimeMultiplier);
+                        break;
+                }
                 m_GraphPoints[i].transform.localPosition = localPos;
             }
         }
 
+        [ContextMenu("Remake Graph Array")]
+        private void RemakeGraphArray()
+        {
+            DestroyGraphArray();
+            CreateGraphArray();
+        }
         private void CreateGraphArray()
         {
             m_GraphPoints = new GameObject[m_GraphCount];
             for (int i = 0; i < m_GraphPoints.Length; i++)
             {
                 m_GraphPoints[i] = Instantiate(m_GraphPrefab, this.transform);
-                m_GraphPoints[i].transform.position = new Vector3((i + 0.5f) * step - 1f, 0, 0);
+                float xOffset = -m_GraphCount * step / 2 + 1;
+                m_GraphPoints[i].transform.position = new Vector3(xOffset + (i + 0.5f) * step - 1f, 0, 0);
+                m_GraphPoints[i].transform.localScale = new Vector3(m_GraphPointScale, m_GraphPointScale, m_GraphPointScale);
             }
         }
         private void DestroyGraphArray()
