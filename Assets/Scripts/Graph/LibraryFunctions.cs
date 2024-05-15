@@ -86,5 +86,10 @@ namespace Graph
 
             return p;
         }
+
+        public static Vector3 LerpTwoPoints(float u, float v, float t, GraphFunction from, GraphFunction to, float progress)
+        {
+            return Vector3.Lerp(from(u, v, t), to(u,v,t), SmoothStep(0f,01, progress));
+        }
     }
 }

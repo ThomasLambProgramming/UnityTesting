@@ -271,14 +271,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_GraphPrefab: {fileID: 8252895593016507906, guid: 8cb126aee268f514a85e71209e19d6af, type: 3}
-  m_GraphStep: 0.1
+  m_GraphStep: 0.02
   m_GraphCount: 100
   m_GraphPointScale: 0.05
   m_TimeMultiplier: 1
-  m_RemakeGraph: 0
   m_UpdateGraphOnFrame: 1
-  m_TimeOffsetForMultiwave: 0
-  m_Function: 2
+  m_TransitionDuration: 1
+  m_FunctionDuration: 3
+  m_FunctionTimer: 0
+  m_TransitionTimer: 0
+  m_IsInTransition: 0
+  m_Function: 4
+  m_TransitionFunction: 0
 --- !u!4 &1088058251
 Transform:
   m_ObjectHideFlags: 0
@@ -380,8 +384,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1756514111}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.26552108, y: 0.34312236, z: -0.10170459, w: 0.89522165}
-  m_LocalPosition: {x: -3.751827, y: 3.9376142, z: -5.591299}
+  m_LocalRotation: {x: 0.28951865, y: -0.32970828, z: 0.10707663, w: 0.89219165}
+  m_LocalPosition: {x: 2.453208, y: 2.7685165, z: -2.8300574}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
