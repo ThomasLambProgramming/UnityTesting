@@ -4,12 +4,12 @@ namespace Graph
 {
     public static class LibraryFunctions
     {
-        public enum WaveFunctions {Wave, MultiWave, Ripple, Sphere}
+        public enum WaveFunctions {Wave, MultiWave, Ripple, Sphere, Torus}
 
         public static GraphFunction GetFunction(WaveFunctions function) => functions[(int)function];
         public delegate Vector3 GraphFunction(float u, float v, float time);
 
-        private static GraphFunction[] functions = { Wave, MultiWave, Ripple, Sphere};
+        private static GraphFunction[] functions = { Wave, MultiWave, Ripple, Sphere, Torus};
         
         private static Vector3 Wave(float u, float v, float time)
         {
@@ -55,13 +55,34 @@ namespace Graph
             return p;
         }
 
+        //I understand roughly the way this sphere works but got confused by the torus explanation once it got to intersecting radius.
+        //Didnt want to get hung up in tutorial hell so for now it has just been followed.
         private static Vector3 Sphere(float u, float v, float time)
         {
             Vector3 p;
-            float r = Cos(0.5f * PI * v);
-            p.x = r * Sin(PI * u);
-            p.z = r * Cos(PI * u);
-            p.y = Sin(PI * 0.5f * v);
+            float r = 0.9f + 0.1f * Sin(PI * (6f * u + 4f * v + time));
+            float s = r * Cos(0.5f * PI * v);
+            p.x = s * Sin(PI * u);
+            p.z = s * Cos(PI * u);
+            p.y = r * Sin(PI * 0.5f * v);
+
+            return p;
+        }
+        private static Vector3 Torus(float u, float v, float time)
+        {
+            Vector3 p;
+            //Tutorial creates two radii, not sure how the math there works but due to having two radii
+            //it is then possible to have a variable radius on both radii causing the torus to twist.
+            //float r1 = 0.75f;
+            //float r2 = 0.25f;
+            
+            float r1 = 0.7f + 0.1f * Sin(PI * (6f * u + 0.5f * time));
+            float r2 = 0.15f + 0.05f * Sin(PI * (8f * u + 4f * v + 2f * time));
+            
+            float s = r1 + r2 * Cos(PI * v);
+            p.x = s * Sin(PI * u);
+            p.y = r2 * Sin(PI * v);
+            p.z = s * Cos(PI * u);
 
             return p;
         }

@@ -36,11 +36,13 @@ namespace Graph
         [ContextMenu("Remake Graph Array")]
         private void RemakeGraphArray()
         {
-            DestroyGraphArray();
+            RearrangeGraphArray();
             CreateGraphArray();
         }
         private void CreateGraphArray()
         {
+            if (m_GraphPoints != null)
+                return;
             //Graph count = amount in x and z
             m_GraphPoints = new Transform[m_GraphCount * m_GraphCount];
             for (int i = 0; i < m_GraphPoints.Length; i++)
@@ -74,20 +76,27 @@ namespace Graph
             }
         }
 
-        private void DestroyGraphArray()
+        private void RearrangeGraphArray()
         {
+            int index = 0;
             if (transform.childCount != 0)
             {
-                m_GraphPoints = new Transform[transform.childCount];
+                m_GraphPoints = new Transform[m_GraphCount * m_GraphCount];
                 for (int i = 0; i < transform.childCount; i++)
+                {
                     m_GraphPoints[i] = transform.GetChild(i);
+                    index++;
+                }
             }
 
-            if (m_GraphPoints != null)
+            if (index != m_GraphCount * m_GraphCount - 1)
             {
-                for (int i = 0; i < m_GraphPoints.Length; i++)
-                    Destroy(m_GraphPoints[i].gameObject);
+                for (int i = index; i < m_GraphCount * m_GraphCount; i++)
+                {
+                    m_GraphPoints[i] = Instantiate(m_GraphPrefab, transform).transform;
+                }
             }
+
 
             m_GraphPoints = null;
         }

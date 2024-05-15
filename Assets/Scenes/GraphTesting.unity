@@ -271,9 +271,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_GraphPrefab: {fileID: 8252895593016507906, guid: 8cb126aee268f514a85e71209e19d6af, type: 3}
-  m_GraphStep: 0.04
-  m_GraphCount: 80
-  m_GraphPointScale: 0.1
+  m_GraphStep: 0.1
+  m_GraphCount: 100
+  m_GraphPointScale: 0.05
   m_TimeMultiplier: 1
   m_RemakeGraph: 0
   m_UpdateGraphOnFrame: 1
