@@ -4,7 +4,7 @@ using UnityEngine.Serialization;
 
 namespace Graph
 {
-    public class GraphManager : MonoBehaviour
+    public class CpuGraphManager : MonoBehaviour
     {
         private Transform[] m_GraphPoints;
         [SerializeField] private GameObject m_GraphPrefab;
