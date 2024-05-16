@@ -1,0 +1,45 @@
+#pragma kernel FunctionKernel
+#define PI 3.14159265358979323846
+//Rw stands for read write, structured buffer is kinda just a computer buffer.
+RWStructuredBuffer<float3> _Positions;
+
+uint _Resolution;
+
+float _Step;
+float _Time;
+
+float2 GetUV(uint3 id)
+{
+    return (id.xy + 0.5) * _Step - 1.0;
+}
+
+void SetPosition(uint3 id, float3 position)
+{
+    //to avoid array out of bounds, only if both ids are under resolution can we set position
+    if (id.x < _Resolution && id.y < _Resolution)
+    {
+        _Positions[id.x + id.y * _Resolution] = position;
+    }
+}
+
+float3 Wave(float u, float v, float time)
+{
+    float3 p;
+    p.x = u;
+    p.z = v;
+    
+    //Simple Sine wave
+    p.y = sin(PI * (u + v + time));
+    return p;
+}
+
+//gpu has compute units that run specific fixed amount in lockstep = warps/wavefronts. amd=64thread nvidia=32thread so 64 is good number
+[numthreads(8,8,1)]
+//each number is for dimensions, so we get this one back in a 2d 8x8, also each thread gets an vector3 id
+//we need to give it a semantic keyword so gpu knows to give the id
+void FunctionKernel(uint3 id : SV_DispatchThreadID)
+{
+    float2 uv = GetUV(id);
+	SetPosition(id, Wave(uv.x,uv.y, _Time));
+}
+
