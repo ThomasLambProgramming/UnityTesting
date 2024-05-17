@@ -312,8 +312,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_ComputeShader: {fileID: 7200000, guid: 90f77c81b3887c94f8b370beb713b431, type: 3}
-  m_Resolution: 200
-  m_Material: {fileID: -876546973899608171, guid: 75cb3c747a55d9640b4a542db17c0c94, type: 3}
+  m_Resolution: 93
+  m_Material: {fileID: 2100000, guid: 822ae0646f3bf9b408b7f8e1c877fc5f, type: 2}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   m_TransitionDuration: 1
   m_FunctionDuration: 3

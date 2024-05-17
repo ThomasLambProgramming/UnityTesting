@@ -5,7 +5,8 @@ namespace Graph
     public class GpuGraphManager : MonoBehaviour
     {
         [SerializeField] private ComputeShader m_ComputeShader;
-        [SerializeField] private int m_Resolution;
+        
+        [Range(1, m_MaxResolution), SerializeField] private int m_Resolution;
         [SerializeField] private Material m_Material;
         [SerializeField] private Mesh m_Mesh;
 
@@ -19,6 +20,8 @@ namespace Graph
 
         private ComputeBuffer m_PositionsBuffer;
 
+        private const int m_MaxResolution = 1000;
+        
         private int kernalId = 0;
         private static readonly int
             positionsId = Shader.PropertyToID("_Positions"),
@@ -30,7 +33,7 @@ namespace Graph
         private void OnEnable()
         {
             //4 byte floats, xyz positions. = 12 byte stride.
-            m_PositionsBuffer = new ComputeBuffer(m_Resolution * m_Resolution, 12);
+            m_PositionsBuffer = new ComputeBuffer(m_MaxResolution * m_MaxResolution, 12);
             kernalId = m_ComputeShader.FindKernel("FunctionKernel");
             CreateGraphArray();
         }
@@ -52,9 +55,12 @@ namespace Graph
             int groupAmount = Mathf.CeilToInt(m_Resolution / 8f);
             m_ComputeShader.Dispatch(kernalId,groupAmount,groupAmount,1);
 
+            m_Material.SetBuffer(positionsId, m_PositionsBuffer);
+            m_Material.SetFloat(stepId, step);
+            
             //the bounds acts as a big bounding box for the drawing of these meshes for frustum culling, since the graph is small it should fit within a small box
             Bounds bounds = new Bounds(Vector3.zero, Vector3.one * (2f + 2f / m_Resolution));
-            Graphics.DrawMeshInstancedProcedural(m_Mesh, 0, m_Material, bounds, m_PositionsBuffer.count);
+            Graphics.DrawMeshInstancedProcedural(m_Mesh, 0, m_Material, bounds, m_Resolution * m_Resolution);
         }
 
         private void Update()
@@ -62,28 +68,27 @@ namespace Graph
             UpdateFunctionOnGpu();
             if (true)
             {
-                return;
-                m_FunctionTimer += Time.deltaTime;
-
-                if (m_FunctionTimer > m_FunctionDuration)
-                {
-                    m_IsInTransition = true;
-                    m_TransitionTimer = 0;
-                    m_FunctionTimer = 0;
-                    
-                    //m_TransitionFunction = m_Function;
-                    m_Function = m_Function == LibraryFunctions.WaveFunctions.Torus ? LibraryFunctions.WaveFunctions.Wave : (LibraryFunctions.WaveFunctions)(m_Function + 1);
-                }
-
-                if (m_IsInTransition)
-                {
-                    m_TransitionTimer += Time.deltaTime;
-                    if (m_TransitionTimer > m_TransitionDuration)
-                    {
-                        m_TransitionTimer = 0;
-                        m_IsInTransition = false;
-                    }
-                }
+                //m_FunctionTimer += Time.deltaTime;
+                //
+                //if (m_FunctionTimer > m_FunctionDuration)
+                //{
+                //    m_IsInTransition = true;
+                //    m_TransitionTimer = 0;
+                //    m_FunctionTimer = 0;
+                //    
+                //    //m_TransitionFunction = m_Function;
+                //    m_Function = m_Function == LibraryFunctions.WaveFunctions.Torus ? LibraryFunctions.WaveFunctions.Wave : (LibraryFunctions.WaveFunctions)(m_Function + 1);
+                //}
+                //
+                //if (m_IsInTransition)
+                //{
+                //    m_TransitionTimer += Time.deltaTime;
+                //    if (m_TransitionTimer > m_TransitionDuration)
+                //    {
+                //        m_TransitionTimer = 0;
+                //        m_IsInTransition = false;
+                //    }
+                //}
             }
         }
 
