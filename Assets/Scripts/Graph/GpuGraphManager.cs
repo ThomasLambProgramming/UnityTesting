@@ -17,6 +17,7 @@ namespace Graph
         private bool m_IsInTransition = false;
 
         [SerializeField] private LibraryFunctions.WaveFunctions m_Function = LibraryFunctions.WaveFunctions.Wave;
+        private LibraryFunctions.WaveFunctions m_TransitionFunction = LibraryFunctions.WaveFunctions.Wave;
 
         private ComputeBuffer m_PositionsBuffer;
 
@@ -27,14 +28,13 @@ namespace Graph
             positionsId = Shader.PropertyToID("_Positions"),
             resolutionId = Shader.PropertyToID("_Resolution"),
             stepId = Shader.PropertyToID("_Step"),
-            timeId = Shader.PropertyToID("_Time");
+            timeId = Shader.PropertyToID("_Time"),
+            transitionProgress = Shader.PropertyToID("_TransitionProgress");
         
-        //private LibraryFunctions.WaveFunctions m_TransitionFunction = LibraryFunctions.WaveFunctions.Wave;
         private void OnEnable()
         {
             //4 byte floats, xyz positions. = 12 byte stride.
             m_PositionsBuffer = new ComputeBuffer(m_MaxResolution * m_MaxResolution, 12);
-            kernalId = m_ComputeShader.FindKernel("FunctionKernel");
             CreateGraphArray();
         }
 
@@ -50,7 +50,14 @@ namespace Graph
             m_ComputeShader.SetInt(resolutionId, m_Resolution);
             m_ComputeShader.SetFloat(stepId, step);
             m_ComputeShader.SetFloat(timeId, Time.time);
-            m_ComputeShader.SetBuffer(0, positionsId, m_PositionsBuffer);
+            
+            //Dont need to do an extra instruction for nothing
+            if (m_IsInTransition)
+                m_ComputeShader.SetFloat(transitionProgress, m_TransitionTimer / m_TransitionDuration);
+            
+            kernalId = (int)m_Function + (int)(m_IsInTransition ? m_TransitionFunction : m_Function) * 5;
+            
+            m_ComputeShader.SetBuffer(kernalId, positionsId, m_PositionsBuffer);
             //8,8,1 threads on shader so we divide resolution by the same amount
             int groupAmount = Mathf.CeilToInt(m_Resolution / 8f);
             m_ComputeShader.Dispatch(kernalId,groupAmount,groupAmount,1);
@@ -68,27 +75,27 @@ namespace Graph
             UpdateFunctionOnGpu();
             if (true)
             {
-                //m_FunctionTimer += Time.deltaTime;
-                //
-                //if (m_FunctionTimer > m_FunctionDuration)
-                //{
-                //    m_IsInTransition = true;
-                //    m_TransitionTimer = 0;
-                //    m_FunctionTimer = 0;
-                //    
-                //    //m_TransitionFunction = m_Function;
-                //    m_Function = m_Function == LibraryFunctions.WaveFunctions.Torus ? LibraryFunctions.WaveFunctions.Wave : (LibraryFunctions.WaveFunctions)(m_Function + 1);
-                //}
-                //
-                //if (m_IsInTransition)
-                //{
-                //    m_TransitionTimer += Time.deltaTime;
-                //    if (m_TransitionTimer > m_TransitionDuration)
-                //    {
-                //        m_TransitionTimer = 0;
-                //        m_IsInTransition = false;
-                //    }
-                //}
+                m_FunctionTimer += Time.deltaTime;
+                
+                if (m_FunctionTimer > m_FunctionDuration)
+                {
+                    m_IsInTransition = true;
+                    m_TransitionTimer = 0;
+                    m_FunctionTimer = 0;
+                    
+                    m_TransitionFunction = m_Function;
+                    m_Function = m_Function == LibraryFunctions.WaveFunctions.Torus ? LibraryFunctions.WaveFunctions.Wave : (LibraryFunctions.WaveFunctions)(m_Function + 1);
+                }
+                
+                if (m_IsInTransition)
+                {
+                    m_TransitionTimer += Time.deltaTime;
+                    if (m_TransitionTimer > m_TransitionDuration)
+                    {
+                        m_TransitionTimer = 0;
+                        m_IsInTransition = false;
+                    }
+                }
             }
         }
 

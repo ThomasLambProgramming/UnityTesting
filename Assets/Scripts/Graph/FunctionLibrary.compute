@@ -1,4 +1,61 @@
-#pragma kernel FunctionKernel
+#pragma kernel WaveKernel
+#pragma kernel WaveToMultiWaveKernel
+#pragma kernel WaveToRippleKernel
+#pragma kernel WaveToSphereKernel
+#pragma kernel WaveToTorusKernel
+
+#pragma kernel MultiWaveToWaveKernel
+#pragma kernel MultiWaveKernel
+#pragma kernel MultiWaveToRippleKernel
+#pragma kernel MultiWaveToSphereKernel
+#pragma kernel MultiWaveToTorusKernel
+
+#pragma kernel RippleToWaveKernel
+#pragma kernel RippleToMultiWaveKernel
+#pragma kernel RippleKernel
+#pragma kernel RippleToSphereKernel
+#pragma kernel RippleToTorusKernel
+
+#pragma kernel SphereToWaveKernel
+#pragma kernel SphereToMultiWaveKernel
+#pragma kernel SphereToRippleKernel
+#pragma kernel SphereKernel
+#pragma kernel SphereToTorusKernel
+
+#pragma kernel TorusToWaveKernel
+#pragma kernel TorusToMultiWaveKernel
+#pragma kernel TorusToRippleKernel
+#pragma kernel TorusToSphereKernel
+#pragma kernel TorusKernel
+
+
+//The comments had to be but out of macro as I needed to be able to put \ on each
+//gpu has compute units that run specific fixed amount in lockstep = warps/wavefronts. amd=64thread nvidia=32thread so 64 is good number 
+//each number is for dimensions, so we get this one back in a 2d 8x8, also each thread gets an vector3 id
+//we need to give it a semantic keyword so gpu knows to give the id
+
+//## is the nacro concatenation operator, so we can define all the function names and function to use with just the (function) parameter.
+#define KERNEL_FUNCTION(function) \
+	[numthreads(8,8,1)] \ 
+	void function##Kernel(uint3 id : SV_DispatchThreadID) \
+	{ \
+		float2 uv = GetUV(id); \
+		SetPosition(id, function(uv.x,uv.y, _Time)); \
+	}
+
+#define KERNEL_MORPH_FUNCTION(functionA, functionB) \
+	[numthreads(8,8,1)] \
+	void functionA##To##functionB##Kernel (uint3 id : SV_DispatchThreadID) \
+	{ \
+		float2 uv = GetUV(id); \
+		float3 position = lerp( \
+			functionA(uv.x,uv.y, _Time), functionB(uv.x,uv.y, _Time), \
+			_TransitionProgress \ 
+		); \
+		SetPosition(id, position); \
+	} 
+	
+
 #define PI 3.14159265358979323846
 //Rw stands for read write, structured buffer is kinda just a computer buffer.
 RWStructuredBuffer<float3> _Positions;
@@ -7,6 +64,8 @@ uint _Resolution;
 
 float _Step;
 float _Time;
+
+float _TransitionProgress;
 
 float2 GetUV(uint3 id)
 {
@@ -31,6 +90,17 @@ float3 Wave(float u, float v, float time)
     //Simple Sine wave
     p.y = sin(PI * (u + v + time));
     return p;
+}
+
+float3 MultiWave (float u, float v, float t) {
+	float3 p;
+	p.x = u;
+	p.y = sin(PI * (u + 0.5 * t));
+	p.y += 0.5 * sin(2.0 * PI * (v + t));
+	p.y += sin(PI * (u + v + 0.25 * t));
+	p.y *= 1.0 / 2.5;
+	p.z = v;
+	return p;
 }
 
 float3 Ripple (float u, float v, float t) {
@@ -63,14 +133,34 @@ float3 Torus (float u, float v, float t) {
 	p.z = s * cos(PI * u);
 	return p;
 }
+KERNEL_FUNCTION(Wave)
+KERNEL_FUNCTION(MultiWave)
+KERNEL_FUNCTION(Ripple)
+KERNEL_FUNCTION(Sphere)
+KERNEL_FUNCTION(Torus)
 
-//gpu has compute units that run specific fixed amount in lockstep = warps/wavefronts. amd=64thread nvidia=32thread so 64 is good number
-[numthreads(8,8,1)]
-//each number is for dimensions, so we get this one back in a 2d 8x8, also each thread gets an vector3 id
-//we need to give it a semantic keyword so gpu knows to give the id
-void FunctionKernel(uint3 id : SV_DispatchThreadID)
-{
-    float2 uv = GetUV(id);
-	SetPosition(id, Wave(uv.x,uv.y, _Time));
-}
+KERNEL_MORPH_FUNCTION(Wave, MultiWave);
+KERNEL_MORPH_FUNCTION(Wave, Ripple);
+KERNEL_MORPH_FUNCTION(Wave, Sphere);
+KERNEL_MORPH_FUNCTION(Wave, Torus);
+
+KERNEL_MORPH_FUNCTION(MultiWave, Wave);
+KERNEL_MORPH_FUNCTION(MultiWave, Ripple);
+KERNEL_MORPH_FUNCTION(MultiWave, Sphere);
+KERNEL_MORPH_FUNCTION(MultiWave, Torus);
+
+KERNEL_MORPH_FUNCTION(Ripple, Wave);
+KERNEL_MORPH_FUNCTION(Ripple, MultiWave);
+KERNEL_MORPH_FUNCTION(Ripple, Sphere);
+KERNEL_MORPH_FUNCTION(Ripple, Torus);
+
+KERNEL_MORPH_FUNCTION(Sphere, Wave);
+KERNEL_MORPH_FUNCTION(Sphere, MultiWave);
+KERNEL_MORPH_FUNCTION(Sphere, Ripple);
+KERNEL_MORPH_FUNCTION(Sphere, Torus);
+
+KERNEL_MORPH_FUNCTION(Torus, Wave);
+KERNEL_MORPH_FUNCTION(Torus, MultiWave);
+KERNEL_MORPH_FUNCTION(Torus, Ripple);
+KERNEL_MORPH_FUNCTION(Torus, Sphere);
 
