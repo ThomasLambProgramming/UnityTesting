@@ -55,6 +55,7 @@ namespace Graph
             if (m_IsInTransition)
                 m_ComputeShader.SetFloat(transitionProgress, m_TransitionTimer / m_TransitionDuration);
             
+            //5 is the current function count, dont really want to add it as i am now done with this section and ill rewrite it when i come back to it.
             kernalId = (int)m_Function + (int)(m_IsInTransition ? m_TransitionFunction : m_Function) * 5;
             
             m_ComputeShader.SetBuffer(kernalId, positionsId, m_PositionsBuffer);
