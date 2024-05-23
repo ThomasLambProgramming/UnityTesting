@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Fractal
@@ -9,6 +10,32 @@ namespace Fractal
 
         [SerializeField] private Mesh mesh;
         [SerializeField] private Material material;
+
+        private FractalPart[][] Parts;
+        struct FractalPart
+        {
+            public Vector3 Position;
+            public Transform Transform;
+            public Quaternion Rotation;
+        }
+        
+        private void Awake()
+        {
+            //Parts = new FractalPart[depth][];
+            //
+            //CreatePart(0);
+            ////*= 5 is because we have forward,back,left,right,up directions
+            //for (int i = 0, length = 1; i < Parts.Length; i++, length *= 5)
+            //{
+            //    Parts[i] = new FractalPart[length];
+            //    FractalPart[] depthArray = Parts[i];
+            //    for (int j = 0; j < depthArray.Length; j++)
+            //    {
+            //        CreatePart(i);
+            //    }
+            //}
+        }
+
         void Start()
         {
             name = "Fractal " + depth;
@@ -33,12 +60,24 @@ namespace Fractal
         {
             Fractal child;
             child = Instantiate(this);
-            child.depth = depth - 1;
+            child.depth = depth - 1; 
             child.transform.rotation = aRotation;
             child.transform.localPosition = 0.75f * aSpawnDirection;
             child.transform.localScale = 0.5f * Vector3.one;
             return child;
         }
+
+        //private void CreatePart(int levelIndex)
+        //{
+        //    GameObject newGameObject = new GameObject("Fractal Part " + levelIndex);
+        //    newGameObject.transform.SetParent(transform, false);
+        //    
+        //    MeshFilter meshFilter = newGameObject.AddComponent<MeshFilter>();
+        //    meshFilter.mesh = mesh;
+        //    
+        //    MeshRenderer meshRenderer = newGameObject.AddComponent<MeshRenderer >();
+        //    meshRenderer.material = material;
+        //}
 
         void Update()
         {
