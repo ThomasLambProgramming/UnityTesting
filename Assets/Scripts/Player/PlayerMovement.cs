@@ -14,8 +14,11 @@ namespace Player
         [Header("Jump Settings")]
         [SerializeField] private float jumpForce = 20f;
 
+        public Vector3 velocity;
+
         public void UpdateMovement(Vector2 playerInput)
         {
+            velocity = playerRigidbody.velocity;
             if (playerInput.magnitude < 0.1f) 
                 SlowDownPlayer(playerInput);
             else
@@ -27,7 +30,6 @@ namespace Player
         /// </summary>
         private void SlowDownPlayer(Vector2 playerInput)
         {
-            return;
             Vector3 currentVelocity = playerRigidbody.velocity;
             float previousY = currentVelocity.y;
             currentVelocity.y = 0;
@@ -41,7 +43,7 @@ namespace Player
         /// </summary>
         private void MovePlayer(Vector2 playerInput)
         {
-            playerRigidbody.AddForce(playerInput.x * movementSpeed * Time.deltaTime, 0, playerInput.y * movementSpeed * Time.deltaTime, ForceMode.Force);
+            playerRigidbody.AddForce(playerInput.x * movementSpeed * Time.deltaTime, 0, playerInput.y * movementSpeed * Time.deltaTime, ForceMode.VelocityChange);
             Vector3 currentVelocity = playerRigidbody.velocity;
             float previousY = currentVelocity.y;
             currentVelocity.y = 0;
