@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 634fd279a208cd84f89885b4b0a6a8cf
+guid: 29d20662b3e468843873a5c890cb8556
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -24,7 +24,7 @@ ModelImporter:
     animationDoRetargetingWarnings: 0
     importAnimatedCustomProperties: 0
     importConstraints: 0
-    animationCompression: 1
+    animationCompression: 3
     animationRotationError: 0.5
     animationPositionError: 0.5
     animationScaleError: 0.5
@@ -33,7 +33,7 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: FallingIdle
+      name: DwarfJogHorizontalLeft
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0

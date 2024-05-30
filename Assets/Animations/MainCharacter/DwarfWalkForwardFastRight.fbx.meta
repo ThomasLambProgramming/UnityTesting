@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 634fd279a208cd84f89885b4b0a6a8cf
+guid: b8d73a6da0940b64c84f1df370d8b48f
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -33,11 +33,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: FallingIdle
+      name: DwarfWalkForwardFastRight
       takeName: mixamo.com
       internalID: -203655887218126122
       firstFrame: 0
-      lastFrame: 21
+      lastFrame: 31
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
