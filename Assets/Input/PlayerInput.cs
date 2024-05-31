@@ -62,6 +62,69 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MoveCamera"",
+                    ""type"": ""Value"",
+                    ""id"": ""fa75f1ce-fae1-4d8f-878b-2e3a0e1dd9ec"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ZoomCamera"",
+                    ""type"": ""Value"",
+                    ""id"": ""fd5cb627-7d2d-4c1e-9dac-b6d0bed2ec1d"",
+                    ""expectedControlType"": ""Delta"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Debug1"",
+                    ""type"": ""Button"",
+                    ""id"": ""7b9ef180-84ad-4b79-bbde-fc4f96e402a9"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Debug2"",
+                    ""type"": ""Button"",
+                    ""id"": ""369082a9-5b38-4692-9b85-1c3bc7cebb23"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Debug3"",
+                    ""type"": ""Button"",
+                    ""id"": ""fac79d5f-ab7f-44f4-ad48-ea64c153f9cb"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Debug4"",
+                    ""type"": ""Button"",
+                    ""id"": ""c81a4b10-3946-47d3-a20d-add9ea1ec918"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Debug5"",
+                    ""type"": ""Button"",
+                    ""id"": ""e070f000-50f6-4753-b956-53e0e2de3a75"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -122,8 +185,30 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""3c6f350a-3d02-4c10-96ce-c1a625182986"",
+                    ""path"": ""<Gamepad>/leftStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Movement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""7d6b5a7d-9ba9-4d4c-890c-07f81f6e1d17"",
                     ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4bfb6e1a-34ef-4f86-8cdf-d8add5a50f78"",
+                    ""path"": ""<Gamepad>/buttonWest"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -144,12 +229,122 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""7a2e5a52-2dad-44cd-90dc-ae56cfaaafd7"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""7706e43c-954b-448c-9555-4f6c1dad1037"",
                     ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""633b05fc-12f9-4c94-97cb-efae3c76cd9f"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7744829b-95f9-4790-b60d-bca01d55cb38"",
+                    ""path"": ""<Mouse>/delta"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""2cbd3317-c24a-4654-966b-8fd9d4fc66b1"",
+                    ""path"": ""<Gamepad>/rightStick"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MoveCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f783ccfa-7a29-46c6-8c1d-13cd5063a477"",
+                    ""path"": ""<Mouse>/scroll"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ZoomCamera"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b969ad38-1a23-4990-8b71-82747067a46d"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Debug1"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a1ce8566-412a-48d4-8843-b40e917adb04"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Debug2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0a9ad8ac-abd0-44fb-babd-80e7d66e66dc"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Debug3"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a6de36f1-bbb9-4740-8ea9-9805e9cdd84e"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Debug4"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""83c9a11e-fc35-4426-bb13-c5ebaa48bffd"",
+                    ""path"": ""<Keyboard>/5"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Debug5"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -164,6 +359,13 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Default_Interact = m_Default.FindAction("Interact", throwIfNotFound: true);
         m_Default_Jump = m_Default.FindAction("Jump", throwIfNotFound: true);
         m_Default_Attack = m_Default.FindAction("Attack", throwIfNotFound: true);
+        m_Default_MoveCamera = m_Default.FindAction("MoveCamera", throwIfNotFound: true);
+        m_Default_ZoomCamera = m_Default.FindAction("ZoomCamera", throwIfNotFound: true);
+        m_Default_Debug1 = m_Default.FindAction("Debug1", throwIfNotFound: true);
+        m_Default_Debug2 = m_Default.FindAction("Debug2", throwIfNotFound: true);
+        m_Default_Debug3 = m_Default.FindAction("Debug3", throwIfNotFound: true);
+        m_Default_Debug4 = m_Default.FindAction("Debug4", throwIfNotFound: true);
+        m_Default_Debug5 = m_Default.FindAction("Debug5", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -229,6 +431,13 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Default_Interact;
     private readonly InputAction m_Default_Jump;
     private readonly InputAction m_Default_Attack;
+    private readonly InputAction m_Default_MoveCamera;
+    private readonly InputAction m_Default_ZoomCamera;
+    private readonly InputAction m_Default_Debug1;
+    private readonly InputAction m_Default_Debug2;
+    private readonly InputAction m_Default_Debug3;
+    private readonly InputAction m_Default_Debug4;
+    private readonly InputAction m_Default_Debug5;
     public struct DefaultActions
     {
         private @PlayerInput m_Wrapper;
@@ -237,6 +446,13 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Interact => m_Wrapper.m_Default_Interact;
         public InputAction @Jump => m_Wrapper.m_Default_Jump;
         public InputAction @Attack => m_Wrapper.m_Default_Attack;
+        public InputAction @MoveCamera => m_Wrapper.m_Default_MoveCamera;
+        public InputAction @ZoomCamera => m_Wrapper.m_Default_ZoomCamera;
+        public InputAction @Debug1 => m_Wrapper.m_Default_Debug1;
+        public InputAction @Debug2 => m_Wrapper.m_Default_Debug2;
+        public InputAction @Debug3 => m_Wrapper.m_Default_Debug3;
+        public InputAction @Debug4 => m_Wrapper.m_Default_Debug4;
+        public InputAction @Debug5 => m_Wrapper.m_Default_Debug5;
         public InputActionMap Get() { return m_Wrapper.m_Default; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -258,6 +474,27 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Attack.started += instance.OnAttack;
             @Attack.performed += instance.OnAttack;
             @Attack.canceled += instance.OnAttack;
+            @MoveCamera.started += instance.OnMoveCamera;
+            @MoveCamera.performed += instance.OnMoveCamera;
+            @MoveCamera.canceled += instance.OnMoveCamera;
+            @ZoomCamera.started += instance.OnZoomCamera;
+            @ZoomCamera.performed += instance.OnZoomCamera;
+            @ZoomCamera.canceled += instance.OnZoomCamera;
+            @Debug1.started += instance.OnDebug1;
+            @Debug1.performed += instance.OnDebug1;
+            @Debug1.canceled += instance.OnDebug1;
+            @Debug2.started += instance.OnDebug2;
+            @Debug2.performed += instance.OnDebug2;
+            @Debug2.canceled += instance.OnDebug2;
+            @Debug3.started += instance.OnDebug3;
+            @Debug3.performed += instance.OnDebug3;
+            @Debug3.canceled += instance.OnDebug3;
+            @Debug4.started += instance.OnDebug4;
+            @Debug4.performed += instance.OnDebug4;
+            @Debug4.canceled += instance.OnDebug4;
+            @Debug5.started += instance.OnDebug5;
+            @Debug5.performed += instance.OnDebug5;
+            @Debug5.canceled += instance.OnDebug5;
         }
 
         private void UnregisterCallbacks(IDefaultActions instance)
@@ -274,6 +511,27 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Attack.started -= instance.OnAttack;
             @Attack.performed -= instance.OnAttack;
             @Attack.canceled -= instance.OnAttack;
+            @MoveCamera.started -= instance.OnMoveCamera;
+            @MoveCamera.performed -= instance.OnMoveCamera;
+            @MoveCamera.canceled -= instance.OnMoveCamera;
+            @ZoomCamera.started -= instance.OnZoomCamera;
+            @ZoomCamera.performed -= instance.OnZoomCamera;
+            @ZoomCamera.canceled -= instance.OnZoomCamera;
+            @Debug1.started -= instance.OnDebug1;
+            @Debug1.performed -= instance.OnDebug1;
+            @Debug1.canceled -= instance.OnDebug1;
+            @Debug2.started -= instance.OnDebug2;
+            @Debug2.performed -= instance.OnDebug2;
+            @Debug2.canceled -= instance.OnDebug2;
+            @Debug3.started -= instance.OnDebug3;
+            @Debug3.performed -= instance.OnDebug3;
+            @Debug3.canceled -= instance.OnDebug3;
+            @Debug4.started -= instance.OnDebug4;
+            @Debug4.performed -= instance.OnDebug4;
+            @Debug4.canceled -= instance.OnDebug4;
+            @Debug5.started -= instance.OnDebug5;
+            @Debug5.performed -= instance.OnDebug5;
+            @Debug5.canceled -= instance.OnDebug5;
         }
 
         public void RemoveCallbacks(IDefaultActions instance)
@@ -297,5 +555,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnInteract(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnAttack(InputAction.CallbackContext context);
+        void OnMoveCamera(InputAction.CallbackContext context);
+        void OnZoomCamera(InputAction.CallbackContext context);
+        void OnDebug1(InputAction.CallbackContext context);
+        void OnDebug2(InputAction.CallbackContext context);
+        void OnDebug3(InputAction.CallbackContext context);
+        void OnDebug4(InputAction.CallbackContext context);
+        void OnDebug5(InputAction.CallbackContext context);
     }
 }

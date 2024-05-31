@@ -8,21 +8,21 @@ namespace Player
         
         [Header("Movement Settings")]
         [SerializeField] private float movementSpeed = 10f;
-        [SerializeField] private float maxMovementSpeed = 4f;
+        [SerializeField] public float maxMovementSpeed = 4f;
         [SerializeField] private float slowdownPercentage = 0.98f;
+        [SerializeField] private float rotateToVelocitySpeed = 10f;
 
         [Header("Jump Settings")]
         [SerializeField] private float jumpForce = 20f;
 
-        public Vector3 velocity;
 
-        public void UpdateMovement(Vector2 playerInput)
+
+        public void UpdateMovement(Vector2 playerInput, Vector3 cameraDirectionForward, Vector3 cameraDirectionRight)
         {
-            velocity = playerRigidbody.velocity;
             if (playerInput.magnitude < 0.1f) 
                 SlowDownPlayer(playerInput);
             else
-                MovePlayer(playerInput);
+                MovePlayer(playerInput, cameraDirectionForward, cameraDirectionRight);
         }
 
         /// <summary>
@@ -41,16 +41,21 @@ namespace Player
         /// <summary>
         /// Move the player based on their input.
         /// </summary>
-        private void MovePlayer(Vector2 playerInput)
+        private void MovePlayer(Vector2 playerInput, Vector3 cameraDirectionForward, Vector3 cameraDirectionRight)
         {
-            playerRigidbody.AddForce(playerInput.x * movementSpeed * Time.deltaTime, 0, playerInput.y * movementSpeed * Time.deltaTime, ForceMode.VelocityChange);
+            Vector3 movementRight = new Vector3(cameraDirectionRight.x, 0, cameraDirectionRight.z).normalized;
+            Vector3 movementForward = new Vector3(cameraDirectionForward.x, 0, cameraDirectionForward.z).normalized;
+            
+            playerRigidbody.AddForce((movementForward * playerInput.y + movementRight * playerInput.x).normalized * (movementSpeed * Time.deltaTime), ForceMode.VelocityChange);
             Vector3 currentVelocity = playerRigidbody.velocity;
             float previousY = currentVelocity.y;
             currentVelocity.y = 0;
-
+            //
             if (currentVelocity.magnitude > maxMovementSpeed)
                 currentVelocity = currentVelocity.normalized * maxMovementSpeed;
-
+            if (currentVelocity.sqrMagnitude <= 0.5f)
+                return;
+            transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, currentVelocity.normalized, rotateToVelocitySpeed * Time.deltaTime, 1));
             currentVelocity.y = previousY;
             playerRigidbody.velocity = currentVelocity;
         }
