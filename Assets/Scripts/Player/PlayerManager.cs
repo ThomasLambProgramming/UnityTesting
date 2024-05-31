@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections;
 using UnityEngine;
 
 namespace Player
@@ -15,10 +15,16 @@ namespace Player
         
         private Rigidbody playerRigidbody;
         private Animator playerAnimator;
+
+        [SerializeField] private Transform groundCheck;
+        [SerializeField] private float groundCheckDistance;
+        [SerializeField] private float groundCheckDelay = 0.5f;
         
+        private bool checkGround = false;
         private bool isGrounded = true;
-        private bool stoppedHoldingSpace = true;
         private bool dancing = false;
+
+        private const int EnvironmentLayerMask = 1 << 6;
 
         private void Awake()
         {
@@ -34,7 +40,6 @@ namespace Player
             playerRigidbody = GetComponent<Rigidbody>();
             
             playerMovement.playerRigidbody = playerRigidbody;
-
         }
 
         private void Update()
@@ -42,17 +47,46 @@ namespace Player
             if (DebugUpdate())
                 return;
             
-            if (playerInput.JumpInput.CheckAndConsumeInput())
+            if (playerInput.JumpInput.CheckAndConsumeInput() && isGrounded)
             {
                 isGrounded = false;
+                checkGround = false;
                 playerMovement.PerformJump();
+                StartCoroutine(GroundCheckDelay());
             }
+            
+            if (isGrounded == false && checkGround)
+                GroundCheck();
 
             playerCamera.UpdateCamera(playerInput.CurrentMouseInput);
             playerMovement.UpdateMovement(playerInput.CurrentMoveInput, playerCamera.mainCamera.transform.forward, playerCamera.mainCamera.transform.right);
 
             //float currentVelocity = playerRigidbody.velocity.magnitude / playerMovement.maxMovementSpeed;
             //playerAnimator.SetFloat("Speed", currentVelocity);
+        }
+
+        private void GroundCheck()
+        {
+            //If the object is on the environment layer (not the non-jump environment layer)
+            if (Physics.Raycast(groundCheck.position, Vector3.down, groundCheckDistance, EnvironmentLayerMask))
+            {
+                isGrounded = true;
+                checkGround = false;
+            }
+        }
+
+        //Raycast immediately finds ground when first jumping. adding delay to stop this.
+        IEnumerator GroundCheckDelay()
+        {
+            yield return new WaitForSeconds(groundCheckDelay);
+            checkGround = true;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawSphere(groundCheck.position, groundCheckDistance);
+            Gizmos.color = Color.gray;
         }
 
         /// <summary>
