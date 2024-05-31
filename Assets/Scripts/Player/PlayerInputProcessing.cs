@@ -10,22 +10,25 @@ public class PlayerInputProcessor : MonoBehaviour
     public struct BaseInput
     {
         public float RawInputValue;
-        //Do not use this outside of PlayerInputProcessing.cs
-        public bool StartedThisFrame;
-        //Do not use this outside of PlayerInputProcessing.cs
-        public bool ProcessedThisFrame;
-        
-        
+        public bool ConsumedValue;
         public bool HoldingInput;
-        public bool IsInputPressed => RawInputValue > 0.1f;
-        public bool PressedThisFrame => ProcessedThisFrame && StartedThisFrame;
+
+        public bool CheckAndConsumeInput()
+        {
+            if (ConsumedValue == false && RawInputValue > 0.1f)
+            {
+                ConsumedValue = true;
+                return true;
+            }
+            return false;
+        }
     }
     
-    public Vector2 CurrentMoveInput => m_CurrentMoveInput;
-    public Vector2 CurrentMouseInput => m_CurrentMouseInput;
+    public Vector2 CurrentMoveInput => currentMoveInput;
+    public Vector2 CurrentMouseInput => currentMouseInput;
     
-    private Vector2 m_CurrentMoveInput = Vector2.zero;
-    private Vector2 m_CurrentMouseInput = Vector2.zero;
+    private Vector2 currentMoveInput = Vector2.zero;
+    private Vector2 currentMouseInput = Vector2.zero;
     
     public BaseInput AttackInput;
     public BaseInput JumpInput;
@@ -155,67 +158,54 @@ public class PlayerInputProcessor : MonoBehaviour
 
     public void MovementStarted(InputAction.CallbackContext callback)
     {
-        m_CurrentMoveInput = callback.ReadValue<Vector2>();
+        currentMoveInput = callback.ReadValue<Vector2>();
     }
     public void MovementPerformed(InputAction.CallbackContext callback)
     {
-        m_CurrentMoveInput = callback.ReadValue<Vector2>();
+        currentMoveInput = callback.ReadValue<Vector2>();
     }
     public void MovementCancelled(InputAction.CallbackContext callback)
     {
-        m_CurrentMoveInput = Vector2.zero;
+        currentMoveInput = Vector2.zero;
     }
     
     
     private void MoveCameraStarted(InputAction.CallbackContext callbackContext)
     {
-        m_CurrentMouseInput = Vector2.zero;
+        currentMouseInput = Vector2.zero;
     }
     private void MoveCameraPerformed(InputAction.CallbackContext callbackContext)
     {
-        m_CurrentMouseInput = callbackContext.ReadValue<Vector2>();
+        currentMouseInput = callbackContext.ReadValue<Vector2>();
     }
     private void MoveCameraCancelled(InputAction.CallbackContext callbackContext)
     {
-        m_CurrentMouseInput = callbackContext.ReadValue<Vector2>();
+        currentMouseInput = callbackContext.ReadValue<Vector2>();
     }
     
 
     /// <summary>
-    /// All of the below is input processing to tell if an input is pressed this frame, being held that frame and resetting when released.
-    /// this was an attempt at a more universal solution so jump and interact input can be checked by the player and it will only be true if the player
-    /// is not holding the input down.
+    /// Below is an attempt to try and have a universal check if an input has been used once eg jump input and if it is still being held
     /// </summary>
     
     private void StartInput(ref BaseInput baseInput, float rawValue)
     {
         baseInput.RawInputValue = rawValue;
-        baseInput.StartedThisFrame = true;
-        baseInput.ProcessedThisFrame = false;
         baseInput.HoldingInput = true;
+        baseInput.ConsumedValue = false;
     }
 
     private void ProcessInput(ref BaseInput baseInput, float rawValue)
     {
         baseInput.RawInputValue = rawValue;
-        //This is just to try and get it to process one full frame with input pressed then after the is pressed this frame will be false
-        if (baseInput.ProcessedThisFrame && baseInput.StartedThisFrame)
-        {
-            baseInput.StartedThisFrame = false;
-            baseInput.ProcessedThisFrame = false;
-        }
-        else if (baseInput.StartedThisFrame && !baseInput.ProcessedThisFrame)
-            baseInput.ProcessedThisFrame = true;
-        
         baseInput.HoldingInput = true;
+        baseInput.ConsumedValue = false;
     }
 
     private void CancelInput(ref BaseInput baseInput)
     {
         baseInput.HoldingInput = false;
         baseInput.RawInputValue = 0;
-        baseInput.StartedThisFrame = false;
-        baseInput.ProcessedThisFrame = false;
     }
     
     public void AttackStarted(InputAction.CallbackContext callback)

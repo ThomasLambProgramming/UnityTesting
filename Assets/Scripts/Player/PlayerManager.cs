@@ -39,34 +39,42 @@ namespace Player
 
         private void Update()
         {
-            //Debug.LogError("Jump Input State: " + playerInput.JumpInput.PressedThisFrame);
-            if (playerInput.Debug1Input.PressedThisFrame)
-            {
-                if (Cursor.lockState == CursorLockMode.Locked)
-                    Cursor.lockState = CursorLockMode.None;
-                else
-                    Cursor.lockState = CursorLockMode.Locked;
-            }
-            if (playerInput.Debug2Input.PressedThisFrame)
-                playerCamera.ToggleControllerSpeed();
-            
-            if (playerInput.JumpInput.PressedThisFrame && !playerInput.JumpInput.HoldingInput)
-            {
-                dancing = !dancing;
-                //isGrounded = false;
-                //playerMovement.PerformJump();
-            }
-
-            playerAnimator.SetBool("Dance", dancing);
-            
-            if (dancing)
+            if (DebugUpdate())
                 return;
+            
+            if (playerInput.JumpInput.CheckAndConsumeInput())
+            {
+                isGrounded = false;
+                playerMovement.PerformJump();
+            }
 
             playerCamera.UpdateCamera(playerInput.CurrentMouseInput);
             playerMovement.UpdateMovement(playerInput.CurrentMoveInput, playerCamera.mainCamera.transform.forward, playerCamera.mainCamera.transform.right);
 
             //float currentVelocity = playerRigidbody.velocity.magnitude / playerMovement.maxMovementSpeed;
             //playerAnimator.SetFloat("Speed", currentVelocity);
+        }
+
+        /// <summary>
+        /// Return value is for stopping the player move.
+        /// </summary>
+        private bool DebugUpdate()
+        {
+            if (playerInput.Debug1Input.CheckAndConsumeInput())
+            {
+                if (Cursor.lockState == CursorLockMode.Locked)
+                    Cursor.lockState = CursorLockMode.None;
+                else
+                    Cursor.lockState = CursorLockMode.Locked;
+            }
+
+            if (playerInput.Debug2Input.CheckAndConsumeInput())
+                playerCamera.ToggleControllerSpeed();
+            
+            if (playerInput.Debug3Input.CheckAndConsumeInput())
+                playerAnimator.SetBool("Dance", dancing);
+            
+            return dancing;
         }
     }
 }
