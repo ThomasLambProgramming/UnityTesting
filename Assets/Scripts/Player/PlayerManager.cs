@@ -23,6 +23,8 @@ namespace Player
         private bool checkGround = false;
         private bool isGrounded = true;
         private bool dancing = false;
+        
+        private static readonly int Speed = Animator.StringToHash("Speed");
 
         private const int EnvironmentLayerMask = 1 << 6;
 
@@ -61,8 +63,8 @@ namespace Player
             playerCamera.UpdateCamera(playerInput.CurrentMouseInput);
             playerMovement.UpdateMovement(playerInput.CurrentMoveInput, playerCamera.mainCamera.transform.forward, playerCamera.mainCamera.transform.right);
 
-            //float currentVelocity = playerRigidbody.velocity.magnitude / playerMovement.maxMovementSpeed;
-            //playerAnimator.SetFloat("Speed", currentVelocity);
+            float currentVelocity = playerRigidbody.velocity.magnitude / playerMovement.maxMovementSpeed;
+            playerAnimator.SetFloat(Speed, currentVelocity);
         }
 
         private void GroundCheck()
