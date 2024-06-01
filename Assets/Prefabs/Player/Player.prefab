@@ -2181,12 +2181,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 264403259414088868}
-  - component: {fileID: 6363731881286003687}
-  - component: {fileID: 3231796413395578020}
   - component: {fileID: 5403389364744770836}
-  - component: {fileID: 6136623061850393124}
   - component: {fileID: 8488225164969821320}
   - component: {fileID: 4282441878075680337}
+  - component: {fileID: 6363731881286003687}
+  - component: {fileID: 3231796413395578020}
+  - component: {fileID: 6136623061850393124}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -2212,6 +2212,61 @@ Transform:
   - {fileID: 600054924079047466}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5403389364744770836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7054173407681390824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f085f0f5007b054bb434d8e5d27e241, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundCheck: {fileID: 600054924079047466}
+  groundCheckDistance: 0.3
+  groundCheckDelay: 0.5
+  hardLandingLimit: 4
+--- !u!114 &8488225164969821320
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7054173407681390824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba8d9a368025cdd42b47a259553f014a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerRigidbody: {fileID: 0}
+  movementSpeed: 400
+  maxMovementSpeed: 4
+  slowdownPercentage: 0.98
+  rotateToVelocitySpeed: 10
+  jumpForce: 5
+  m_additionalGravity: 9.81
+--- !u!114 &4282441878075680337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7054173407681390824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1e0231b6fd70084fb70b12da15e0be2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 0}
+  cameraRotateObject: {fileID: 0}
+  rotateSpeedX: 10
+  rotateSpeedY: 15
+  lowerXRotationLimit: 330
+  higherXRotationLimit: 30
+  rotateDelayAtStart: 0.1
+  playerCameraFollowSpot: {fileID: 237208840638415979}
 --- !u!114 &6363731881286003687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2251,21 +2306,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &5403389364744770836
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7054173407681390824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9f085f0f5007b054bb434d8e5d27e241, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  groundCheck: {fileID: 600054924079047466}
-  groundCheckDistance: 0.3
-  groundCheckDelay: 0.5
 --- !u!136 &6136623061850393124
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2289,44 +2329,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &8488225164969821320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7054173407681390824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ba8d9a368025cdd42b47a259553f014a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  playerRigidbody: {fileID: 0}
-  movementSpeed: 20
-  maxMovementSpeed: 2
-  slowdownPercentage: 0.98
-  rotateToVelocitySpeed: 10
-  jumpForce: 5
---- !u!114 &4282441878075680337
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7054173407681390824}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1e0231b6fd70084fb70b12da15e0be2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainCamera: {fileID: 0}
-  cameraRotateObject: {fileID: 0}
-  rotateSpeedX: 10
-  rotateSpeedY: 15
-  lowerXRotationLimit: 330
-  higherXRotationLimit: 30
-  rotateDelayAtStart: 0.1
-  playerCameraFollowSpot: {fileID: 237208840638415979}
 --- !u!1 &7121283562679580363
 GameObject:
   m_ObjectHideFlags: 0

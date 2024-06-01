@@ -16,17 +16,30 @@ namespace Player
         private Rigidbody playerRigidbody;
         private Animator playerAnimator;
 
+        [Header("Jumping Ground Check Settings")]
         [SerializeField] private Transform groundCheck;
         [SerializeField] private float groundCheckDistance;
         [SerializeField] private float groundCheckDelay = 0.5f;
+        [SerializeField, Tooltip("If velocity > this value do a hard landing")] private float hardLandingLimit = 4f;
         
+        private const int EnvironmentLayerMask = 1 << 6;
         private bool checkGround = false;
         private bool isGrounded = true;
-        private bool dancing = false;
         
-        private static readonly int Speed = Animator.StringToHash("Speed");
+        
+        //Animator Ids (doing string comparison is 100% going to be an issue at some point)
+        private static readonly int SpeedAnimatorId = Animator.StringToHash("Speed");
+        private static readonly int DanceAnimatorId  = Animator.StringToHash("Dance");
+        private static readonly int JumpStartAnimatorId  = Animator.StringToHash("JumpStart");
+        private static readonly int FallingAnimatorId  = Animator.StringToHash("Falling");
+        private static readonly int SoftLandAnimatorId  = Animator.StringToHash("SoftLand");
+        private static readonly int HardLandAnimatorId  = Animator.StringToHash("HardLand");
+        private static readonly int AttackHorizontalAnimatorId  = Animator.StringToHash("AttackHorizontal");
+        private static readonly int ResetToBaseMovementAnimatorId = Animator.StringToHash("ResetToBaseMovement");
 
-        private const int EnvironmentLayerMask = 1 << 6;
+        //Debug / Random Settings that dont have anything to do with gameplay
+        private bool debugDancing = false;
+        
 
         private void Awake()
         {
@@ -54,17 +67,32 @@ namespace Player
                 isGrounded = false;
                 checkGround = false;
                 playerMovement.PerformJump();
+                playerAnimator.SetBool(JumpStartAnimatorId, true);
+                playerAnimator.SetBool(ResetToBaseMovementAnimatorId, false);
                 StartCoroutine(GroundCheckDelay());
             }
-            
-            if (isGrounded == false && checkGround)
-                GroundCheck();
 
+            if (isGrounded == false && checkGround)
+            {
+                if (playerRigidbody.velocity.y <= 0)
+                    playerAnimator.SetBool(FallingAnimatorId, true);
+                GroundCheck();
+            }
+
+            if (playerInput.AttackInput.CheckAndConsumeInput())
+            {
+                //playerAnimator.SetBool(AttackHorizontalAnimatorId, true);
+            }
+            
             playerCamera.UpdateCamera(playerInput.CurrentMouseInput);
             playerMovement.UpdateMovement(playerInput.CurrentMoveInput, playerCamera.mainCamera.transform.forward, playerCamera.mainCamera.transform.right);
+            UpdateAnimator();
+        }
 
+        private void UpdateAnimator()
+        {
             float currentVelocity = playerRigidbody.velocity.magnitude / playerMovement.maxMovementSpeed;
-            playerAnimator.SetFloat(Speed, currentVelocity);
+            playerAnimator.SetFloat(SpeedAnimatorId, currentVelocity);
         }
 
         private void GroundCheck()
@@ -74,6 +102,9 @@ namespace Player
             {
                 isGrounded = true;
                 checkGround = false;
+                playerAnimator.SetBool(FallingAnimatorId, false);
+                playerAnimator.SetBool(ResetToBaseMovementAnimatorId, true);
+                playerAnimator.SetBool(HardLandAnimatorId, playerRigidbody.velocity.y > hardLandingLimit);
             }
         }
 
@@ -108,9 +139,9 @@ namespace Player
                 playerCamera.ToggleControllerSpeed();
             
             if (playerInput.Debug3Input.CheckAndConsumeInput())
-                playerAnimator.SetBool("Dance", dancing);
+                playerAnimator.SetBool(DanceAnimatorId, debugDancing);
             
-            return dancing;
+            return debugDancing;
         }
     }
 }

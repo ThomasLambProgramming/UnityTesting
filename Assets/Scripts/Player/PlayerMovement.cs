@@ -15,6 +15,9 @@ namespace Player
         [Header("Jump Settings")]
         [SerializeField] private float jumpForce = 20f;
 
+        [Header("Gravity Settings")] [SerializeField]
+        private float m_additionalGravity = 9.81f;
+
 
 
         public void UpdateMovement(Vector2 playerInput, Vector3 cameraDirectionForward, Vector3 cameraDirectionRight)
@@ -23,6 +26,10 @@ namespace Player
                 SlowDownPlayer(playerInput);
             else
                 MovePlayer(playerInput, cameraDirectionForward, cameraDirectionRight);
+            
+            //Additional gravity to make player fall faster and feel more "weighty"
+            //if (playerRigidbody.velocity.y < -1)
+            playerRigidbody.AddForce(0,-m_additionalGravity, 0, ForceMode.Force);
         }
 
         /// <summary>
