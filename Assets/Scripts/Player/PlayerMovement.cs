@@ -1,35 +1,42 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Player
 {
     public class PlayerMovement : MonoBehaviour
     {
         public Rigidbody playerRigidbody;
-        
+
         [Header("Movement Settings")]
-        [SerializeField] private float movementSpeed = 10f;
-        [SerializeField] public float maxMovementSpeed = 4f;
-        [SerializeField] private float slowdownPercentage = 0.98f;
-        [SerializeField] private float rotateToVelocitySpeed = 10f;
+        [SerializeField]
+        private float movementSpeed = 10f;
+
+        [SerializeField]
+        public float maxMovementSpeed = 4f;
+
+        [SerializeField]
+        private float slowdownPercentage = 0.98f;
+
+        [SerializeField]
+        private float rotateToVelocitySpeed = 10f;
 
         [Header("Jump Settings")]
-        [SerializeField] private float jumpForce = 20f;
+        [SerializeField]
+        private float jumpForce = 20f;
 
-        [Header("Gravity Settings")] [SerializeField]
+        [Header("Gravity Settings")]
+        [SerializeField]
         private float m_additionalGravity = 9.81f;
-
-
 
         public void UpdateMovement(Vector2 playerInput, Vector3 cameraDirectionForward, Vector3 cameraDirectionRight)
         {
-            if (playerInput.magnitude < 0.1f) 
+            if (playerInput.magnitude < 0.1f)
                 SlowDownPlayer(playerInput);
             else
                 MovePlayer(playerInput, cameraDirectionForward, cameraDirectionRight);
-            
+
             //Additional gravity to make player fall faster and feel more "weighty"
             //if (playerRigidbody.velocity.y < -1)
-            playerRigidbody.AddForce(0,-m_additionalGravity, 0, ForceMode.Force);
+            playerRigidbody.AddForce(0, -m_additionalGravity, 0, ForceMode.Force);
         }
 
         /// <summary>
@@ -52,7 +59,7 @@ namespace Player
         {
             Vector3 movementRight = new Vector3(cameraDirectionRight.x, 0, cameraDirectionRight.z).normalized;
             Vector3 movementForward = new Vector3(cameraDirectionForward.x, 0, cameraDirectionForward.z).normalized;
-            
+
             playerRigidbody.AddForce((movementForward * playerInput.y + movementRight * playerInput.x).normalized * (movementSpeed * Time.deltaTime), ForceMode.VelocityChange);
             Vector3 currentVelocity = playerRigidbody.velocity;
             float previousY = currentVelocity.y;

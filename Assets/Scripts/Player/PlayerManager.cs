@@ -28,14 +28,14 @@ namespace Player
         
         
         //Animator Ids (doing string comparison is 100% going to be an issue at some point)
-        private static readonly int SpeedAnimatorId = Animator.StringToHash("Speed");
-        private static readonly int DanceAnimatorId  = Animator.StringToHash("Dance");
-        private static readonly int JumpStartAnimatorId  = Animator.StringToHash("JumpStart");
-        private static readonly int FallingAnimatorId  = Animator.StringToHash("Falling");
-        private static readonly int SoftLandAnimatorId  = Animator.StringToHash("SoftLand");
-        private static readonly int HardLandAnimatorId  = Animator.StringToHash("HardLand");
-        private static readonly int AttackHorizontalAnimatorId  = Animator.StringToHash("AttackHorizontal");
-        private static readonly int ResetToBaseMovementAnimatorId = Animator.StringToHash("ResetToBaseMovement");
+        private int SpeedAnimatorId = Animator.StringToHash("Speed");
+        private int DanceAnimatorId  = Animator.StringToHash("Dance");
+        private int JumpStartAnimatorId  = Animator.StringToHash("JumpStart");
+        private int FallingAnimatorId  = Animator.StringToHash("Falling");
+        private int SoftLandAnimatorId  = Animator.StringToHash("SoftLand");
+        private int HardLandAnimatorId  = Animator.StringToHash("HardLand");
+        private int AttackHorizontalAnimatorId  = Animator.StringToHash("AttackHorizontal");
+        private int ResetToBaseMovementAnimatorId = Animator.StringToHash("ResetToBaseMovement");
 
         //Debug / Random Settings that dont have anything to do with gameplay
         private bool debugDancing = false;
@@ -140,6 +140,19 @@ namespace Player
             
             if (playerInput.Debug3Input.CheckAndConsumeInput())
                 playerAnimator.SetBool(DanceAnimatorId, debugDancing);
+
+            if (playerInput.Debug4Input.CheckAndConsumeInput())
+            {
+                playerAnimator.speed = 2f;
+                playerAnimator.Play("AttackHorizontal");
+            }
+            
+            if (playerInput.Debug5Input.CheckAndConsumeInput())
+            {
+                playerAnimator.speed = 1f;
+                //Why the hell deal with any of the state bullshit when this is here.
+                playerAnimator.CrossFade("BaseMovementTree", 0.2f);
+            }
             
             return debugDancing;
         }
