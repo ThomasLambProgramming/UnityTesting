@@ -64,8 +64,9 @@ namespace Player
             Vector3 currentVelocity = playerRigidbody.velocity;
             float previousY = currentVelocity.y;
             currentVelocity.y = 0;
-            //
-            if (currentVelocity.magnitude > maxMovementSpeed)
+            
+            //Reduce max speed so controller is able to walk.
+            if (currentVelocity.magnitude > maxMovementSpeed * playerInput.magnitude)
                 currentVelocity = currentVelocity.normalized * maxMovementSpeed;
             if (currentVelocity.sqrMagnitude <= 0.5f)
                 return;
