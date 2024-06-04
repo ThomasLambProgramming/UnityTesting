@@ -16,6 +16,7 @@ namespace Player
         [SerializeField] private float rotateSpeedY;
         [SerializeField] private float lowerXRotationLimit = -30f;
         [SerializeField] private float higherXRotationLimit = 30f;
+        [SerializeField] private float positionFollowSpeed = 0.125f;
 
         //It over rotates when first loading in, possibly due to delta time being large or input values being wrong on setup.
         [SerializeField] private float rotateDelayAtStart = 1.0f;
@@ -23,12 +24,15 @@ namespace Player
 
         //Where do we want the camera to follow to.
         [SerializeField] private Transform playerCameraFollowSpot;
+
+
+        [SerializeField] private bool stopTrackingPlayer = false;
         private void Start()
         {
             mainCamera = Camera.main;
         }
 
-        public void UpdateCamera(Vector2 playerInput)
+        public void UpdateCamera(Vector2 playerInput, bool fromController)
         {
             if (rotateDelayTimer < rotateDelayAtStart)
             {
@@ -36,35 +40,25 @@ namespace Player
                 return;
             }
 
-            cameraRotateObject.position = playerCameraFollowSpot.position;
-            cameraRotateObject.transform.Rotate(
-                playerInput.y * rotateSpeedX * Time.deltaTime,
-                playerInput.x * rotateSpeedY * Time.deltaTime,
-                0);
-            mainCamera.transform.LookAt(cameraRotateObject.position);
+            if (stopTrackingPlayer)
+                return;
 
-            Vector3 eular = cameraRotateObject.transform.rotation.eulerAngles;
+            Vector3 goalPosition = Vector3.Lerp(cameraRotateObject.position, playerCameraFollowSpot.position, positionFollowSpeed * Time.deltaTime);
+            cameraRotateObject.position = goalPosition;
 
-            if (eular.x > higherXRotationLimit && eular.x <= 180)
-                eular.x = higherXRotationLimit;
-            else if (eular.x < lowerXRotationLimit && eular.x > 180)
-                eular.x = lowerXRotationLimit;
+            Quaternion cameraRotationObjectRot = cameraRotateObject.transform.rotation;
+            Vector3 newRotation = cameraRotationObjectRot.eulerAngles + new Vector3(
+                                playerInput.y * (fromController ? rotateSpeedX * rotateSpeedX : rotateSpeedX) * Time.deltaTime,
+                                playerInput.x * (fromController ? rotateSpeedY * rotateSpeedY : rotateSpeedY) * Time.deltaTime,
+                                0);
+
+            if (newRotation.x > higherXRotationLimit && newRotation.x <= 180)
+                newRotation.x = higherXRotationLimit;
+            else if (newRotation.x < lowerXRotationLimit && newRotation.x > 180)
+                newRotation.x = lowerXRotationLimit;
             
-            cameraRotateObject.transform.rotation = Quaternion.Euler(eular.x, eular.y, 0); 
-        }
-
-        public void ToggleControllerSpeed()
-        {
-            if (rotateSpeedX > 50)
-            {
-                rotateSpeedX = Mathf.Sqrt(rotateSpeedX);
-                rotateSpeedY = Mathf.Sqrt(rotateSpeedY);
-            }
-            else
-            {
-                rotateSpeedX *= rotateSpeedX;
-                rotateSpeedY *= rotateSpeedY;
-            }
+            cameraRotateObject.transform.rotation = Quaternion.Euler(newRotation.x, newRotation.y, 0); 
+            mainCamera.transform.LookAt(cameraRotateObject.position);
         }
     }
 }

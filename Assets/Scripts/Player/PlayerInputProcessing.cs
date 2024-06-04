@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,20 +13,21 @@ public class PlayerInputProcessor : MonoBehaviour
         public float RawInputValue;
         public bool ConsumedValue;
         public bool HoldingInput;
+        //Inputs such as camera movement need to detect input from keyboard or controller
+        //as mouse delta can = 300 but controller is only -1,1
+        public bool FromController;
 
-        public bool CheckAndConsumeInput()
+        public bool CheckInput()
         {
-            if (ConsumedValue == false && RawInputValue > 0.1f)
-            {
-                ConsumedValue = true;
+            if (ConsumedValue == false && RawInputValue > 0.01f)
                 return true;
-            }
             return false;
         }
     }
     
     public Vector2 CurrentMoveInput => currentMoveInput;
     public Vector2 CurrentMouseInput => currentMouseInput;
+    public bool MouseInputFromController = false;
     
     private Vector2 currentMoveInput = Vector2.zero;
     private Vector2 currentMouseInput = Vector2.zero;
@@ -42,6 +44,23 @@ public class PlayerInputProcessor : MonoBehaviour
     public BaseInput Debug5Input;
     
     private PlayerInput playerInput;
+
+    /// <summary>
+    /// Script order changes forces this to run at the end of the frame.
+    /// goal is to have input presses process -> frame with all logic needed -> consume all values so it doesnt execute again
+    /// </summary>
+    private void LateUpdate()
+    {
+        AttackInput.ConsumedValue = true;
+        JumpInput.ConsumedValue = true;
+        InteractInput.ConsumedValue = true;
+        CameraZoomInput.ConsumedValue = true;
+        Debug1Input.ConsumedValue = true;
+        Debug2Input.ConsumedValue = true;
+        Debug3Input.ConsumedValue = true;
+        Debug4Input.ConsumedValue = true;
+        Debug5Input.ConsumedValue = true;
+    }
 
     /// <summary>
     /// Initial Setup for player input requires creating a new input instance.
@@ -173,10 +192,12 @@ public class PlayerInputProcessor : MonoBehaviour
     private void MoveCameraStarted(InputAction.CallbackContext callbackContext)
     {
         currentMouseInput = Vector2.zero;
+        MouseInputFromController = callbackContext.control.device is not Mouse;
     }
     private void MoveCameraPerformed(InputAction.CallbackContext callbackContext)
     {
         currentMouseInput = callbackContext.ReadValue<Vector2>();
+        MouseInputFromController = callbackContext.control.device is not Mouse;
     }
     private void MoveCameraCancelled(InputAction.CallbackContext callbackContext)
     {
@@ -188,18 +209,20 @@ public class PlayerInputProcessor : MonoBehaviour
     /// Below is an attempt to try and have a universal check if an input has been used once eg jump input and if it is still being held
     /// </summary>
     
-    private void StartInput(ref BaseInput baseInput, float rawValue)
+    private void StartInput(ref BaseInput baseInput, float rawValue, bool fromController)
     {
         baseInput.RawInputValue = rawValue;
         baseInput.HoldingInput = true;
         baseInput.ConsumedValue = false;
+        baseInput.FromController = fromController;
     }
 
-    private void ProcessInput(ref BaseInput baseInput, float rawValue)
+    private void ProcessInput(ref BaseInput baseInput, float rawValue, bool fromController)
     {
         baseInput.RawInputValue = rawValue;
         baseInput.HoldingInput = true;
         baseInput.ConsumedValue = false;
+        baseInput.FromController = fromController;
     }
 
     private void CancelInput(ref BaseInput baseInput)
@@ -210,11 +233,11 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void AttackStarted(InputAction.CallbackContext callback)
     {
-        StartInput(ref AttackInput, callback.ReadValue<float>());
+        StartInput(ref AttackInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void AttackPerformed(InputAction.CallbackContext callback)
     {
-        ProcessInput(ref AttackInput, callback.ReadValue<float>());
+        ProcessInput(ref AttackInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void AttackCancelled(InputAction.CallbackContext callback)
     {
@@ -224,11 +247,11 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void JumpStarted(InputAction.CallbackContext callback)
     {
-        StartInput(ref JumpInput, callback.ReadValue<float>());
+        StartInput(ref JumpInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void JumpPerformed(InputAction.CallbackContext callback)
     {
-        ProcessInput(ref JumpInput, callback.ReadValue<float>());
+        ProcessInput(ref JumpInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void JumpCancelled(InputAction.CallbackContext callback)
     {
@@ -238,11 +261,11 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void InteractStarted(InputAction.CallbackContext callback)
     {
-        StartInput(ref InteractInput, callback.ReadValue<float>());
+        StartInput(ref InteractInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void InteractPerformed(InputAction.CallbackContext callback)
     {
-        ProcessInput(ref InteractInput, callback.ReadValue<float>());
+        ProcessInput(ref InteractInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void InteractCancelled(InputAction.CallbackContext callback)
     {
@@ -252,11 +275,11 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void ZoomCameraStarted(InputAction.CallbackContext callback)
     {
-        StartInput(ref CameraZoomInput, callback.ReadValue<float>());
+        StartInput(ref CameraZoomInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void ZoomCameraPerformed(InputAction.CallbackContext callback)
     {
-        ProcessInput(ref CameraZoomInput, callback.ReadValue<float>());
+        ProcessInput(ref CameraZoomInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void ZoomCameraCancelled(InputAction.CallbackContext callback)
     {
@@ -266,11 +289,11 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void Debug1Started(InputAction.CallbackContext callback)
     {
-        StartInput(ref Debug1Input, callback.ReadValue<float>());
+        StartInput(ref Debug1Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug1Performed(InputAction.CallbackContext callback)
     {
-        ProcessInput(ref Debug1Input, callback.ReadValue<float>());
+        ProcessInput(ref Debug1Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug1Cancelled(InputAction.CallbackContext callback)
     {
@@ -280,11 +303,11 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void Debug2Started(InputAction.CallbackContext callback)
     {
-        StartInput(ref Debug2Input, callback.ReadValue<float>());
+        StartInput(ref Debug2Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug2Performed(InputAction.CallbackContext callback)
     {
-        ProcessInput(ref Debug2Input, callback.ReadValue<float>());
+        ProcessInput(ref Debug2Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug2Cancelled(InputAction.CallbackContext callback)
     {
@@ -294,11 +317,11 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void Debug3Started(InputAction.CallbackContext callback)
     {
-        StartInput(ref Debug3Input, callback.ReadValue<float>());
+        StartInput(ref Debug3Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug3Performed(InputAction.CallbackContext callback)
     {
-        ProcessInput(ref Debug3Input, callback.ReadValue<float>());
+        ProcessInput(ref Debug3Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug3Cancelled(InputAction.CallbackContext callback)
     {
@@ -308,11 +331,11 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void Debug4Started(InputAction.CallbackContext callback)
     {
-        StartInput(ref Debug4Input, callback.ReadValue<float>());
+        StartInput(ref Debug4Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug4Performed(InputAction.CallbackContext callback)
     {
-        ProcessInput(ref Debug4Input, callback.ReadValue<float>());
+        ProcessInput(ref Debug4Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug4Cancelled(InputAction.CallbackContext callback)
     {
@@ -322,11 +345,11 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void Debug5Started(InputAction.CallbackContext callback)
     {
-        StartInput(ref Debug5Input, callback.ReadValue<float>());
+        StartInput(ref Debug5Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug5Performed(InputAction.CallbackContext callback)
     {
-        ProcessInput(ref Debug5Input, callback.ReadValue<float>());
+        ProcessInput(ref Debug5Input, callback.ReadValue<float>(), callback.control.device is not Keyboard);
     }
     public void Debug5Cancelled(InputAction.CallbackContext callback)
     {

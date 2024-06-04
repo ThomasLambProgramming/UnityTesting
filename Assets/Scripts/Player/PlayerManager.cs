@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -70,17 +71,16 @@ namespace Player
         {
             if (DebugUpdate())
                 return;
-
             if (stopPlayerWASDInput)
                 return;
 
-            if (playerInput.JumpInput.CheckAndConsumeInput() && isGrounded && playerGroundCheckCoroutine == null)
+            if (playerInput.JumpInput.CheckInput() && isGrounded && playerGroundCheckCoroutine == null)
             {
                 playerMovement.PerformJump();
                 playerAnimator.CrossFade("JumpStart", 0f);
                 playerGroundCheckCoroutine = StartCoroutine(GroundCheckDelay());
             }
-            if (isGrounded == false && playerRigidbody.velocity.y < 0)
+            if (isGrounded == false && playerRigidbody.velocity.y < 0 && playerAnimator.GetCurrentAnimatorStateInfo(0).IsName("FallingIdle"))
                 playerAnimator.CrossFade("FallingIdle", 0.3f);
 
 
@@ -89,14 +89,19 @@ namespace Player
                 GroundCheck();
             }
 
-            if (playerInput.AttackInput.CheckAndConsumeInput())
+            if (playerInput.AttackInput.CheckInput())
             {
                 //playerAnimator.SetBool(AttackHorizontalAnimatorId, true);
             }
 
-            playerCamera.UpdateCamera(playerInput.CurrentMouseInput);
+            
             playerMovement.UpdateMovement(playerInput.CurrentMoveInput, playerCamera.mainCamera.transform.forward, playerCamera.mainCamera.transform.right);
             UpdateAnimator();
+        }
+
+        private void LateUpdate()
+        {
+            playerCamera.UpdateCamera(playerInput.CurrentMouseInput, playerInput.MouseInputFromController);
         }
 
         private void UpdateAnimator()
@@ -153,7 +158,7 @@ namespace Player
         /// </summary>
         private bool DebugUpdate()
         {
-            if (playerInput.Debug1Input.CheckAndConsumeInput())
+            if (playerInput.Debug1Input.CheckInput())
             {
                 //if (Cursor.lockState == CursorLockMode.Locked)
                 //    Cursor.lockState = CursorLockMode.None;
@@ -162,16 +167,16 @@ namespace Player
                 playerAnimator.CrossFade("JumpStart", 0.2f);
             }
 
-            if (playerInput.Debug2Input.CheckAndConsumeInput())
+            if (playerInput.Debug2Input.CheckInput())
                 playerAnimator.CrossFade("FallingIdle", 0.3f);
 
-            if (playerInput.Debug3Input.CheckAndConsumeInput())
+            if (playerInput.Debug3Input.CheckInput())
                 playerAnimator.CrossFade("LandingSoft", 0.1f);
 
-            if (playerInput.Debug4Input.CheckAndConsumeInput())
+            if (playerInput.Debug4Input.CheckInput())
                 playerAnimator.CrossFade("LandingHard", 0.1f);
 
-            if (playerInput.Debug5Input.CheckAndConsumeInput())
+            if (playerInput.Debug5Input.CheckInput())
                 playerAnimator.CrossFade("BaseMovementTree", 0.2f);
 
             return debugDancing;

@@ -33,10 +33,6 @@ namespace Player
                 SlowDownPlayer(playerInput);
             else
                 MovePlayer(playerInput, cameraDirectionForward, cameraDirectionRight);
-
-            //Additional gravity to make player fall faster and feel more "weighty"
-            //if (playerRigidbody.velocity.y < -1)
-            playerRigidbody.AddForce(0, -m_additionalGravity, 0, ForceMode.Force);
         }
 
         /// <summary>
@@ -60,10 +56,11 @@ namespace Player
             Vector3 movementRight = new Vector3(cameraDirectionRight.x, 0, cameraDirectionRight.z).normalized;
             Vector3 movementForward = new Vector3(cameraDirectionForward.x, 0, cameraDirectionForward.z).normalized;
 
-            playerRigidbody.AddForce((movementForward * playerInput.y + movementRight * playerInput.x).normalized * (movementSpeed * Time.deltaTime), ForceMode.VelocityChange);
             Vector3 currentVelocity = playerRigidbody.velocity;
             float previousY = currentVelocity.y;
             currentVelocity.y = 0;
+
+            currentVelocity += (movementForward * playerInput.y + movementRight * playerInput.x).normalized * (movementSpeed * Time.deltaTime);
             
             //Reduce max speed so controller is able to walk.
             if (currentVelocity.magnitude > maxMovementSpeed * playerInput.magnitude)
