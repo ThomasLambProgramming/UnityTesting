@@ -104,10 +104,16 @@ namespace Player
             playerCamera.UpdateCamera(playerInput.CurrentMouseInput, playerInput.MouseInputFromController);
         }
 
+        private float previousSpeedValue = 0;
+        [SerializeField] private float animatorUpdateLerp = 7;
         private void UpdateAnimator()
         {
-            float currentVelocity = playerRigidbody.velocity.magnitude / playerMovement.maxMovementSpeed;
-            playerAnimator.SetFloat(SpeedAnimatorId, currentVelocity);
+            Vector3 currentVel = playerRigidbody.velocity;
+            currentVel.y = 0;
+            float currentHorizontalVelocity = currentVel.magnitude / playerMovement.maxMovementSpeed;
+            float animatorSpeedValue = Mathf.Lerp(previousSpeedValue, currentHorizontalVelocity, animatorUpdateLerp * Time.deltaTime);
+            previousSpeedValue = animatorSpeedValue;
+            playerAnimator.SetFloat(SpeedAnimatorId, animatorSpeedValue);
         }
 
         private void GroundCheck()
