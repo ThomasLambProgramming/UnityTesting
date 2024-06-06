@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Temp_MainMenu.unity
+    guid: d85dc38a0a2971e438cfea6084cc34e9
+  - enabled: 1
+    path: Assets/Scenes/DwarfGame.unity
+    guid: cbcc98974cbce5e42b1343ac53a286f1
   m_configObjects: {}

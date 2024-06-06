@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Player
 {
@@ -12,125 +13,120 @@ namespace Player
     ]
     public class PlayerManager : MonoBehaviour
     {
-        private PlayerInputProcessor playerInput;
-        private PlayerMovement playerMovement;
-        private PlayerCameraController playerCamera;
+        private PlayerInputProcessor m_playerInput;
+        private PlayerMovement m_playerMovement;
+        private PlayerCameraController m_playerCamera;
 
-        private Rigidbody playerRigidbody;
-        private Animator playerAnimator;
+        private Rigidbody m_playerRigidbody;
+        private Animator m_playerAnimator;
 
         [Header("Jumping Ground Check Settings")]
-        [SerializeField]
-        private Transform groundCheck;
+        [SerializeField] private Transform groundCheck;
 
-        [SerializeField] private float groundCheckDistance;
-        [SerializeField] private float groundCheckDelay = 0.5f;
-        [SerializeField] private float landingStopSoftInputDelay = 1f;
-        [SerializeField] private float landingStopHardInputDelay = 2f;
+        [SerializeField] private float m_groundCheckDistance;
+        [SerializeField] private float m_groundCheckDelay = 0.5f;
+        [SerializeField] private float m_landingStopSoftInputDelay = 1f;
+        [SerializeField] private float m_landingStopHardInputDelay = 2f;
         
         [SerializeField, Tooltip("If velocity > this value do a hard landing")]
-        private float hardLandingLimit = 16f;
+        private float m_softLandingVelocityLimit = 16f;
 
         private const int EnvironmentLayerMask = 1;
-        private bool isGrounded = true;
+        private bool m_isPlayerGrounded = true;
+        private Coroutine m_playerGroundCheckCoroutine = null;
 
         //Animator Ids (doing string comparison is 100% going to be an issue at some point)
-        private int SpeedAnimatorId = Animator.StringToHash("Speed");
-        private int DanceAnimatorId = Animator.StringToHash("Dance");
-        private int JumpStartAnimatorId = Animator.StringToHash("JumpStart");
-        private int FallingAnimatorId = Animator.StringToHash("Falling");
-        private int SoftLandAnimatorId = Animator.StringToHash("SoftLand");
-        private int HardLandAnimatorId = Animator.StringToHash("HardLand");
-        private int AttackHorizontalAnimatorId = Animator.StringToHash("AttackHorizontal");
-        private int ResetToBaseMovementAnimatorId = Animator.StringToHash("ResetToBaseMovement");
+        private readonly int SpeedAnimatorId = Animator.StringToHash("Speed");
+        private readonly int DanceAnimatorId = Animator.StringToHash("Dance");
+        private readonly int JumpStartAnimatorId = Animator.StringToHash("JumpStart");
+        private readonly int FallingAnimatorId = Animator.StringToHash("Falling");
+        private readonly int SoftLandAnimatorId = Animator.StringToHash("SoftLand");
+        private readonly int HardLandAnimatorId = Animator.StringToHash("HardLand");
+        private readonly int AttackHorizontalAnimatorId = Animator.StringToHash("AttackHorizontal");
+        private readonly int ResetToBaseMovementAnimatorId = Animator.StringToHash("ResetToBaseMovement");
 
-        private Coroutine playerGroundCheckCoroutine = null;
-        //Debug / Random Settings that dont have anything to do with gameplay
-        private bool debugDancing = false;
-
-        private bool stopPlayerWASDInput = false;
+        private float m_previousAnimatorSpeedValue = 0;
+        [SerializeField] private float m_animatorLerpSpeed = 7;
+        
+        private bool m_stopPlayerWASDInput = false;
 
         private void Awake()
         {
-            playerInput = GetComponent<PlayerInputProcessor>();
-            playerInput.SetupInput();
+            m_playerInput = GetComponent<PlayerInputProcessor>();
+            m_playerInput.SetupInput();
         }
 
         private void Start()
         {
-            playerAnimator = GetComponentInChildren<Animator>();
-            playerMovement = GetComponent<PlayerMovement>();
-            playerCamera = GetComponent<PlayerCameraController>();
-            playerRigidbody = GetComponent<Rigidbody>();
+            m_playerAnimator = GetComponentInChildren<Animator>();
+            m_playerMovement = GetComponent<PlayerMovement>();
+            m_playerCamera = GetComponent<PlayerCameraController>();
+            m_playerRigidbody = GetComponent<Rigidbody>();
 
-            playerMovement.playerRigidbody = playerRigidbody;
+            m_playerMovement.playerRigidbody = m_playerRigidbody;
             Cursor.lockState = CursorLockMode.Locked;
         }
 
         private void Update()
         {
-            if (DebugUpdate())
-                return;
-            if (stopPlayerWASDInput)
+            if (DebugUpdate() || m_stopPlayerWASDInput)
                 return;
 
-            if (playerInput.JumpInput.CheckInput() && isGrounded && playerGroundCheckCoroutine == null)
+            if (m_playerInput.JumpInput.CheckInput() && m_isPlayerGrounded && m_playerGroundCheckCoroutine == null)
             {
-                playerMovement.PerformJump();
-                playerAnimator.CrossFade("JumpStart", 0f);
-                playerGroundCheckCoroutine = StartCoroutine(GroundCheckDelay());
+                m_playerMovement.PerformJump();
+                m_playerAnimator.CrossFade("JumpStart", 0f);
+                m_playerGroundCheckCoroutine = StartCoroutine(GroundCheckDelay());
             }
-            if (isGrounded == false && playerRigidbody.velocity.y < 0 && playerAnimator.GetCurrentAnimatorStateInfo(0).IsName("FallingIdle"))
-                playerAnimator.CrossFade("FallingIdle", 0.3f);
+            if (m_isPlayerGrounded == false && m_playerRigidbody.velocity.y < 0 && m_playerAnimator.GetCurrentAnimatorStateInfo(0).IsName("FallingIdle"))
+                m_playerAnimator.CrossFade("FallingIdle", 0.3f);
 
 
-            if (isGrounded == false && playerGroundCheckCoroutine == null)
+            if (m_isPlayerGrounded == false && m_playerGroundCheckCoroutine == null)
             {
                 GroundCheck();
             }
 
-            if (playerInput.AttackInput.CheckInput())
+            if (m_playerInput.AttackInput.CheckInput())
             {
                 //playerAnimator.SetBool(AttackHorizontalAnimatorId, true);
             }
 
             
-            playerMovement.UpdateMovement(playerInput.CurrentMoveInput, playerCamera.mainCamera.transform.forward, playerCamera.mainCamera.transform.right);
+            m_playerMovement.UpdateMovement(m_playerInput.CurrentMoveInput, m_playerCamera.m_mainCamera.transform.forward, m_playerCamera.m_mainCamera.transform.right);
             UpdateAnimator();
         }
 
         private void LateUpdate()
         {
-            playerCamera.UpdateCamera(playerInput.CurrentMouseInput, playerInput.MouseInputFromController);
+            m_playerCamera.UpdateCamera(m_playerInput.CurrentMouseInput, m_playerInput.MouseInputFromController);
         }
 
-        private float previousSpeedValue = 0;
-        [SerializeField] private float animatorUpdateLerp = 7;
         private void UpdateAnimator()
         {
-            Vector3 currentVel = playerRigidbody.velocity;
+            Vector3 currentVel = m_playerRigidbody.velocity;
             currentVel.y = 0;
-            float currentHorizontalVelocity = currentVel.magnitude / playerMovement.maxMovementSpeed;
-            float animatorSpeedValue = Mathf.Lerp(previousSpeedValue, currentHorizontalVelocity, animatorUpdateLerp * Time.deltaTime);
-            previousSpeedValue = animatorSpeedValue;
-            playerAnimator.SetFloat(SpeedAnimatorId, animatorSpeedValue);
+            float currentHorizontalVelocity = currentVel.magnitude / m_playerMovement.MaxMovementSpeed;
+            float animatorSpeedValue = Mathf.Lerp(m_previousAnimatorSpeedValue, currentHorizontalVelocity, m_animatorLerpSpeed * Time.deltaTime);
+            m_previousAnimatorSpeedValue = animatorSpeedValue;
+            m_playerAnimator.SetFloat(SpeedAnimatorId, animatorSpeedValue);
         }
 
         private void GroundCheck()
         {
             //If the object is on the environment layer (not the non-jump environment layer)
-            if (Physics.Raycast(groundCheck.position, Vector3.down, groundCheckDistance, EnvironmentLayerMask))
+            if (Physics.Raycast(groundCheck.position, Vector3.down, m_groundCheckDistance, EnvironmentLayerMask))
             {
-                isGrounded = true;
+                m_isPlayerGrounded = true;
 
-                if (playerRigidbody.velocity.y > -hardLandingLimit)
+                if (m_playerRigidbody.velocity.y > -m_softLandingVelocityLimit)
                 {
-                    playerAnimator.CrossFade("LandingSoft", 0.1f);
+                    m_playerAnimator.CrossFade("LandingSoft", 0.1f);
                     StartCoroutine(LandingInputDelay(true));
                 }
                 else
                 {
-                    playerAnimator.CrossFade("LandingHard", 0.1f);
+                    m_playerAnimator.CrossFade("LandingHard", 0.1f);
                     StartCoroutine(LandingInputDelay(false));
                 }
             }
@@ -138,24 +134,24 @@ namespace Player
         
         IEnumerator LandingInputDelay(bool softLanding)
         {
-            stopPlayerWASDInput = true;
-            yield return new WaitForSeconds(softLanding ? landingStopSoftInputDelay : landingStopHardInputDelay);
-            stopPlayerWASDInput = false;
-            playerAnimator.CrossFade("BaseMovementTree", 0.3f);
+            m_stopPlayerWASDInput = true;
+            yield return new WaitForSeconds(softLanding ? m_landingStopSoftInputDelay : m_landingStopHardInputDelay);
+            m_stopPlayerWASDInput = false;
+            m_playerAnimator.CrossFade("BaseMovementTree", 0.3f);
         }
 
         //Raycast immediately finds ground when first jumping. adding delay to stop this.
         IEnumerator GroundCheckDelay()
         {
-            yield return new WaitForSeconds(groundCheckDelay);
-            isGrounded = false;
-            playerGroundCheckCoroutine = null;
+            yield return new WaitForSeconds(m_groundCheckDelay);
+            m_isPlayerGrounded = false;
+            m_playerGroundCheckCoroutine = null;
         }
 
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.cyan;
-            Gizmos.DrawSphere(groundCheck.position, groundCheckDistance);
+            Gizmos.DrawSphere(groundCheck.position, m_groundCheckDistance);
             Gizmos.color = Color.gray;
         }
 
@@ -164,28 +160,7 @@ namespace Player
         /// </summary>
         private bool DebugUpdate()
         {
-            if (playerInput.Debug1Input.CheckInput())
-            {
-                //if (Cursor.lockState == CursorLockMode.Locked)
-                //    Cursor.lockState = CursorLockMode.None;
-                //else
-                //    Cursor.lockState = CursorLockMode.Locked;
-                playerAnimator.CrossFade("JumpStart", 0.2f);
-            }
-
-            if (playerInput.Debug2Input.CheckInput())
-                playerAnimator.CrossFade("FallingIdle", 0.3f);
-
-            if (playerInput.Debug3Input.CheckInput())
-                playerAnimator.CrossFade("LandingSoft", 0.1f);
-
-            if (playerInput.Debug4Input.CheckInput())
-                playerAnimator.CrossFade("LandingHard", 0.1f);
-
-            if (playerInput.Debug5Input.CheckInput())
-                playerAnimator.CrossFade("BaseMovementTree", 0.2f);
-
-            return debugDancing;
+            return false;
         }
     }
 }

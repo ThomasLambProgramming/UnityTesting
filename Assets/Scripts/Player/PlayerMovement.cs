@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Player
 {
@@ -7,25 +8,17 @@ namespace Player
         public Rigidbody playerRigidbody;
 
         [Header("Movement Settings")]
-        [SerializeField]
-        private float movementSpeed = 10f;
-
-        [SerializeField]
-        public float maxMovementSpeed = 4f;
-
-        [SerializeField]
-        private float slowdownPercentage = 0.98f;
-
-        [SerializeField]
-        private float rotateToVelocitySpeed = 10f;
+        [SerializeField] private float m_movementSpeed = 10f;
+        [SerializeField] private float m_maxMovementSpeed = 4f;
+        public float MaxMovementSpeed => m_maxMovementSpeed;
+        [SerializeField] private float m_slowdownPercentage = 0.98f;
+        [SerializeField] private float m_rotateToVelocitySpeed = 10f;
 
         [Header("Jump Settings")]
-        [SerializeField]
-        private float jumpForce = 20f;
+        [SerializeField] private float m_jumpForce = 20f;
 
-        [Header("Gravity Settings")]
-        [SerializeField]
-        private float m_additionalGravity = 9.81f;
+        //[Header("Gravity Settings")]
+        //[SerializeField] private float m_additionalGravity = 9.81f;
 
         private float m_magnitudeSpeedCutoff = 0.2f;
         public void UpdateMovement(Vector2 playerInput, Vector3 cameraDirectionForward, Vector3 cameraDirectionRight)
@@ -50,7 +43,7 @@ namespace Player
             Vector3 currentVelocity = playerRigidbody.velocity;
             float previousY = currentVelocity.y;
             currentVelocity.y = 0;
-            currentVelocity *= slowdownPercentage;
+            currentVelocity *= m_slowdownPercentage;
             currentVelocity.y = previousY;
             return currentVelocity;
         }
@@ -67,14 +60,14 @@ namespace Player
             float previousY = currentVelocity.y;
             currentVelocity.y = 0;
 
-            currentVelocity += (movementForward * playerInput.y + movementRight * playerInput.x).normalized * (movementSpeed * Time.deltaTime);
+            currentVelocity += (movementForward * playerInput.y + movementRight * playerInput.x).normalized * (m_movementSpeed * Time.deltaTime);
 
             //Reduce max speed so controller is able to walk.
-            float adjustedMaxSpeed = maxMovementSpeed * playerInput.magnitude;
+            float adjustedMaxSpeed = m_maxMovementSpeed * playerInput.magnitude;
             if (currentVelocity.magnitude > adjustedMaxSpeed)
                 currentVelocity = currentVelocity.normalized * adjustedMaxSpeed;
             
-            transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, currentVelocity.normalized, rotateToVelocitySpeed * Time.deltaTime, 1));
+            transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, currentVelocity.normalized, m_rotateToVelocitySpeed * Time.deltaTime, 1));
             currentVelocity.y = previousY;
             return currentVelocity;
         }
@@ -82,7 +75,7 @@ namespace Player
         public void PerformJump()
         {
             //This is just so the force is always consistent even if Character mass changes
-            playerRigidbody.AddForce(0, jumpForce, 0, ForceMode.VelocityChange);
+            playerRigidbody.AddForce(0, m_jumpForce, 0, ForceMode.VelocityChange);
         }
     }
 }
