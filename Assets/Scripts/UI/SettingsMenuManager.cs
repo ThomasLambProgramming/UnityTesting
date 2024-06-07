@@ -1,4 +1,5 @@
 using TMPro;
+using UI;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,29 +21,22 @@ public class SettingsMenuManager : MonoBehaviour
     [SerializeField] private GameObject m_miscSettingsGameObject;
     
     [Space(5f), Header("Gameplay Settings")]
-    [SerializeField] private Button m_invertXAxisLookButton;
-    [SerializeField] private Button m_invertYAxisLookButton;
-    [SerializeField] private Slider m_XAxisSensSlider;
-    [SerializeField] private TMP_InputField m_XAxisSensInputField;
-    [SerializeField] private Slider m_YAxisSensSlider;
-    [SerializeField] private TMP_InputField m_YAxisSensInputField;
+    [SerializeField] private CustomButtonUI m_invertXAxisLookButton;
+    [SerializeField] private CustomButtonUI m_invertYAxisLookButton;
+    [SerializeField] private CustomSliderUI m_XAxisSensSlider;
+    [SerializeField] private CustomSliderUI m_YAxisSensSlider;
     
     [Space(5f), Header("Graphics Settings")]
     [SerializeField] private TMP_Dropdown m_graphicsPresetDropdown;
-    [SerializeField] private Slider m_graphicsBrightnessSlider;
-    [SerializeField] private TMP_InputField m_graphicsBrightnessInputField;
+    [SerializeField] private CustomSliderUI m_graphicsBrightnessSlider;
     [SerializeField] private TMP_Dropdown m_antialiasingDropdown;
     
     [Space(5f), Header("Audio Settings")]
-    [SerializeField] private Button m_muteAllButton;
-    [SerializeField] private Slider m_masterVolumeSlider;
-    [SerializeField] private TMP_InputField m_masterVolumeInputField;
-    [SerializeField] private Slider m_musicVolumeSlider;
-    [SerializeField] private TMP_InputField m_musicVolumeInputField;
-    [SerializeField] private Slider m_soundEffectVolumeslider;
-    [SerializeField] private TMP_InputField m_soundEffectVolumeInputField;
-    [SerializeField] private Slider m_dialogueVolumeSlider;
-    [SerializeField] private TMP_InputField m_dislogueVolumeInputField;
+    [SerializeField] private CustomButtonUI m_muteAllButton;
+    [SerializeField] private CustomSliderUI m_masterVolumeSlider;
+    [SerializeField] private CustomSliderUI m_musicVolumeSlider;
+    [SerializeField] private CustomSliderUI m_soundEffectVolumeslider;
+    [SerializeField] private CustomSliderUI m_dialogueVolumeSlider;
     
     [Space(5f), Header("Controls Settings")]
     [SerializeField] private GameObject m_notAnOptionJustLayoutForNow;
@@ -111,7 +105,49 @@ public class SettingsMenuManager : MonoBehaviour
     public void ToggleSettingsActive(bool isActive)
     {
         m_settingsMenuContainer.SetActive(isActive);
-        m_gameplaySettingsNavbarButton.onClick?.Invoke();   
-        MakeButtonActive(m_gameplaySettingsNavbarButton, true);
+
+        if (isActive)
+        {
+            SetAllValuesFromSaveData();
+            m_gameplaySettingsNavbarButton.onClick?.Invoke();
+            MakeButtonActive(m_gameplaySettingsNavbarButton, true);
+        }
+        else
+            SettingsData.Instance.SaveData(GetDataFromUI());
+    }
+
+    /// <summary>
+    /// Set all sliders, buttons and input fields to have the correct data from save data or default values
+    /// </summary>
+    private void SetAllValuesFromSaveData()
+    {
+        m_invertXAxisLookButton.SetActive(SettingsData.Instance.Data.InvertXLook);
+        m_invertYAxisLookButton.SetActive(SettingsData.Instance.Data.InvertYLook);
+        m_XAxisSensSlider.SetValue(SettingsData.Instance.Data.MouseXSens);
+        m_YAxisSensSlider.SetValue(SettingsData.Instance.Data.MouseYSens);
+        m_graphicsBrightnessSlider.SetValue(SettingsData.Instance.Data.Brightness);
+        m_antialiasingDropdown.value = SettingsData.Instance.Data.Antialiasing;
+        m_muteAllButton.SetActive(SettingsData.Instance.Data.MuteAllAudio);
+        m_masterVolumeSlider.SetValue(SettingsData.Instance.Data.MasterVolume);
+        m_musicVolumeSlider.SetValue(SettingsData.Instance.Data.MusicVolume);
+        m_soundEffectVolumeslider.SetValue(SettingsData.Instance.Data.SoundEffectVolume);
+        m_dialogueVolumeSlider.SetValue(SettingsData.Instance.Data.DialogueVolume);
+    }
+
+    private SettingsData.SettingsStruct GetDataFromUI()
+    {
+        SettingsData.SettingsStruct newData = new SettingsData.SettingsStruct();
+        newData.InvertXLook = m_invertXAxisLookButton.m_active;
+        newData.InvertYLook = m_invertYAxisLookButton.m_active;
+        newData.MouseXSens = m_XAxisSensSlider.GetValue();
+        newData.MouseYSens = m_YAxisSensSlider.GetValue();
+        newData.Brightness = m_graphicsBrightnessSlider.GetValue();
+        newData.Antialiasing = m_antialiasingDropdown.value;
+        newData.MuteAllAudio = m_muteAllButton.m_active;
+        newData.MasterVolume = m_masterVolumeSlider.GetValue();
+        newData.MusicVolume = m_musicVolumeSlider.GetValue();
+        newData.SoundEffectVolume = m_soundEffectVolumeslider.GetValue();
+        newData.DialogueVolume = m_dialogueVolumeSlider.GetValue();
+        return newData;
     }
 }

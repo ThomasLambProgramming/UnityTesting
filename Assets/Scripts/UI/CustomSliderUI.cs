@@ -71,4 +71,6 @@ public class CustomSliderUI : MonoBehaviour
     {
         m_slider.value = value;
     }
+
+    public float GetValue() => m_slider.value;
 }
