@@ -52,6 +52,12 @@ namespace Player
         private float m_previousAnimatorSpeedValue = 0;
         [SerializeField] private float m_animatorLerpSpeed = 7;
         [SerializeField] private bool m_stopPlayerWASDInput = false;
+
+        [Header("Attaching Sockets for hammer")] 
+        [SerializeField] private GameObject m_hammerWayObject;
+        [SerializeField] private Transform m_backAttachSocket;
+        [SerializeField] private Transform m_handAttachSocket;
+        [SerializeField] private Transform m_groundAttachSocket;
         
 
         private void Awake()
@@ -83,11 +89,31 @@ namespace Player
             else if (!m_mainMenuManager.MenuActive && Cursor.lockState == CursorLockMode.None)
                 Cursor.lockState = CursorLockMode.Locked;
                 
-            UpdateAnimator();
             
             if (DebugUpdate() || m_stopPlayerWASDInput || m_mainMenuManager.MenuActive)
                 return;
 
+            m_playerMovement.UpdateMovement(m_playerInput.CurrentMoveInput, m_playerCamera.m_mainCamera.transform.forward, m_playerCamera.m_mainCamera.transform.right);
+
+            if (m_isPlayerGrounded == false && m_playerGroundCheckCoroutine == null)
+            {
+                GroundCheck();
+            }
+
+            if (m_playerInput.InteractInput.CheckInput())
+            {
+                if (m_playerMovement.m_CurrentMovementState == PlayerMovement.MovementState.BaseMovement)
+                    SetToHammahWay();
+                else
+                {
+                    SetToBaseMovement();
+                }
+            }
+
+            if (m_playerMovement.m_CurrentMovementState == PlayerMovement.MovementState.HammahWay)
+                return;
+
+            UpdateAnimator();
             if (m_playerInput.JumpInput.CheckInput() && m_isPlayerGrounded && m_playerGroundCheckCoroutine == null)
             {
                 m_playerMovement.PerformJump();
@@ -96,20 +122,7 @@ namespace Player
             }
             if (m_isPlayerGrounded == false && m_playerRigidbody.velocity.y < 0 && m_playerAnimator.GetCurrentAnimatorStateInfo(0).IsName("FallingIdle"))
                 m_playerAnimator.CrossFade("FallingIdle", 0.3f);
-
-
-            if (m_isPlayerGrounded == false && m_playerGroundCheckCoroutine == null)
-            {
-                GroundCheck();
-            }
-
-            if (m_playerInput.AttackInput.CheckInput())
-            {
-                //playerAnimator.SetBool(AttackHorizontalAnimatorId, true);
-            }
-
             
-            m_playerMovement.UpdateMovement(m_playerInput.CurrentMoveInput, m_playerCamera.m_mainCamera.transform.forward, m_playerCamera.m_mainCamera.transform.right);
         }
 
         private void LateUpdate()
@@ -148,6 +161,25 @@ namespace Player
                 }
             }
         }
+
+        private void SetToHammahWay()
+        {
+            m_hammerWayObject.transform.parent = m_groundAttachSocket;
+            m_hammerWayObject.transform.localRotation = Quaternion.Euler(0,0,0);
+            m_hammerWayObject.transform.localPosition = Vector3.zero;
+            m_hammerWayObject.GetComponentInChildren<Collider>().enabled = true;
+            m_playerMovement.m_CurrentMovementState = PlayerMovement.MovementState.HammahWay;
+            m_playerAnimator.SetFloat(SpeedAnimatorId, 0);
+        }
+        private void SetToBaseMovement()
+        {
+            m_hammerWayObject.transform.parent = m_backAttachSocket;
+            m_hammerWayObject.transform.localRotation = Quaternion.Euler(0,0,0);
+            m_hammerWayObject.transform.localPosition = Vector3.zero;
+            m_hammerWayObject.GetComponentInChildren<Collider>().enabled = false;
+            m_playerMovement.m_CurrentMovementState = PlayerMovement.MovementState.BaseMovement;
+        }
+        
         
         IEnumerator LandingInputDelay(bool softLanding)
         {
