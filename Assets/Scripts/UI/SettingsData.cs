@@ -30,6 +30,8 @@ namespace UI
             public float DialogueVolume;
         }
 
+        private readonly string m_filePath = Application.dataPath + "/DwarfSettings.txt";
+
         public static SettingsData Instance;
         public SettingsStruct Data;
 
@@ -48,15 +50,17 @@ namespace UI
 
         private void LoadData()
         {
-            if (File.Exists(Application.dataPath + "DwarfSettings.txt"))
+            if (File.Exists(m_filePath))
             {
-                StringReader reader = new StringReader(Application.dataPath + "DwarfSettings.txt");
+                Debug.LogError("DwarfSettings found");
+                StreamReader reader = new StreamReader(m_filePath);
                 string jsonData = reader.ReadToEnd();
-                reader.Close();
                 Data = JsonUtility.FromJson<SettingsStruct>(jsonData);
+                reader.Close();
             }
             else
             {
+                Debug.LogError("DwarfSettings not found");
                 LoadDefaults();
             }
         }
@@ -81,8 +85,9 @@ namespace UI
 
         public void SaveData(SettingsStruct data)
         {
-            StringWriter writer = new StringWriter();
-            writer.Write(JsonUtility.ToJson(Data, true));   
+            Data = data;
+            StreamWriter writer = new StreamWriter (m_filePath);
+            writer.Write(JsonUtility.ToJson(data, true));   
             writer.Close();
         }
         

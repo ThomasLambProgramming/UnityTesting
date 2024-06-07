@@ -21,8 +21,6 @@ public class CustomSliderUI : MonoBehaviour
         
         m_inputField.onValueChanged.AddListener(OnInputValueChanged);
         m_slider.onValueChanged.AddListener(OnValueChanged);
-
-        m_inputField.textComponent.text = m_slider.value.ToString(CultureInfo.InvariantCulture);
     }
 
     //This acts as an override in case we want to set it all through the main menu script
@@ -70,6 +68,8 @@ public class CustomSliderUI : MonoBehaviour
     public void SetValue(float value)
     {
         m_slider.value = value;
+        m_inputField.text = Math.Round(value, 2).ToString(CultureInfo.InvariantCulture);
+        ((TextMeshProUGUI)m_inputField.placeholder).text = Math.Round(value, 2).ToString(CultureInfo.InvariantCulture);
     }
 
     public float GetValue() => m_slider.value;

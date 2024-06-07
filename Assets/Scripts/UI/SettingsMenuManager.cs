@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class SettingsMenuManager : MonoBehaviour
 {
-    [SerializeField] private GameObject m_settingsMenuContainer;
+    public GameObject m_settingsMenuContainer;
     
     [Header("NavBar References"), Space(5f)]
     [SerializeField] private Button m_gameplaySettingsNavbarButton;
@@ -49,6 +49,11 @@ public class SettingsMenuManager : MonoBehaviour
     [SerializeField] private Color m_disabledButtonColor = Color.gray;
 
     void Start()
+    {
+        SetupNavbarOnClick();
+    }
+
+    private void SetupNavbarOnClick()
     {
         m_gameplaySettingsNavbarButton.onClick.AddListener(() =>
         {
@@ -102,7 +107,12 @@ public class SettingsMenuManager : MonoBehaviour
         button.image.color = isActive ? m_activeButtonColor : m_disabledButtonColor;
     }
 
-    public void ToggleSettingsActive(bool isActive)
+    public void ToggleSettingsActive()
+    {
+        SetActive(!m_settingsMenuContainer.activeInHierarchy);
+    }
+
+    public void SetActive(bool isActive)
     {
         m_settingsMenuContainer.SetActive(isActive);
 

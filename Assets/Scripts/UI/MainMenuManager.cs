@@ -17,12 +17,12 @@ public class MainMenuManager : MonoBehaviour
         m_SettingsMenuButton.onClick.AddListener(OpenSettingsMenu);
         m_QuitGameButton.onClick.AddListener(QuitGame);
         
-        m_SettingsMenuManager.ToggleSettingsActive(false);
+        m_SettingsMenuManager.m_settingsMenuContainer.SetActive(false);
     }
 
     private void OpenSettingsMenu()
     {
-        m_SettingsMenuManager.ToggleSettingsActive(true);   
+        m_SettingsMenuManager.ToggleSettingsActive();   
     }
 
     private void StartGame()

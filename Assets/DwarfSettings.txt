@@ -1,0 +1,13 @@
+{
+    "InvertXLook": false,
+    "InvertYLook": false,
+    "MouseXSens": 1.238244652748108,
+    "MouseYSens": 4.0,
+    "Brightness": 6.44712495803833,
+    "Antialiasing": 2,
+    "MuteAllAudio": false,
+    "MasterVolume": 7.1113433837890629,
+    "MusicVolume": 4.0,
+    "SoundEffectVolume": 3.0211501121520998,
+    "DialogueVolume": 4.0
+}
