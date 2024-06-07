@@ -5,7 +5,7 @@ namespace Player
 {
     public class PlayerMovement : MonoBehaviour
     {
-        public Rigidbody playerRigidbody;
+        [HideInInspector] public Rigidbody playerRigidbody;
 
         [Header("Movement Settings")]
         [SerializeField] private float m_movementSpeed = 10f;

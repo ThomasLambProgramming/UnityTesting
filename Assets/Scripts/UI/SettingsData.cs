@@ -41,7 +41,8 @@ namespace UI
                 Instance = this;
             else if (Instance != null)
             {
-                Debug.LogError("How did the settings get a second awake call FIX IT!");
+                Debug.LogError("If this wasnt caused by each scene having settings data in development then fix it.");
+                return;
             }
             
             LoadData();
@@ -52,7 +53,6 @@ namespace UI
         {
             if (File.Exists(m_filePath))
             {
-                Debug.LogError("DwarfSettings found");
                 StreamReader reader = new StreamReader(m_filePath);
                 string jsonData = reader.ReadToEnd();
                 Data = JsonUtility.FromJson<SettingsStruct>(jsonData);
@@ -60,7 +60,6 @@ namespace UI
             }
             else
             {
-                Debug.LogError("DwarfSettings not found");
                 LoadDefaults();
             }
         }
@@ -71,8 +70,8 @@ namespace UI
             {
                 InvertXLook = false,
                 InvertYLook = false,
-                MouseXSens = 10,
-                MouseYSens = 10,
+                MouseXSens = 4.0f,
+                MouseYSens = 4.0f,
                 Brightness = 100,
                 Antialiasing = 2,
                 MuteAllAudio = false,

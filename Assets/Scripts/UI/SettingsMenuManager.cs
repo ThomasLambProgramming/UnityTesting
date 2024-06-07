@@ -19,6 +19,8 @@ public class SettingsMenuManager : MonoBehaviour
     [SerializeField] private GameObject m_audioSettingsGameObject;
     [SerializeField] private GameObject m_controlsSettingsGameObject;
     [SerializeField] private GameObject m_miscSettingsGameObject;
+
+    [SerializeField] public Button m_backToMainMenuButton;
     
     [Space(5f), Header("Gameplay Settings")]
     [SerializeField] private CustomButtonUI m_invertXAxisLookButton;

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using UI;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -20,7 +21,10 @@ namespace Player
         private Rigidbody m_playerRigidbody;
         private Animator m_playerAnimator;
 
-        [Header("Jumping Ground Check Settings")]
+        [Header("Required References")] 
+        [SerializeField] private InGameMenuManager m_mainMenuManager;
+
+        [Header("Jumping Ground Check Settings"), Space(5f)]
         [SerializeField] private Transform groundCheck;
 
         [SerializeField] private float m_groundCheckDistance;
@@ -47,8 +51,8 @@ namespace Player
 
         private float m_previousAnimatorSpeedValue = 0;
         [SerializeField] private float m_animatorLerpSpeed = 7;
+        [SerializeField] private bool m_stopPlayerWASDInput = false;
         
-        private bool m_stopPlayerWASDInput = false;
 
         private void Awake()
         {
@@ -65,11 +69,23 @@ namespace Player
 
             m_playerMovement.playerRigidbody = m_playerRigidbody;
             Cursor.lockState = CursorLockMode.Locked;
+            m_mainMenuManager = FindObjectOfType<InGameMenuManager>(true);
         }
 
         private void Update()
         {
-            if (DebugUpdate() || m_stopPlayerWASDInput)
+            if (m_playerInput.PauseInput.CheckInput())
+            {
+                m_mainMenuManager.ToggleActive();
+            }
+            if (m_mainMenuManager.MenuActive)
+                Cursor.lockState = CursorLockMode.None;
+            else if (!m_mainMenuManager.MenuActive && Cursor.lockState == CursorLockMode.None)
+                Cursor.lockState = CursorLockMode.Locked;
+                
+            UpdateAnimator();
+            
+            if (DebugUpdate() || m_stopPlayerWASDInput || m_mainMenuManager.MenuActive)
                 return;
 
             if (m_playerInput.JumpInput.CheckInput() && m_isPlayerGrounded && m_playerGroundCheckCoroutine == null)
@@ -94,11 +110,12 @@ namespace Player
 
             
             m_playerMovement.UpdateMovement(m_playerInput.CurrentMoveInput, m_playerCamera.m_mainCamera.transform.forward, m_playerCamera.m_mainCamera.transform.right);
-            UpdateAnimator();
         }
 
         private void LateUpdate()
         {
+            if (m_stopPlayerWASDInput || m_mainMenuManager.MenuActive)
+                return;
             m_playerCamera.UpdateCamera(m_playerInput.CurrentMouseInput, m_playerInput.MouseInputFromController);
         }
 

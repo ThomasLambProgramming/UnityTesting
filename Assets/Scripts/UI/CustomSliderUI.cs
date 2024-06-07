@@ -12,8 +12,6 @@ public class CustomSliderUI : MonoBehaviour
     private float m_minValue;
     private float m_maxValue;
 
-    private event Action m_onValueChangedCallback ;
-    
     void Start()
     {
         m_minValue = m_slider.minValue;
@@ -56,13 +54,8 @@ public class CustomSliderUI : MonoBehaviour
     {
         m_inputField.text = Math.Round(newValue, 2).ToString(CultureInfo.InvariantCulture);
         ((TextMeshProUGUI)m_inputField.placeholder).text = Math.Round(newValue, 2).ToString(CultureInfo.InvariantCulture);
-        
-        m_onValueChangedCallback?.Invoke();
-    }
 
-    public void AddCallbackOnValueChanged(Action callback)
-    {
-        m_onValueChangedCallback += callback;
+        //m_onValueChangedCallback?.Invoke();
     }
 
     public void SetValue(float value)

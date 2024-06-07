@@ -1,4 +1,5 @@
 ﻿using Cinemachine;
+using UI;
 using UnityEngine;
 
 namespace Player
@@ -10,9 +11,10 @@ namespace Player
     {
         public Camera m_mainCamera;
         
-        //We want to rotate the camera around the player from far away so making a pivot point is easier.
-        [SerializeField] private float m_cameraRotateSpeedX;
-        [SerializeField] private float m_cameraRotateSpeedY;
+        //Due to the x axis having crazy rotation + not wanting really small numbers the settings menu needs to be / by a set amount so players
+        //can have higher (1-10) sens but its still scaled nicely
+        [SerializeField] private float m_rotateXSettingScaling = 40;
+        [SerializeField] private float m_rotateYSettingScaling = 8;
 
         [SerializeField] private float m_controllerScalingX;
         [SerializeField] private float m_controllerScalingY;
@@ -40,9 +42,22 @@ namespace Player
             
             if (m_stopTrackingPlayer)
                 return;
+
+            float xAxisMultiplier = (fromController ? SettingsData.Instance.Data.MouseYSens * m_controllerScalingY : SettingsData.Instance.Data.MouseYSens);
+            xAxisMultiplier /= m_rotateYSettingScaling;
+            float xAxisInputValue = playerInput.x * Time.deltaTime * xAxisMultiplier;
+            if (SettingsData.Instance.Data.InvertXLook)
+                xAxisInputValue = -xAxisInputValue;
             
-            m_freelookCamera.m_YAxis.Value += playerInput.y * Time.deltaTime * (fromController ? m_cameraRotateSpeedX * m_controllerScalingX : m_cameraRotateSpeedX);
-            m_freelookCamera.m_XAxis.Value += playerInput.x * Time.deltaTime * (fromController ? m_cameraRotateSpeedY * m_controllerScalingY : m_cameraRotateSpeedY);
+            float yAxisMultiplier = (fromController ? SettingsData.Instance.Data.MouseXSens * m_controllerScalingX : SettingsData.Instance.Data.MouseXSens);
+            yAxisMultiplier /= m_rotateXSettingScaling;
+            float yAxisInputValue = playerInput.y * Time.deltaTime * yAxisMultiplier;
+            if (SettingsData.Instance.Data.InvertYLook)
+                yAxisInputValue = -xAxisInputValue;
+            
+            
+            m_freelookCamera.m_YAxis.Value += yAxisInputValue;
+            m_freelookCamera.m_XAxis.Value += xAxisInputValue;
         }
     }
 }

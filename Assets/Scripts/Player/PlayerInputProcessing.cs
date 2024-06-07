@@ -36,6 +36,7 @@ public class PlayerInputProcessor : MonoBehaviour
     public BaseInput JumpInput;
     public BaseInput InteractInput;
     public BaseInput CameraZoomInput;
+    public BaseInput PauseInput;
     
     public BaseInput Debug1Input;
     public BaseInput Debug2Input;
@@ -60,6 +61,7 @@ public class PlayerInputProcessor : MonoBehaviour
         Debug3Input.ConsumedValue = true;
         Debug4Input.ConsumedValue = true;
         Debug5Input.ConsumedValue = true;
+        PauseInput.ConsumedValue = true;
     }
 
     /// <summary>
@@ -110,6 +112,10 @@ public class PlayerInputProcessor : MonoBehaviour
         playerInput.Default.ZoomCamera.started += ZoomCameraStarted;
         playerInput.Default.ZoomCamera.performed += ZoomCameraPerformed;
         playerInput.Default.ZoomCamera.canceled += ZoomCameraCancelled;
+        
+        playerInput.Default.Pause.started += PauseStarted;
+        playerInput.Default.Pause.performed += PausePerformed;
+        playerInput.Default.Pause.canceled += PauseEnded;
         
         playerInput.Default.Debug1.started += Debug1Started;
         playerInput.Default.Debug1.performed += Debug1Performed;
@@ -286,6 +292,20 @@ public class PlayerInputProcessor : MonoBehaviour
         CancelInput(ref CameraZoomInput);
     }
     
+    
+    private void PauseEnded(InputAction.CallbackContext callback)
+    {
+        StartInput(ref PauseInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
+    }
+    private void PausePerformed(InputAction.CallbackContext callback)
+    {
+        StartInput(ref PauseInput, callback.ReadValue<float>(), callback.control.device is not Keyboard);
+    }
+    private void PauseStarted(InputAction.CallbackContext callback)
+    {
+        CancelInput(ref PauseInput);
+    }
+
     
     public void Debug1Started(InputAction.CallbackContext callback)
     {
