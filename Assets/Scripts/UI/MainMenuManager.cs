@@ -16,11 +16,13 @@ public class MainMenuManager : MonoBehaviour
         m_StartGameButton.onClick.AddListener(StartGame);
         m_SettingsMenuButton.onClick.AddListener(OpenSettingsMenu);
         m_QuitGameButton.onClick.AddListener(QuitGame);
+        
+        m_SettingsMenuManager.ToggleSettingsActive(false);
     }
 
     private void OpenSettingsMenu()
     {
-        m_SettingsMenuManager.ToggleSettingsActive();   
+        m_SettingsMenuManager.ToggleSettingsActive(true);   
     }
 
     private void StartGame()
