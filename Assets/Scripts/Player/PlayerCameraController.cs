@@ -9,7 +9,7 @@ namespace Player
     /// </summary>
     public class PlayerCameraController : MonoBehaviour
     {
-        public Camera m_mainCamera;
+        [HideInInspector] public Camera m_mainCamera;
         
         //Due to the x axis having crazy rotation + not wanting really small numbers the settings menu needs to be / by a set amount so players
         //can have higher (1-10) sens but its still scaled nicely

@@ -21,8 +21,8 @@ namespace Player
         private Rigidbody m_playerRigidbody;
         private Animator m_playerAnimator;
 
-        [Header("Required References")] 
-        [SerializeField] private InGameMenuManager m_mainMenuManager;
+        //[Header("Required References")] 
+        private InGameMenuManager m_mainMenuManager;
 
         [Header("Jumping Ground Check Settings"), Space(5f)]
         [SerializeField] private Transform groundCheck;
