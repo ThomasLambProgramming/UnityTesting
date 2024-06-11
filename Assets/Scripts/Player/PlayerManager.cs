@@ -3,6 +3,7 @@ using System.Collections;
 using UI;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.Splines;
 
 namespace Player
 {
@@ -102,12 +103,20 @@ namespace Player
 
             if (m_playerInput.InteractInput.CheckInput())
             {
-                if (m_playerMovement.m_CurrentMovementState == PlayerMovement.MovementState.BaseMovement)
-                    SetToHammahWay();
-                else
+                Collider[] overlaps = Physics.OverlapSphere(transform.position, 5, 1 << LayerMask.NameToLayer("Interactable"));
+                for (int i = 0; i < overlaps.Length; i++)
                 {
-                    SetToBaseMovement();
+                    SplineContainer splineContainer = overlaps[i].gameObject.GetComponent<SplineContainer>();
+                    if (splineContainer)
+                    {
+                        m_playerMovement.StartSplineRiding(splineContainer);
+                    }
                 }
+
+                //if (m_playerMovement.m_CurrentMovementState == PlayerMovement.MovementState.BaseMovement)
+                //    SetToHammahWay();
+                //else
+                //    SetToBaseMovement();
             }
 
             if (m_playerMovement.m_CurrentMovementState == PlayerMovement.MovementState.HammahWay)

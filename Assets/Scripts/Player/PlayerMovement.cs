@@ -1,6 +1,8 @@
 using System;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.Splines;
 
 namespace Player
 {
@@ -10,6 +12,8 @@ namespace Player
         {
             BaseMovement,
             HammahWay,
+            SplineRiding,
+            Cutscene,
         }
         [HideInInspector] public Rigidbody playerRigidbody;
         [SerializeField] public MovementState m_CurrentMovementState; 
@@ -19,6 +23,7 @@ namespace Player
         [SerializeField] private float m_maxMovementSpeed = 4f;
         [SerializeField] private float m_slowdownPercentage = 0.98f;
         [SerializeField] private float m_rotateToVelocitySpeed = 10f;
+        private float m_magnitudeSpeedCutoff = 0.2f;
         public float MaxMovementSpeed => m_maxMovementSpeed;
 
         [Header("Jump Settings")]
@@ -34,19 +39,37 @@ namespace Player
         [SerializeField] private float m_additionalBaseMovementGravity = 9.81f;
         [SerializeField] private float m_additionalHammahWayGravity = 9.81f;
 
-        private float m_magnitudeSpeedCutoff = 0.2f;
+        [Header("Spline")] 
+        private SplineContainer m_currentSpline;
+
+        [Tooltip("Units/second traveled on a spline")]
+        [SerializeField] private float m_splineRideSpeed = 4f;
+        private float m_splineRidingTimer = 0;
+
+
         public void UpdateMovement(Vector2 playerInput, Vector3 cameraDirectionForward, Vector3 cameraDirectionRight)
         {
-            //All updates should be done through a intermediate Vector3 so velocity is only being set once per frame otherwise jittering occurs with the camera.
-            Vector3 newVelocity;
-            if (playerInput.magnitude < m_magnitudeSpeedCutoff) 
-                newVelocity = SlowDownPlayer();
-            else
-                newVelocity = MovePlayer(playerInput, cameraDirectionForward, cameraDirectionRight);
+            switch (m_CurrentMovementState)
+            {
+                case MovementState.BaseMovement:
+                case MovementState.HammahWay:
+                    //All updates should be done through a intermediate Vector3 so velocity is only being set once per frame otherwise jittering occurs with the camera.
+                    Vector3 newVelocity;
+                    if (playerInput.magnitude < m_magnitudeSpeedCutoff)
+                        newVelocity = SlowDownPlayer();
+                    else
+                        newVelocity = MovePlayer(playerInput, cameraDirectionForward, cameraDirectionRight);
 
-            //if (Mathf.Abs(newVelocity.y) > 1)
-            //    newVelocity.y -= m_additionalGravity;
-            playerRigidbody.velocity = newVelocity;
+                    //if (Mathf.Abs(newVelocity.y) > 1)
+                    //    newVelocity.y -= m_additionalGravity;
+                    playerRigidbody.velocity = newVelocity;
+                    break;
+                case MovementState.SplineRiding:
+                    RideCurrentSplineUpdate();
+                    break;
+                case MovementState.Cutscene:
+                    break;
+            }
         }
 
         /// <summary>
@@ -121,6 +144,35 @@ namespace Player
             
             transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, movementForward, m_HammahWayMaxTurningSpeed * Time.deltaTime, 1));
             return currentVelocity;
+        }
+
+        private void RideCurrentSplineUpdate()
+        {
+            m_splineRidingTimer += Time.deltaTime;
+            //length of 32 / 4 riding speed = 8 seconds, being total duration required. timer / total duration = % complete goes straight into spline get position. 
+            float splinePosition = m_splineRidingTimer / (m_currentSpline.CalculateLength() / m_splineRideSpeed);
+            transform.position = m_currentSpline.EvaluatePosition(splinePosition);
+            
+            if (splinePosition > 0.95f)
+            {
+                m_CurrentMovementState = MovementState.BaseMovement;
+            }
+        }
+
+        public void StartSplineRiding(SplineContainer splineContainer)
+        {
+            m_currentSpline = splineContainer;
+            m_CurrentMovementState = MovementState.SplineRiding;
+            float positionOnSpline = GetCharacterPositionOnSpline();
+            m_splineRidingTimer = positionOnSpline * (m_currentSpline.CalculateLength() / m_splineRideSpeed);
+        }
+
+        private float GetCharacterPositionOnSpline()
+        {
+            //Thank god there was a get nearest point, i was going to do some hellish binary search.
+            SplineUtility.GetNearestPoint(m_currentSpline.Spline, m_currentSpline.transform.InverseTransformPoint(transform.position), out float3 nearestPoint, out float splinePosition, 8, 4);
+            Debug.LogError("Spline Position = " + splinePosition);
+            return splinePosition;
         }
 
         public void PerformJump()
