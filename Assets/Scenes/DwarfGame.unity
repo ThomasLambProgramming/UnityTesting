@@ -97,7 +97,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 6df932e2a5a660840b9a9703f07f6056, type: 2}
   m_LightingSettings: {fileID: 4890085278179872738, guid: 2b6cb44bd10e0374589bc7df22810798, type: 2}
 --- !u!196 &4
 NavMeshSettings:
@@ -491,7 +491,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 467817382}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.24593422, y: 0.27305958, z: -0.049960967, w: 0.9286866}
+  m_LocalRotation: {x: 0.2459342, y: 0.27305958, z: -0.049960967, w: 0.9286866}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -944,7 +944,7 @@ Transform:
   m_GameObject: {fileID: 768190204}
   serializedVersion: 2
   m_LocalRotation: {x: -0.03888865, y: 0.05411617, z: 0.002109198, w: 0.99777484}
-  m_LocalPosition: {x: -0.86693907, y: 15.195001, z: 15.742044}
+  m_LocalPosition: {x: -0.86693954, y: 15.195001, z: 15.742044}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1986,7 +1986,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1577988616}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.1989534, y: 0.27522522, z: -0.03617555, w: 0.9398723}
+  m_LocalRotation: {x: 0.1989534, y: 0.27522528, z: -0.036175568, w: 0.9398723}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2419,7 +2419,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: ea2916370bb1a2a489f940e21544482a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.252
+      value: -4.64
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ea2916370bb1a2a489f940e21544482a, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2431,23 +2431,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ea2916370bb1a2a489f940e21544482a, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.6696493
+      value: 0.65371263
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ea2916370bb1a2a489f940e21544482a, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: 0.14522384
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ea2916370bb1a2a489f940e21544482a, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.7426775
+      value: 0.7250029
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ea2916370bb1a2a489f940e21544482a, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0.16106115
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ea2916370bb1a2a489f940e21544482a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 25.05
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: ea2916370bb1a2a489f940e21544482a, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -2537,7 +2537,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864529529}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.24593422, y: 0.27305958, z: -0.049960967, w: 0.9286866}
+  m_LocalRotation: {x: 0.2459342, y: 0.27305958, z: -0.049960967, w: 0.9286866}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3457,12 +3457,20 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1772295711}
     - target: {fileID: 8488225164969821320, guid: 65578293871f02143957633284c3c154, type: 3}
+      propertyPath: m_splineRideSpeed
+      value: 20
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488225164969821320, guid: 65578293871f02143957633284c3c154, type: 3}
       propertyPath: m_HammahWayMaxSpeed
       value: 24
       objectReference: {fileID: 0}
     - target: {fileID: 8488225164969821320, guid: 65578293871f02143957633284c3c154, type: 3}
       propertyPath: m_CurrentMovementState
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8488225164969821320, guid: 65578293871f02143957633284c3c154, type: 3}
+      propertyPath: m_splineRidingOffset.y
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 8488225164969821320, guid: 65578293871f02143957633284c3c154, type: 3}
       propertyPath: m_HammahWayTurningSpeed
@@ -3492,8 +3500,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2814164259050035777}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.20599197, y: 0.32128474, z: -0.07181896, w: 0.92151266}
-  m_LocalPosition: {x: -0.86693907, y: 15.195001, z: 15.742044}
+  m_LocalRotation: {x: 0.20599195, y: 0.32128474, z: -0.071818955, w: 0.92151266}
+  m_LocalPosition: {x: -0.86693954, y: 15.195001, z: 15.742044}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

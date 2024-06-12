@@ -10,19 +10,20 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private Button m_QuitGameButton;
 
     private SettingsMenuManager m_SettingsMenuManager;
+
     void Start()
     {
         m_SettingsMenuManager = GetComponent<SettingsMenuManager>();
         m_StartGameButton.onClick.AddListener(StartGame);
         m_SettingsMenuButton.onClick.AddListener(OpenSettingsMenu);
         m_QuitGameButton.onClick.AddListener(QuitGame);
-        
+
         m_SettingsMenuManager.m_settingsMenuContainer.SetActive(false);
     }
 
     private void OpenSettingsMenu()
     {
-        m_SettingsMenuManager.ToggleSettingsActive();   
+        m_SettingsMenuManager.ToggleSettingsActive();
     }
 
     private void StartGame()

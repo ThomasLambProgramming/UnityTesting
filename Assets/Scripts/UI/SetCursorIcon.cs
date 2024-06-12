@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SetCursorIcon : MonoBehaviour
@@ -8,6 +6,7 @@ public class SetCursorIcon : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Cursor.SetCursor(m_mouseIcon, Vector2.zero, CursorMode.Auto);
+        //For now the icon just isnt in a good position that is clear where the clicks are meant to be.
+        //Cursor.SetCursor(m_mouseIcon, Vector2.zero, CursorMode.Auto);
     }
 }

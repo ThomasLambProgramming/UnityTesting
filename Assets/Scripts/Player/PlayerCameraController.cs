@@ -59,5 +59,15 @@ namespace Player
             m_freelookCamera.m_YAxis.Value += yAxisInputValue;
             m_freelookCamera.m_XAxis.Value += xAxisInputValue;
         }
+
+        public void SetupInputCallbacks(ref PlayerInput playerInput)
+        {
+            
+        }
+        
+        public void RemoveInputCallbacks(ref PlayerInput playerInput)
+        {
+            
+        }
     }
 }

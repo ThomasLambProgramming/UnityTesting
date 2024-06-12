@@ -46,6 +46,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""SwapMovement"",
+                    ""type"": ""Button"",
+                    ""id"": ""8e0c8c67-95da-4db5-add1-8642853b65c1"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Jump"",
                     ""type"": ""Button"",
                     ""id"": ""0d9d91ef-fcba-42a2-8ef3-141c5af531f5"",
@@ -378,6 +387,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""49d3de31-3d91-4c33-97d2-8f6bc87bd4f0"",
+                    ""path"": ""<Keyboard>/f"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwapMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5c838441-4e12-413d-a3f4-f4c22f374d44"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SwapMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -388,6 +419,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Default = asset.FindActionMap("Default", throwIfNotFound: true);
         m_Default_Movement = m_Default.FindAction("Movement", throwIfNotFound: true);
         m_Default_Interact = m_Default.FindAction("Interact", throwIfNotFound: true);
+        m_Default_SwapMovement = m_Default.FindAction("SwapMovement", throwIfNotFound: true);
         m_Default_Jump = m_Default.FindAction("Jump", throwIfNotFound: true);
         m_Default_Attack = m_Default.FindAction("Attack", throwIfNotFound: true);
         m_Default_MoveCamera = m_Default.FindAction("MoveCamera", throwIfNotFound: true);
@@ -461,6 +493,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private List<IDefaultActions> m_DefaultActionsCallbackInterfaces = new List<IDefaultActions>();
     private readonly InputAction m_Default_Movement;
     private readonly InputAction m_Default_Interact;
+    private readonly InputAction m_Default_SwapMovement;
     private readonly InputAction m_Default_Jump;
     private readonly InputAction m_Default_Attack;
     private readonly InputAction m_Default_MoveCamera;
@@ -477,6 +510,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public DefaultActions(@PlayerInput wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_Default_Movement;
         public InputAction @Interact => m_Wrapper.m_Default_Interact;
+        public InputAction @SwapMovement => m_Wrapper.m_Default_SwapMovement;
         public InputAction @Jump => m_Wrapper.m_Default_Jump;
         public InputAction @Attack => m_Wrapper.m_Default_Attack;
         public InputAction @MoveCamera => m_Wrapper.m_Default_MoveCamera;
@@ -502,6 +536,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
+            @SwapMovement.started += instance.OnSwapMovement;
+            @SwapMovement.performed += instance.OnSwapMovement;
+            @SwapMovement.canceled += instance.OnSwapMovement;
             @Jump.started += instance.OnJump;
             @Jump.performed += instance.OnJump;
             @Jump.canceled += instance.OnJump;
@@ -542,6 +579,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
+            @SwapMovement.started -= instance.OnSwapMovement;
+            @SwapMovement.performed -= instance.OnSwapMovement;
+            @SwapMovement.canceled -= instance.OnSwapMovement;
             @Jump.started -= instance.OnJump;
             @Jump.performed -= instance.OnJump;
             @Jump.canceled -= instance.OnJump;
@@ -593,6 +633,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     {
         void OnMovement(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
+        void OnSwapMovement(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnAttack(InputAction.CallbackContext context);
         void OnMoveCamera(InputAction.CallbackContext context);
