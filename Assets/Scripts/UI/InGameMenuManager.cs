@@ -61,13 +61,13 @@ namespace UI
         {
             ToggleActive();
         }
-        public void SetupInputCallbacks(ref PlayerInput playerInput)
+        public void SetupInputCallbacks()
         {
-            playerInput.Default.Pause.started += PauseMenuInputStart;
+            PlayerInputProcessor.Instance.playerInput.Default.Pause.started += PauseMenuInputStart;
         }
-        public void RemoveInputCallbacks(ref PlayerInput playerInput)
+        public void RemoveInputCallbacks()
         {
-            playerInput.Default.Pause.started -= PauseMenuInputStart;
+            PlayerInputProcessor.Instance.playerInput.Default.Pause.started -= PauseMenuInputStart;
         }
     }
 }

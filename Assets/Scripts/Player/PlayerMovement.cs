@@ -17,8 +17,8 @@ namespace Player
     {
         [SerializeField] public MovementState m_CurrentMovementState;
         [HideInInspector] public Rigidbody m_playerRigidbody;
-        [HideInInspector] public PlayerInputProcessor m_playerInput;
         [HideInInspector] public PlayerCameraController m_playerCameraController;
+        [HideInInspector] public PlayerAnimator m_playerAnimator;
 
         [Header("Base Movement Variables")] 
         [SerializeField] private float m_movementSpeed = 10f;
@@ -28,16 +28,14 @@ namespace Player
         private float m_magnitudeSpeedCutoff = 0.2f;
 
         [Header("Jumping Variables")] 
+        private const int EnvironmentLayerMask = 1;
         [SerializeField] private float m_jumpForce = 20f;
         [SerializeField] private Transform groundCheck;
         [SerializeField] private float m_groundCheckDistance;
-        [SerializeField] private float m_groundCheckDelay = 0.5f;
-        [SerializeField] private float m_landingStopSoftInputDelay = 1f;
-        [SerializeField] private float m_landingStopHardInputDelay = 2f;
-        [SerializeField] private float m_softLandingVelocityLimit = 16f;
-        private const int EnvironmentLayerMask = 1;
+        //this is used to stop the groundcheck from doing raycasts till the movement has moved 110% of ground check distance in y so it doesnt give false positives
+        private float m_previousYPositon;
+        private float m_jumpYDistanceTraveled = 0f;
         private bool m_isPlayerGrounded = true;
-        private Coroutine m_playerGroundCheckCoroutine = null;
 
         [Header("HammahWay Variables")] 
         [SerializeField] private float m_HammahWayMovementSpeed;
@@ -64,17 +62,20 @@ namespace Player
                 case MovementState.HammahWay:
                     //All updates should be done through a intermediate Vector3 so velocity is only being set once per frame otherwise jittering occurs with the camera.
                     Vector3 newVelocity;
-                    if (m_playerInput.CurrentMoveInput.magnitude < m_magnitudeSpeedCutoff)
+                    if (PlayerInputProcessor.Instance.CurrentMoveInput.magnitude < m_magnitudeSpeedCutoff)
                         newVelocity = SlowDownPlayerNoInput();
                     else
                         newVelocity = MovePlayer();
+
+                    if (m_isPlayerGrounded == false)
+                        GroundCheckUpdate();
 
                     //if (Mathf.Abs(newVelocity.y) > 1)
                     //    newVelocity.y -= m_additionalGravity;
                     m_playerRigidbody.velocity = newVelocity;
                     break;
                 case MovementState.SplineRiding:
-                    RideCurrentSplineMove();
+                    UpdateCurrentSplineMove();
                     break;
                 case MovementState.Cutscene:
                     break;
@@ -85,12 +86,14 @@ namespace Player
         private void SetToHammahWay()
         {
             m_CurrentMovementState = MovementState.HammahWay;
-            //Todo: Put reference to movehammertoriding function in playeranimator
+            m_playerAnimator.MoveHammerToRiding();
+            m_playerAnimator.GotoHammahWayState(0.2f);
         }
         private void SetToBaseMovement()
         {
             m_CurrentMovementState = MovementState.BaseMovement;
-            //Todo: Put reference to movehammertoback function in playeranimator
+            m_playerAnimator.MoveHammerToBack();
+            m_playerAnimator.GotoBaseMovementState(0.2f);
         }
 
         /// <summary>
@@ -98,6 +101,13 @@ namespace Player
         /// </summary>
         public void SwapMovement()
         {
+            if (m_CurrentMovementState == MovementState.SplineRiding || m_CurrentMovementState == MovementState.Cutscene)
+                return;
+
+            if (m_CurrentMovementState == MovementState.BaseMovement)
+                SetToHammahWay();
+            else
+                SetToBaseMovement();
         }
 #endregion
 
@@ -138,10 +148,10 @@ namespace Player
             Vector3 movementRight = new Vector3(cameraDirectionRight.x, 0, cameraDirectionRight.z).normalized;
             Vector3 movementForward = new Vector3(cameraDirectionForward.x, 0, cameraDirectionForward.z).normalized;
             
-            currentVelocity += (movementForward * m_playerInput.CurrentMoveInput.y + movementRight * m_playerInput.CurrentMoveInput.x).normalized * (m_movementSpeed * Time.deltaTime);
+            currentVelocity += (movementForward * PlayerInputProcessor.Instance.CurrentMoveInput.y + movementRight * PlayerInputProcessor.Instance.CurrentMoveInput.x).normalized * (m_movementSpeed * Time.deltaTime);
 
             //Reduce max speed so controller is able to walk.
-            float adjustedMaxSpeed = m_maxMovementSpeed * m_playerInput.CurrentMoveInput.magnitude;
+            float adjustedMaxSpeed = m_maxMovementSpeed * PlayerInputProcessor.Instance.CurrentMoveInput.magnitude;
             if (currentVelocity.magnitude > adjustedMaxSpeed)
                 currentVelocity = currentVelocity.normalized * adjustedMaxSpeed;
 
@@ -157,17 +167,17 @@ namespace Player
             Vector3 movementForward = transform.forward;
             movementForward.y = 0;
             
-            if (Mathf.Abs(m_playerInput.CurrentMoveInput.x) > 0.1f)
+            if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.1f)
             {
-                Quaternion angleToRotate = Quaternion.AngleAxis(m_playerInput.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, Vector3.up);
+                Quaternion angleToRotate = Quaternion.AngleAxis(PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, Vector3.up);
                 movementForward = angleToRotate * movementForward;
                 movementForward.y = 0;
                 movementForward = movementForward.normalized;
             }
 
-            currentVelocity += (movementForward) * (m_playerInput.CurrentMoveInput.y * m_HammahWayMovementSpeed * Time.deltaTime);
+            currentVelocity += (movementForward) * (PlayerInputProcessor.Instance.CurrentMoveInput.y * m_HammahWayMovementSpeed * Time.deltaTime);
 
-            float adjustedMaxSpeed = m_HammahWayMaxSpeed * m_playerInput.CurrentMoveInput.y;
+            float adjustedMaxSpeed = m_HammahWayMaxSpeed * PlayerInputProcessor.Instance.CurrentMoveInput.y;
             if (currentVelocity.magnitude > adjustedMaxSpeed)
                 currentVelocity = currentVelocity.normalized * adjustedMaxSpeed;
 
@@ -175,7 +185,7 @@ namespace Player
             return currentVelocity;
         }
 
-        private void RideCurrentSplineMove()
+        private void UpdateCurrentSplineMove()
         {
             m_splineRidingTimer += Time.deltaTime * m_splineDirection;
             //length of 32 / 4 riding speed = 8 seconds, being total duration required. timer / total duration = % complete goes straight into spline get position. 
@@ -244,44 +254,36 @@ namespace Player
             if (m_CurrentMovementState == MovementState.SplineRiding)
             {
                 m_CurrentMovementState = MovementState.BaseMovement;
-                //Probably need to add a previous direction and current position so i can just add a force to the player at a certain speed so it
-                //seems like the player gets launched off the rail.
                 return;
             }
 
-            //This is just so the force is always consistent even if Character mass changes
+            m_playerAnimator.GotoJumpStartState(0.1f);
             m_playerRigidbody.AddForce(0, m_jumpForce, 0, ForceMode.VelocityChange);
-        }
-
-        IEnumerator LandingInputDelay(bool softLanding)
-        {
-            //m_stopPlayerWASDInput = true;
-            yield return new WaitForSeconds(softLanding ? m_landingStopSoftInputDelay : m_landingStopHardInputDelay);
-            //m_stopPlayerWASDInput = false;
-        }
-
-        //Raycast immediately finds ground when first jumping. adding delay to stop this.
-        IEnumerator GroundCheckDelay()
-        {
-            yield return new WaitForSeconds(m_groundCheckDelay);
             m_isPlayerGrounded = false;
-            m_playerGroundCheckCoroutine = null;
         }
-
-        private void GroundCheck()
+        private void GroundCheckUpdate()
         {
-            //If the object is on the environment layer (not the non-jump environment layer)
-            if (Physics.Raycast(groundCheck.position, Vector3.down, m_groundCheckDistance, EnvironmentLayerMask))
+            //Until the player has gone up more than ground distance check so no false positives
+            //or until the player is falling (for when they go off a cliff not just on jump we dont want to raycast for ground checking.
+            if (m_jumpYDistanceTraveled < m_groundCheckDistance * 1.1f || m_playerRigidbody.velocity.y < 0)
             {
-                m_isPlayerGrounded = true;
-
-                if (m_playerRigidbody.velocity.y > -m_softLandingVelocityLimit)
+                float currentYPos = transform.position.y;
+                float yDifference = currentYPos - m_previousYPositon;
+                m_jumpYDistanceTraveled += yDifference;
+                m_previousYPositon = currentYPos;
+            }
+            else
+            {
+                //If the object is on the environment layer (not the non-jump environment layer)
+                if (Physics.Raycast(groundCheck.position, Vector3.down, m_groundCheckDistance, EnvironmentLayerMask))
                 {
-                    StartCoroutine(LandingInputDelay(true));
-                }
-                else
-                {
-                    StartCoroutine(LandingInputDelay(false));
+                    m_isPlayerGrounded = true;
+                    //for now no landing needed.
+                    m_playerAnimator.GotoBaseMovementState(0.2f);
+                    //if (m_playerRigidbody.velocity.y > -m_softLandingVelocityLimit)
+                    //    StartCoroutine(LandingInputDelay(true));
+                    //else
+                    //    StartCoroutine(LandingInputDelay(false));
                 }
             }
         }
@@ -289,19 +291,19 @@ namespace Player
 #endregion
 
 #region InputProcessing
-        public void SetupInputCallbacks(ref PlayerInput playerInput)
+        public void SetupInputCallbacks()
         {
-            playerInput.Default.SwapMovement.performed += SwapMovementInputStart;
-            playerInput.Default.SwapMovement.canceled += SwapMovementInputEnd;
-            playerInput.Default.Jump.performed += JumpInputStart;
-            playerInput.Default.Jump.canceled += JumpInputEnd;
+            PlayerInputProcessor.Instance.playerInput.Default.SwapMovement.performed += SwapMovementInputStart;
+            PlayerInputProcessor.Instance.playerInput.Default.SwapMovement.canceled += SwapMovementInputEnd;
+            PlayerInputProcessor.Instance.playerInput.Default.Jump.performed += JumpInputStart;
+            PlayerInputProcessor.Instance.playerInput.Default.Jump.canceled += JumpInputEnd;
         }
-        public void RemoveInputCallbacks(ref PlayerInput playerInput)
+        public void RemoveInputCallbacks()
         {
-            playerInput.Default.SwapMovement.performed -= SwapMovementInputStart;
-            playerInput.Default.SwapMovement.canceled -= SwapMovementInputEnd;
-            playerInput.Default.Jump.performed -= JumpInputStart;
-            playerInput.Default.Jump.canceled -= JumpInputEnd;
+            PlayerInputProcessor.Instance.playerInput.Default.SwapMovement.performed -= SwapMovementInputStart;
+            PlayerInputProcessor.Instance.playerInput.Default.SwapMovement.canceled -= SwapMovementInputEnd;
+            PlayerInputProcessor.Instance.playerInput.Default.Jump.performed -= JumpInputStart;
+            PlayerInputProcessor.Instance.playerInput.Default.Jump.canceled -= JumpInputEnd;
         }
         
         private void SwapMovementInputStart(InputAction.CallbackContext callback)

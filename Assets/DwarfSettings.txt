@@ -1,7 +1,7 @@
 {
     "InvertXLook": false,
     "InvertYLook": false,
-    "MouseXSens": 5.906842231750488,
+    "MouseXSens": 6.659065246582031,
     "MouseYSens": 10.0,
     "Brightness": 6.44712495803833,
     "Antialiasing": 2,

@@ -1,41 +1,42 @@
 using UI;
 using UnityEngine;
-using UnityEngine.Splines;
 
 namespace Player
 {
     //Make it easier when creating a new player by forcing all components to be added at once.
+    //RequireComponent has a limit.
     [
         RequireComponent(typeof(PlayerInputProcessor), typeof(Rigidbody), typeof(PlayerMovement)),
-        //RequireComponent has a limit.
-        RequireComponent(typeof(PlayerCameraController))
+        RequireComponent(typeof(PlayerCameraController), typeof(PlayerInteract), typeof(PlayerAnimator))
     ]
     public class PlayerManager : MonoBehaviour
     {
-        private PlayerInputProcessor m_playerInput;
         private PlayerMovement m_playerMovement;
         private PlayerCameraController m_playerCamera;
         private InGameMenuManager m_inGameMenuManager;
         private PlayerAnimator m_playerAnimator;
+        private PlayerInteract m_playerInteract;
 
         [SerializeField] private bool m_stopPlayerWASDInput = false;
 
-        private void Awake()
-        {
-            m_playerInput = GetComponent<PlayerInputProcessor>();
-            m_playerInput.SetupInput();
-        }
-
         private void Start()
         {
-            m_playerAnimator = GetComponentInChildren<PlayerAnimator>();
-            m_playerMovement = GetComponent<PlayerMovement>();
-            m_playerCamera = GetComponent<PlayerCameraController>();
+            m_playerAnimator = GetComponent<PlayerAnimator>();
+            m_playerAnimator.m_animator = GetComponentInChildren<Animator>();
+            
             m_inGameMenuManager = FindObjectOfType<InGameMenuManager>(true);
+            m_playerCamera = GetComponent<PlayerCameraController>();
+            
+            m_playerMovement = GetComponent<PlayerMovement>();
             m_playerMovement.m_playerRigidbody = GetComponent<Rigidbody>();
+            m_playerMovement.m_playerCameraController = m_playerCamera;
+            m_playerMovement.m_playerAnimator = m_playerAnimator;
+            m_playerAnimator.m_playerMovement = m_playerMovement;
+            
+            m_playerInteract = GetComponent<PlayerInteract>();
+            m_playerInteract.m_playerMovement = m_playerMovement;
             
             Cursor.lockState = CursorLockMode.Locked;
-            
             SetupInputCallbacks();
         }
 
@@ -49,6 +50,16 @@ namespace Player
             UpdateComponents();
         }
 
+        /// <summary>
+        /// On late update so movement of camera occurs after all velocities + movement has already been completed for this frame
+        /// </summary>
+        private void LateUpdate()
+        {
+            if (m_stopPlayerWASDInput || m_inGameMenuManager.MenuActive)
+                return;
+            m_playerCamera.UpdateCamera();
+        }
+
         private void UpdateCursorLock()
         {
             if (m_inGameMenuManager.MenuActive)
@@ -60,32 +71,22 @@ namespace Player
         private void UpdateComponents()
         {
             m_playerMovement.UpdateComponent();
+            m_playerAnimator.UpdateComponent();
         }
 
         private void SetupInputCallbacks()
         {
-            m_inGameMenuManager.SetupInputCallbacks(ref m_playerInput.playerInput);
-            m_playerMovement.SetupInputCallbacks(ref m_playerInput.playerInput);
-            m_playerCamera.SetupInputCallbacks(ref m_playerInput.playerInput);
+            m_inGameMenuManager.SetupInputCallbacks();
+            m_playerMovement.SetupInputCallbacks();
+            m_playerInteract.SetupInputCallbacks();
         }
 
         private void RemoveInputCallbacks()
         {
-            m_inGameMenuManager.RemoveInputCallbacks(ref m_playerInput.playerInput);
-            m_playerMovement.RemoveInputCallbacks(ref m_playerInput.playerInput);
-            m_playerCamera.RemoveInputCallbacks(ref m_playerInput.playerInput);
+            m_inGameMenuManager.RemoveInputCallbacks();
+            m_playerMovement.RemoveInputCallbacks();
+            m_playerInteract.RemoveInputCallbacks();
         }
-
-        /// <summary>
-        /// On late update so movement of camera occurs after all velocities + movement has already been completed for this frame
-        /// </summary>
-        private void LateUpdate()
-        {
-            if (m_stopPlayerWASDInput || m_inGameMenuManager.MenuActive)
-                return;
-            m_playerCamera.UpdateCamera(m_playerInput.CurrentMouseInput, m_playerInput.MouseInputFromController);
-        }
-
 
         /// <summary>
         /// Return value is for stopping the player move.

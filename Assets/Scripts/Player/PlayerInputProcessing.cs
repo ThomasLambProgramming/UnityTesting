@@ -1,18 +1,31 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerInputProcessor : MonoBehaviour
 {
+    public static PlayerInputProcessor Instance; 
     [HideInInspector] public bool MouseInputFromController = false;
     public Vector2 CurrentMoveInput => m_currentMoveInput;
     public Vector2 CurrentMouseInput => m_currentMouseInput;
-    public float CurrentZoomInput => m_currentZoomInput;
+    public Vector2 CurrentZoomInput => m_currentZoomInput;
     
     private Vector2 m_currentMoveInput = Vector2.zero;
     private Vector2 m_currentMouseInput = Vector2.zero;
-    private float m_currentZoomInput;
+    private Vector2 m_currentZoomInput;
     
     public PlayerInput playerInput;
+
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+        {
+            Debug.LogError("There are two player input processors, FIX!");
+        }
+        SetupInput();
+    }
 
     /// <summary>
     /// Initial Setup for player input requires creating a new input instance.
@@ -93,14 +106,14 @@ public class PlayerInputProcessor : MonoBehaviour
     
     public void ZoomCameraStarted(InputAction.CallbackContext callback)
     {
-        m_currentZoomInput = callback.ReadValue<float>();
+        m_currentZoomInput = callback.ReadValue<Vector2>();
     }
     public void ZoomCameraPerformed(InputAction.CallbackContext callback)
     {
-        m_currentZoomInput = callback.ReadValue<float>();
+        m_currentZoomInput = callback.ReadValue<Vector2>();
     }
     public void ZoomCameraCancelled(InputAction.CallbackContext callback)
     {
-        m_currentZoomInput = 0;
+        m_currentZoomInput = Vector2.zero;
     }
 }

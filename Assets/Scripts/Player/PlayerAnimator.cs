@@ -26,7 +26,7 @@ namespace Player
 
         private float m_previousAnimatorSpeedValue = 0;
         
-        public void UpdateAnimator()
+        public void UpdateComponent()
         {
             Vector3 currentVel = m_playerMovement.m_playerRigidbody.velocity;
             currentVel.y = 0;
@@ -45,6 +45,10 @@ namespace Player
         }
 
         public void GotoBaseMovementState(float transitionDuration)
+        {
+            m_animator.CrossFade("BaseMovementTree", transitionDuration);
+        }
+        public void GotoHammahWayState(float transitionDuration)
         {
             m_animator.CrossFade("BaseMovementTree", transitionDuration);
         }

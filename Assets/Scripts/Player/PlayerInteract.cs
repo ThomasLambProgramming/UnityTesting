@@ -6,8 +6,14 @@ namespace Player
 {
     public class PlayerInteract : MonoBehaviour
     {
-        public PlayerMovement m_playerMovement;
-        private readonly int InteractableLayermask = 1 << LayerMask.NameToLayer("Interactable");
+        [HideInInspector] public PlayerMovement m_playerMovement;
+        private int InteractableLayermask;
+
+        private void Awake()
+        {
+            InteractableLayermask = 1 << LayerMask.NameToLayer("Interactable");
+        }
+        
         private void PlayerInteractInputStarted()
         {
             Collider[] overlaps = Physics.OverlapSphere(transform.position, 5, InteractableLayermask);
@@ -19,15 +25,15 @@ namespace Player
             }
         }
 
-        public void SetupInputCallbacks(ref PlayerInput playerInput)
+        public void SetupInputCallbacks()
         {
-            playerInput.Default.Interact.performed += InteractInputStart;
-            playerInput.Default.Interact.canceled += InteractInputEnd;
+            PlayerInputProcessor.Instance.playerInput.Default.Interact.performed += InteractInputStart;
+            PlayerInputProcessor.Instance.playerInput.Default.Interact.canceled += InteractInputEnd;
         }
-        public void RemoveInputCallbacks(ref PlayerInput playerInput)
+        public void RemoveInputCallbacks()
         {
-            playerInput.Default.Interact.performed -= InteractInputStart;
-            playerInput.Default.Interact.canceled -= InteractInputEnd;
+            PlayerInputProcessor.Instance.playerInput.Default.Interact.performed -= InteractInputStart;
+            PlayerInputProcessor.Instance.playerInput.Default.Interact.canceled -= InteractInputEnd;
         }
         
         private void InteractInputStart(InputAction.CallbackContext callback)

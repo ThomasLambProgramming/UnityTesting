@@ -2437,6 +2437,8 @@ GameObject:
   - component: {fileID: 5403389364744770836}
   - component: {fileID: 8488225164969821320}
   - component: {fileID: 4282441878075680337}
+  - component: {fileID: 3915686501382488451}
+  - component: {fileID: 8403510143289695960}
   - component: {fileID: 6363731881286003687}
   - component: {fileID: 3231796413395578020}
   - component: {fileID: 6136623061850393124}
@@ -2479,18 +2481,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f085f0f5007b054bb434d8e5d27e241, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundCheck: {fileID: 600054924079047466}
-  m_groundCheckDistance: 0.3
-  m_groundCheckDelay: 0.5
-  m_landingStopSoftInputDelay: 1
-  m_landingStopHardInputDelay: 2
-  m_softLandingVelocityLimit: 16
-  m_animatorLerpSpeed: 7
   m_stopPlayerWASDInput: 0
-  m_hammerWayObject: {fileID: 2502866430875750598}
-  m_backAttachSocket: {fileID: 4264813805244924395}
-  m_handAttachSocket: {fileID: 3528743335103382599}
-  m_groundAttachSocket: {fileID: 4781748315704604520}
 --- !u!114 &8488225164969821320
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2503,19 +2494,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba8d9a368025cdd42b47a259553f014a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerRigidbody: {fileID: 0}
   m_CurrentMovementState: 0
+  m_playerRigidbody: {fileID: 0}
+  m_playerCameraController: {fileID: 0}
+  m_playerAnimator: {fileID: 0}
   m_movementSpeed: 400
   m_maxMovementSpeed: 6
   m_slowdownPercentage: 0.98
   m_rotateToVelocitySpeed: 10
   m_jumpForce: 8
+  groundCheck: {fileID: 0}
+  m_groundCheckDistance: 0
   m_HammahWayMovementSpeed: 0
   m_HammahWayMaxSpeed: 0
   m_HammahWayTurningSpeed: 0
   m_HammahWayMaxTurningSpeed: 0
   m_additionalBaseMovementGravity: 9.81
   m_additionalHammahWayGravity: 9.81
+  m_splineRideSpeed: 4
+  m_splineRidingOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4282441878075680337
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2536,6 +2533,38 @@ MonoBehaviour:
   m_delayInputAtStartDuration: 1
   m_freelookCamera: {fileID: 0}
   m_stopTrackingPlayer: 0
+--- !u!114 &3915686501382488451
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7054173407681390824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: feb5b16edf8cd3742af747d045e01321, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_animator: {fileID: 0}
+  m_playerMovement: {fileID: 0}
+  m_animatorLerpSpeed: 7
+  m_hammerWayObject: {fileID: 2502866430875750598}
+  m_backAttachSocket: {fileID: 4264813805244924395}
+  m_handAttachSocket: {fileID: 3528743335103382599}
+  m_groundAttachSocket: {fileID: 4781748315704604520}
+--- !u!114 &8403510143289695960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7054173407681390824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e37c1223b5354b441a29aa11264a1088, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_playerMovement: {fileID: 0}
 --- !u!114 &6363731881286003687
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -63,7 +63,7 @@
                     "name": "ZoomCamera",
                     "type": "Value",
                     "id": "fd5cb627-7d2d-4c1e-9dac-b6d0bed2ec1d",
-                    "expectedControlType": "Delta",
+                    "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
