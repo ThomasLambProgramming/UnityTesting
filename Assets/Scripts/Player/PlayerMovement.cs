@@ -88,12 +88,14 @@ namespace Player
             m_CurrentMovementState = MovementState.HammahWay;
             m_playerAnimator.MoveHammerToRiding();
             m_playerAnimator.GotoHammahWayState(0.2f);
+            m_playerRigidbody.useGravity = true;
         }
         private void SetToBaseMovement()
         {
             m_CurrentMovementState = MovementState.BaseMovement;
             m_playerAnimator.MoveHammerToBack();
             m_playerAnimator.GotoBaseMovementState(0.2f);
+            m_playerRigidbody.useGravity = true;
         }
 
         /// <summary>
@@ -192,15 +194,17 @@ namespace Player
             float splinePosition = m_splineRidingTimer / (m_currentSpline.CalculateLength() / m_splineRideSpeed);
             transform.position = (Vector3)m_currentSpline.EvaluatePosition(splinePosition) + m_splineRidingOffset;
 
-            //the 0.9 >= is to account for floating point errors.
-            if (m_splineDirection >= 0.9f && splinePosition > 0.98f)
+            Vector3 splineDirection = (Vector3)m_currentSpline.EvaluatePosition(splinePosition + 0.02f * m_splineDirection) - (transform.position - m_splineRidingOffset);
+            if (splineDirection != Vector3.zero)
             {
-                m_CurrentMovementState = MovementState.BaseMovement;
+                splineDirection = splineDirection.normalized;
+                transform.rotation = Quaternion.LookRotation(splineDirection);
             }
 
-            if (m_splineDirection <= -0.9f && splinePosition < 0.02f)
+            //the 0.9 >= is to account for floating point errors and we want to cut off before the above checking distance so comparisons between spline 1.0 and 1.0 arent done giving zero vectors.
+            if ((m_splineDirection >= 0.9f && splinePosition > 0.98f) || (m_splineDirection <= -0.9f && splinePosition < 0.02f))
             {
-                m_CurrentMovementState = MovementState.BaseMovement;
+                SetToBaseMovement();
             }
         }
 
@@ -234,8 +238,11 @@ namespace Player
             float dotBackward = Vector3.Dot((backwardPosition - (Vector3)m_currentSpline.EvaluatePosition(positionOnSpline)).normalized, cameraForwardDirection);
 
             m_splineDirection = dotForward > dotBackward ? 1.0f : -1.0f;
-
             m_splineRidingTimer = positionOnSpline * (m_currentSpline.CalculateLength() / m_splineRideSpeed);
+            
+            m_playerRigidbody.velocity = Vector3.zero;
+            //While updating the player position gravity will continue to apply so by the end of the velocity the player could already have -100s of y velocity 
+            m_playerRigidbody.useGravity = false;
         }
 
         private float GetCharacterPositionOnSpline()
@@ -253,7 +260,7 @@ namespace Player
         {
             if (m_CurrentMovementState == MovementState.SplineRiding)
             {
-                m_CurrentMovementState = MovementState.BaseMovement;
+                SetToBaseMovement();
                 return;
             }
 
