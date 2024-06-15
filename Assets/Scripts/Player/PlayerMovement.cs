@@ -264,19 +264,24 @@ namespace Player
                 return;
             }
 
-            m_playerAnimator.GotoJumpStartState(0.1f);
-            m_playerRigidbody.AddForce(0, m_jumpForce, 0, ForceMode.VelocityChange);
-            m_isPlayerGrounded = false;
+            if (m_isPlayerGrounded)
+            {
+                m_playerAnimator.GotoJumpStartState(0.1f);
+                m_playerRigidbody.AddForce(0, m_jumpForce, 0, ForceMode.VelocityChange);
+                m_jumpYDistanceTraveled = 0;
+                m_isPlayerGrounded = false;
+                m_previousYPositon = transform.position.y;
+            }
         }
         private void GroundCheckUpdate()
         {
             //Until the player has gone up more than ground distance check so no false positives
-            //or until the player is falling (for when they go off a cliff not just on jump we dont want to raycast for ground checking.
-            if (m_jumpYDistanceTraveled < m_groundCheckDistance * 1.1f || m_playerRigidbody.velocity.y < 0)
+            //or until the player is falling after coyote time (for when they go off a cliff not just on jump we dont want to raycast for ground checking.
+            if (m_jumpYDistanceTraveled < m_groundCheckDistance * 1.1f)
             {
                 float currentYPos = transform.position.y;
                 float yDifference = currentYPos - m_previousYPositon;
-                m_jumpYDistanceTraveled += yDifference;
+                m_jumpYDistanceTraveled += Mathf.Abs(yDifference);
                 m_previousYPositon = currentYPos;
             }
             else
