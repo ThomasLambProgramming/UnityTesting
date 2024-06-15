@@ -63,11 +63,11 @@ namespace UI
         }
         public void SetupInputCallbacks()
         {
-            PlayerInputProcessor.Instance.playerInput.Default.Pause.started += PauseMenuInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Pause.started += PauseMenuInputStart;
         }
         public void RemoveInputCallbacks()
         {
-            PlayerInputProcessor.Instance.playerInput.Default.Pause.started -= PauseMenuInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Pause.started -= PauseMenuInputStart;
         }
     }
 }

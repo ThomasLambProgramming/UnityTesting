@@ -27,13 +27,13 @@ namespace Player
 
         public void SetupInputCallbacks()
         {
-            PlayerInputProcessor.Instance.playerInput.Default.Interact.performed += InteractInputStart;
-            PlayerInputProcessor.Instance.playerInput.Default.Interact.canceled += InteractInputEnd;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Interact.performed += InteractInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Interact.canceled += InteractInputEnd;
         }
         public void RemoveInputCallbacks()
         {
-            PlayerInputProcessor.Instance.playerInput.Default.Interact.performed -= InteractInputStart;
-            PlayerInputProcessor.Instance.playerInput.Default.Interact.canceled -= InteractInputEnd;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Interact.performed -= InteractInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Interact.canceled -= InteractInputEnd;
         }
         
         private void InteractInputStart(InputAction.CallbackContext callback)

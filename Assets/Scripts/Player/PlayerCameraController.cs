@@ -1,4 +1,5 @@
-﻿using Cinemachine;
+﻿using System.Collections;
+using Cinemachine;
 using UI;
 using UnityEngine;
 
@@ -27,24 +28,35 @@ namespace Player
         [SerializeField] private CinemachineFreeLook m_freelookCamera;
         [SerializeField] private bool m_stopTrackingPlayer = false;
 
-        [SerializeField] private float m_percentZoomAllowed = 40f;
         [SerializeField] private float m_zoomSpeed = 1f;
-        private float m_currentZoom = 0;
-        private float m_originalCameraBottomRigRadius;
-        private float m_originalCameraMiddleRigRadius;
-        private float m_originalCameraTopRigRadius;
+        [SerializeField] private float m_minZoomRadius;
+        [SerializeField] private float m_maxZoomRadius;
+        [SerializeField] private float m_zoomLerpSpeed = 3f;
         
         private float m_currentCameraBottomRigRadius;
         private float m_currentCameraMiddleRigRadius;
         private float m_currentCameraTopRigRadius;
         
+        private float m_previousCameraBottomRigRadius;
+        private float m_previousCameraMiddleRigRadius;
+        private float m_previousCameraTopRigRadius;
+
+
+        private bool m_allowZoom = false;
+        
         private void Start()
         {
             m_mainCamera = Camera.main;
+            m_allowZoom = false;
+            StartCoroutine(DelayZoom());
+
+            m_currentCameraTopRigRadius = m_freelookCamera.m_Orbits[0].m_Radius;
+            m_currentCameraMiddleRigRadius = m_freelookCamera.m_Orbits[1].m_Radius;
+            m_currentCameraBottomRigRadius = m_freelookCamera.m_Orbits[2].m_Radius;
             
-            m_originalCameraTopRigRadius = m_freelookCamera.m_Orbits[0].m_Radius;
-            m_originalCameraMiddleRigRadius = m_freelookCamera.m_Orbits[1].m_Radius;
-            m_originalCameraBottomRigRadius = m_freelookCamera.m_Orbits[2].m_Radius;
+            m_previousCameraTopRigRadius = m_currentCameraTopRigRadius;
+            m_previousCameraMiddleRigRadius = m_currentCameraMiddleRigRadius;
+            m_previousCameraBottomRigRadius = m_currentCameraBottomRigRadius;
         }
 
         public void UpdateCamera()
@@ -70,13 +82,32 @@ namespace Player
             if (SettingsData.Instance.Data.InvertYLook)
                 yAxisInputValue = -xAxisInputValue;
 
-            m_currentZoom += Time.deltaTime * m_zoomSpeed * PlayerInputProcessor.Instance.CurrentZoomInput.y;
-            m_currentCameraTopRigRadius = m_originalCameraTopRigRadius * (1 + m_percentZoomAllowed / 100) * m_currentZoom;
-            m_currentCameraMiddleRigRadius = m_originalCameraMiddleRigRadius;
-            m_currentCameraBottomRigRadius = m_originalCameraBottomRigRadius;
+            float currentZoomInput = Time.deltaTime * m_zoomSpeed * -PlayerInputProcessor.Instance.CurrentZoomInput.y;
             
+            if (currentZoomInput != 0 && m_allowZoom)
+            {
+                m_currentCameraTopRigRadius = Mathf.Clamp(Mathf.Lerp(m_previousCameraTopRigRadius, m_currentCameraTopRigRadius + currentZoomInput, Time.deltaTime * m_zoomLerpSpeed), m_minZoomRadius, m_maxZoomRadius);
+                m_currentCameraMiddleRigRadius = Mathf.Clamp(Mathf.Lerp(m_previousCameraMiddleRigRadius, m_currentCameraMiddleRigRadius + currentZoomInput, Time.deltaTime * m_zoomLerpSpeed), m_minZoomRadius, m_maxZoomRadius);
+                m_currentCameraBottomRigRadius = Mathf.Clamp(Mathf.Lerp(m_previousCameraBottomRigRadius, m_currentCameraBottomRigRadius + currentZoomInput, Time.deltaTime * m_zoomLerpSpeed), m_minZoomRadius, m_maxZoomRadius);
+
+                m_previousCameraTopRigRadius = m_currentCameraTopRigRadius;
+                m_previousCameraMiddleRigRadius = m_currentCameraMiddleRigRadius;
+                m_previousCameraBottomRigRadius = m_currentCameraBottomRigRadius;
+
+                m_freelookCamera.m_Orbits[0].m_Radius = m_currentCameraTopRigRadius;
+                m_freelookCamera.m_Orbits[1].m_Radius = m_currentCameraMiddleRigRadius;
+                m_freelookCamera.m_Orbits[2].m_Radius = m_currentCameraBottomRigRadius;
+            }
+
             m_freelookCamera.m_YAxis.Value += yAxisInputValue;
             m_freelookCamera.m_XAxis.Value += xAxisInputValue;
+        }
+
+        IEnumerator DelayZoom()
+        {
+            m_allowZoom = false;
+            yield return new WaitForSeconds(1.5f);
+            m_allowZoom = true;
         }
     }
 }

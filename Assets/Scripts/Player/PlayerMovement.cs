@@ -293,17 +293,17 @@ namespace Player
 #region InputProcessing
         public void SetupInputCallbacks()
         {
-            PlayerInputProcessor.Instance.playerInput.Default.SwapMovement.performed += SwapMovementInputStart;
-            PlayerInputProcessor.Instance.playerInput.Default.SwapMovement.canceled += SwapMovementInputEnd;
-            PlayerInputProcessor.Instance.playerInput.Default.Jump.performed += JumpInputStart;
-            PlayerInputProcessor.Instance.playerInput.Default.Jump.canceled += JumpInputEnd;
+            PlayerInputProcessor.Instance.m_playerInput.Default.SwapMovement.performed += SwapMovementInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.SwapMovement.canceled += SwapMovementInputEnd;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Jump.performed += JumpInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Jump.canceled += JumpInputEnd;
         }
         public void RemoveInputCallbacks()
         {
-            PlayerInputProcessor.Instance.playerInput.Default.SwapMovement.performed -= SwapMovementInputStart;
-            PlayerInputProcessor.Instance.playerInput.Default.SwapMovement.canceled -= SwapMovementInputEnd;
-            PlayerInputProcessor.Instance.playerInput.Default.Jump.performed -= JumpInputStart;
-            PlayerInputProcessor.Instance.playerInput.Default.Jump.canceled -= JumpInputEnd;
+            PlayerInputProcessor.Instance.m_playerInput.Default.SwapMovement.performed -= SwapMovementInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.SwapMovement.canceled -= SwapMovementInputEnd;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Jump.performed -= JumpInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.Jump.canceled -= JumpInputEnd;
         }
         
         private void SwapMovementInputStart(InputAction.CallbackContext callback)

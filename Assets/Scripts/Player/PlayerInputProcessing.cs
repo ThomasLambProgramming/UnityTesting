@@ -14,7 +14,7 @@ public class PlayerInputProcessor : MonoBehaviour
     private Vector2 m_currentMouseInput = Vector2.zero;
     private Vector2 m_currentZoomInput;
     
-    public PlayerInput playerInput;
+    public PlayerInput m_playerInput;
 
     private void Awake()
     {
@@ -32,7 +32,7 @@ public class PlayerInputProcessor : MonoBehaviour
     /// </summary>
     public void SetupInput()
     {
-        playerInput = new PlayerInput();
+        m_playerInput = new PlayerInput();
         EnableInput();
     }
     
@@ -41,37 +41,37 @@ public class PlayerInputProcessor : MonoBehaviour
     /// </summary>
     public void EnableInput()
     {
-        playerInput.Enable();
+        m_playerInput.Enable();
         SetupCallbacks();
     }
     public void SetupCallbacks()
     {
-        playerInput.Default.Movement.started += MovementStarted;
-        playerInput.Default.Movement.performed += MovementPerformed;
-        playerInput.Default.Movement.canceled += MovementCancelled;
+        m_playerInput.Default.Movement.started += MovementStarted;
+        m_playerInput.Default.Movement.performed += MovementPerformed;
+        m_playerInput.Default.Movement.canceled += MovementCancelled;
         
-        playerInput.Default.MoveCamera.started += MoveCameraStarted;
-        playerInput.Default.MoveCamera.performed += MoveCameraPerformed;
-        playerInput.Default.MoveCamera.canceled += MoveCameraCancelled;
+        m_playerInput.Default.MoveCamera.started += MoveCameraStarted;
+        m_playerInput.Default.MoveCamera.performed += MoveCameraPerformed;
+        m_playerInput.Default.MoveCamera.canceled += MoveCameraCancelled;
         
-        playerInput.Default.ZoomCamera.started += ZoomCameraStarted;
-        playerInput.Default.ZoomCamera.performed += ZoomCameraPerformed;
-        playerInput.Default.ZoomCamera.canceled += ZoomCameraCancelled;
+        m_playerInput.Default.ZoomCamera.started += ZoomCameraStarted;
+        m_playerInput.Default.ZoomCamera.performed += ZoomCameraPerformed;
+        m_playerInput.Default.ZoomCamera.canceled += ZoomCameraCancelled;
     }
 
     public void RemoveCallbacks()
     {
-        playerInput.Default.Movement.started -= MovementStarted;
-        playerInput.Default.Movement.performed -= MovementPerformed;
-        playerInput.Default.Movement.canceled -= MovementCancelled;
+        m_playerInput.Default.Movement.started -= MovementStarted;
+        m_playerInput.Default.Movement.performed -= MovementPerformed;
+        m_playerInput.Default.Movement.canceled -= MovementCancelled;
         
-        playerInput.Default.MoveCamera.started -= MoveCameraStarted;
-        playerInput.Default.MoveCamera.performed -= MoveCameraPerformed;
-        playerInput.Default.MoveCamera.canceled -= MoveCameraCancelled;
+        m_playerInput.Default.MoveCamera.started -= MoveCameraStarted;
+        m_playerInput.Default.MoveCamera.performed -= MoveCameraPerformed;
+        m_playerInput.Default.MoveCamera.canceled -= MoveCameraCancelled;
         
-        playerInput.Default.ZoomCamera.started -= ZoomCameraStarted;
-        playerInput.Default.ZoomCamera.performed -= ZoomCameraPerformed;
-        playerInput.Default.ZoomCamera.canceled -= ZoomCameraCancelled;
+        m_playerInput.Default.ZoomCamera.started -= ZoomCameraStarted;
+        m_playerInput.Default.ZoomCamera.performed -= ZoomCameraPerformed;
+        m_playerInput.Default.ZoomCamera.canceled -= ZoomCameraCancelled;
     }
 
     public void MovementStarted(InputAction.CallbackContext callback)
