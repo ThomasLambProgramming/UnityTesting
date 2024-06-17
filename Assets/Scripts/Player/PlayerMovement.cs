@@ -85,6 +85,7 @@ namespace Player
 #region MovementStateSwapping 
         private void SetToHammahWay()
         {
+            Debug.Log("SetToHammahWay");
             m_CurrentMovementState = MovementState.HammahWay;
             m_playerAnimator.MoveHammerToRiding();
             m_playerAnimator.GotoHammahWayState(0.2f);
@@ -92,6 +93,7 @@ namespace Player
         }
         private void SetToBaseMovement()
         {
+            Debug.Log("SetToBaseMovement");
             m_CurrentMovementState = MovementState.BaseMovement;
             m_playerAnimator.MoveHammerToBack();
             m_playerAnimator.GotoBaseMovementState(0.2f);
@@ -192,9 +194,12 @@ namespace Player
             m_splineRidingTimer += Time.deltaTime * m_splineDirection;
             //length of 32 / 4 riding speed = 8 seconds, being total duration required. timer / total duration = % complete goes straight into spline get position. 
             float splinePosition = m_splineRidingTimer / (m_currentSpline.CalculateLength() / m_splineRideSpeed);
-            transform.position = (Vector3)m_currentSpline.EvaluatePosition(splinePosition) + m_splineRidingOffset;
+            transform.position = (Vector3)m_currentSpline.EvaluatePosition(splinePosition) + 
+                                 //Get normal of spline through cross product of up and tangent vectors and offset using spline direction and preset offset
+                                 Vector3.Cross(m_currentSpline.EvaluateTangent(splinePosition), m_currentSpline.EvaluateUpVector(splinePosition)).normalized * (m_splineRidingOffset.x * m_splineDirection) + 
+                                 (Vector3)m_currentSpline.EvaluateUpVector(splinePosition) * m_splineRidingOffset.y;
 
-            Vector3 splineDirection = (Vector3)m_currentSpline.EvaluatePosition(splinePosition + 0.02f * m_splineDirection) - (transform.position - m_splineRidingOffset);
+            Vector3 splineDirection = (Vector3)m_currentSpline.EvaluatePosition(splinePosition + 0.001f * m_splineDirection) - (Vector3)m_currentSpline.EvaluatePosition(splinePosition);
             if (splineDirection != Vector3.zero)
             {
                 splineDirection = splineDirection.normalized;
@@ -229,7 +234,10 @@ namespace Player
             m_currentSpline = splineContainer;
             m_CurrentMovementState = MovementState.SplineRiding;
             float positionOnSpline = GetCharacterPositionOnSpline();
-
+            m_playerAnimator.GotoSplineMovementState(0.2f);
+            m_playerAnimator.MoveHammerToHand();
+            Debug.Log("SetToSplineRiding");
+            
             Vector3 forwardPosition = m_currentSpline.EvaluatePosition(positionOnSpline + 0.1f);
             Vector3 backwardPosition = m_currentSpline.EvaluatePosition(positionOnSpline - 0.1f);
 

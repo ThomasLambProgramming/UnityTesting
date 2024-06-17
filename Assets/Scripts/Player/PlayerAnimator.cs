@@ -23,6 +23,7 @@ namespace Player
         private readonly int HardLandAnimatorId = Animator.StringToHash("HardLand");
         private readonly int AttackHorizontalAnimatorId = Animator.StringToHash("AttackHorizontal");
         private readonly int ResetToBaseMovementAnimatorId = Animator.StringToHash("ResetToBaseMovement");
+        private readonly int HoldingSplineAnimatorId = Animator.StringToHash("SplineRiding");
 
         private float m_previousAnimatorSpeedValue = 0;
         
@@ -35,7 +36,7 @@ namespace Player
             m_previousAnimatorSpeedValue = animatorSpeedValue;
 
             //for now just disable the movement.
-            if (m_playerMovement.m_CurrentMovementState == MovementState.SplineRiding || m_playerMovement.m_CurrentMovementState == MovementState.HammahWay)
+            if (m_playerMovement.m_CurrentMovementState == MovementState.HammahWay)
             {
                 animatorSpeedValue = 0;
                 GotoBaseMovementState(0.2f);
@@ -54,7 +55,7 @@ namespace Player
         }
         public void GotoSplineMovementState(float transitionDuration)
         {
-            
+            m_animator.CrossFade("SplineRiding", transitionDuration);
         }
         public void GotoJumpStartState(float transitionDuration)
         {
@@ -84,7 +85,10 @@ namespace Player
         }
         public void MoveHammerToHand()
         {
-            
+            m_hammerWayObject.transform.parent = m_handAttachSocket;
+            m_hammerWayObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
+            m_hammerWayObject.transform.localPosition = Vector3.zero;
+            m_hammerWayObject.GetComponentInChildren<Collider>().enabled = false;
         }
         public void MoveHammerToRiding()
         {
