@@ -1,5 +1,6 @@
 using System.Collections;
 using Unity.Mathematics;
+using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Splines;
@@ -50,6 +51,9 @@ namespace Player
         [Header("Spline Variables")] 
         [Tooltip("Units/second traveled on a spline")] [SerializeField] private float m_splineRideSpeed = 4f;
         [SerializeField] private Vector3 m_splineRidingOffset;
+        [SerializeField] private float m_splineCorrectiveRotationSpeed = 5f;
+        [SerializeField] private float m_splineCorrectiveRotationDuration = 1.0f;
+        private Coroutine m_splineCorrectiveCoroutine = null;
         private float m_splineRidingTimer = 0;
         private float m_splineDirection = 1.0f;
         private SplineContainer m_currentSpline;
@@ -86,6 +90,9 @@ namespace Player
         private void SetToHammahWay()
         {
             Debug.Log("SetToHammahWay");
+            if (m_CurrentMovementState == MovementState.SplineRiding)
+                StartCorrectingRotationFromSpline();
+            
             m_CurrentMovementState = MovementState.HammahWay;
             m_playerAnimator.MoveHammerToRiding();
             m_playerAnimator.GotoHammahWayState(0.2f);
@@ -94,10 +101,20 @@ namespace Player
         private void SetToBaseMovement()
         {
             Debug.Log("SetToBaseMovement");
+            if (m_CurrentMovementState == MovementState.SplineRiding)
+                StartCorrectingRotationFromSpline();
+                
             m_CurrentMovementState = MovementState.BaseMovement;
             m_playerAnimator.MoveHammerToBack();
             m_playerAnimator.GotoBaseMovementState(0.2f);
             m_playerRigidbody.useGravity = true;
+        }
+        private void SetToSplineRiding()
+        {
+            Debug.Log("SetToSplineRiding");
+            m_CurrentMovementState = MovementState.SplineRiding;
+            m_playerAnimator.GotoSplineMovementState(0.2f);
+            m_playerAnimator.MoveHammerToHand();
         }
 
         /// <summary>
@@ -206,6 +223,8 @@ namespace Player
                 transform.rotation = Quaternion.LookRotation(splineDirection);
             }
 
+            //Insuring that the player doesnt get moved causing jittering.
+            m_playerRigidbody.velocity = Vector3.zero;
             //the 0.9 >= is to account for floating point errors and we want to cut off before the above checking distance so comparisons between spline 1.0 and 1.0 arent done giving zero vectors.
             if ((m_splineDirection >= 0.9f && splinePosition > 0.98f) || (m_splineDirection <= -0.9f && splinePosition < 0.02f))
             {
@@ -231,12 +250,9 @@ namespace Player
 
         public void StartSplineRiding(SplineContainer splineContainer)
         {
+            SetToSplineRiding();
             m_currentSpline = splineContainer;
-            m_CurrentMovementState = MovementState.SplineRiding;
             float positionOnSpline = GetCharacterPositionOnSpline();
-            m_playerAnimator.GotoSplineMovementState(0.2f);
-            m_playerAnimator.MoveHammerToHand();
-            Debug.Log("SetToSplineRiding");
             
             Vector3 forwardPosition = m_currentSpline.EvaluatePosition(positionOnSpline + 0.1f);
             Vector3 backwardPosition = m_currentSpline.EvaluatePosition(positionOnSpline - 0.1f);
@@ -258,6 +274,31 @@ namespace Player
             //Thank god there was a get nearest point, i was going to do some hellish binary search.
             SplineUtility.GetNearestPoint(m_currentSpline.Spline, m_currentSpline.transform.InverseTransformPoint(transform.position), out float3 nearestPoint, out float splinePosition, 8, 4);
             return splinePosition;
+        }
+
+        private void StartCorrectingRotationFromSpline()
+        {
+            if (m_splineCorrectiveCoroutine != null)
+                StopCoroutine(m_splineCorrectiveCoroutine);
+            m_splineCorrectiveCoroutine = StartCoroutine(CorrectRotationFromSplineRiding());
+        }
+
+        IEnumerator CorrectRotationFromSplineRiding()
+        {
+            float timer = 0;
+            while (timer < m_splineCorrectiveRotationDuration)
+            {
+                timer += Time.deltaTime;
+
+                Vector3 forwardDirection = transform.forward;
+                forwardDirection.y = 0;
+                forwardDirection = forwardDirection.normalized;
+                transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(forwardDirection), m_splineCorrectiveRotationSpeed * Time.deltaTime);
+                
+                yield return null;
+            }
+
+            m_splineCorrectiveCoroutine = null;
         }
 
 #endregion
