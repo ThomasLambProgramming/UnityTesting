@@ -143,6 +143,33 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ChangeMenuTabRight"",
+                    ""type"": ""Button"",
+                    ""id"": ""c619dca1-c560-438c-a07f-294b7065f6a0"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ChangeMenuTabLeft"",
+                    ""type"": ""Button"",
+                    ""id"": ""046612e3-d4a9-4913-a7b2-65624ef1b3e7"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""MenuBack"",
+                    ""type"": ""Button"",
+                    ""id"": ""15d1a459-e63e-4e20-91d2-8b1de9d1f2d3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -409,6 +436,72 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""SwapMovement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""60a7fff7-1406-451d-aaf1-44eb678aafaa"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangeMenuTabRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""57914e8d-69ed-4f66-9e77-0479ae819c87"",
+                    ""path"": ""<Gamepad>/rightShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangeMenuTabRight"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""835d3588-89de-4814-a939-9b03a10a3c09"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangeMenuTabLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4261d16a-ed30-423b-bdb5-9a9a514033bb"",
+                    ""path"": ""<Gamepad>/leftShoulder"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangeMenuTabLeft"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""d9ec300f-7bf0-4846-9dab-1c49ba83a1e0"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MenuBack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""914e826e-69fb-4d54-b6d6-3490cf6853c9"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MenuBack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -430,6 +523,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Default_Debug4 = m_Default.FindAction("Debug4", throwIfNotFound: true);
         m_Default_Debug5 = m_Default.FindAction("Debug5", throwIfNotFound: true);
         m_Default_Pause = m_Default.FindAction("Pause", throwIfNotFound: true);
+        m_Default_ChangeMenuTabRight = m_Default.FindAction("ChangeMenuTabRight", throwIfNotFound: true);
+        m_Default_ChangeMenuTabLeft = m_Default.FindAction("ChangeMenuTabLeft", throwIfNotFound: true);
+        m_Default_MenuBack = m_Default.FindAction("MenuBack", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -504,6 +600,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Default_Debug4;
     private readonly InputAction m_Default_Debug5;
     private readonly InputAction m_Default_Pause;
+    private readonly InputAction m_Default_ChangeMenuTabRight;
+    private readonly InputAction m_Default_ChangeMenuTabLeft;
+    private readonly InputAction m_Default_MenuBack;
     public struct DefaultActions
     {
         private @PlayerInput m_Wrapper;
@@ -521,6 +620,9 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Debug4 => m_Wrapper.m_Default_Debug4;
         public InputAction @Debug5 => m_Wrapper.m_Default_Debug5;
         public InputAction @Pause => m_Wrapper.m_Default_Pause;
+        public InputAction @ChangeMenuTabRight => m_Wrapper.m_Default_ChangeMenuTabRight;
+        public InputAction @ChangeMenuTabLeft => m_Wrapper.m_Default_ChangeMenuTabLeft;
+        public InputAction @MenuBack => m_Wrapper.m_Default_MenuBack;
         public InputActionMap Get() { return m_Wrapper.m_Default; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -569,6 +671,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Pause.started += instance.OnPause;
             @Pause.performed += instance.OnPause;
             @Pause.canceled += instance.OnPause;
+            @ChangeMenuTabRight.started += instance.OnChangeMenuTabRight;
+            @ChangeMenuTabRight.performed += instance.OnChangeMenuTabRight;
+            @ChangeMenuTabRight.canceled += instance.OnChangeMenuTabRight;
+            @ChangeMenuTabLeft.started += instance.OnChangeMenuTabLeft;
+            @ChangeMenuTabLeft.performed += instance.OnChangeMenuTabLeft;
+            @ChangeMenuTabLeft.canceled += instance.OnChangeMenuTabLeft;
+            @MenuBack.started += instance.OnMenuBack;
+            @MenuBack.performed += instance.OnMenuBack;
+            @MenuBack.canceled += instance.OnMenuBack;
         }
 
         private void UnregisterCallbacks(IDefaultActions instance)
@@ -612,6 +723,15 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Pause.started -= instance.OnPause;
             @Pause.performed -= instance.OnPause;
             @Pause.canceled -= instance.OnPause;
+            @ChangeMenuTabRight.started -= instance.OnChangeMenuTabRight;
+            @ChangeMenuTabRight.performed -= instance.OnChangeMenuTabRight;
+            @ChangeMenuTabRight.canceled -= instance.OnChangeMenuTabRight;
+            @ChangeMenuTabLeft.started -= instance.OnChangeMenuTabLeft;
+            @ChangeMenuTabLeft.performed -= instance.OnChangeMenuTabLeft;
+            @ChangeMenuTabLeft.canceled -= instance.OnChangeMenuTabLeft;
+            @MenuBack.started -= instance.OnMenuBack;
+            @MenuBack.performed -= instance.OnMenuBack;
+            @MenuBack.canceled -= instance.OnMenuBack;
         }
 
         public void RemoveCallbacks(IDefaultActions instance)
@@ -644,5 +764,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnDebug4(InputAction.CallbackContext context);
         void OnDebug5(InputAction.CallbackContext context);
         void OnPause(InputAction.CallbackContext context);
+        void OnChangeMenuTabRight(InputAction.CallbackContext context);
+        void OnChangeMenuTabLeft(InputAction.CallbackContext context);
+        void OnMenuBack(InputAction.CallbackContext context);
     }
 }

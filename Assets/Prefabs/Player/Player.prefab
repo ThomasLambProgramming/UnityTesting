@@ -789,7 +789,9 @@ MonoBehaviour:
   m_additionalBaseMovementGravity: 9.81
   m_additionalHammahWayGravity: 9.81
   m_splineRideSpeed: 20
-  m_splineRidingOffset: {x: 0, y: -2.7, z: 0}
+  m_splineRidingOffset: {x: 1, y: -3, z: 0}
+  m_splineCorrectiveRotationSpeed: 800
+  m_splineCorrectiveRotationDuration: 1
 --- !u!114 &4282441878075680337
 MonoBehaviour:
   m_ObjectHideFlags: 0

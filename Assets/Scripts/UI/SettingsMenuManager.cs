@@ -1,10 +1,20 @@
+using System;
 using TMPro;
 using UI;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class SettingsMenuManager : MonoBehaviour
 {
+    private enum SettingsMenuTabs
+    {
+        Gameplay = 0,
+        Graphics,
+        Audio,
+        Controls,
+        Misc,
+    }
     public GameObject m_settingsMenuContainer;
     
     [Header("NavBar References"), Space(5f)]
@@ -19,7 +29,18 @@ public class SettingsMenuManager : MonoBehaviour
     [SerializeField] private GameObject m_audioSettingsGameObject;
     [SerializeField] private GameObject m_controlsSettingsGameObject;
     [SerializeField] private GameObject m_miscSettingsGameObject;
-
+    
+    //this is used for controller input/ e and q movement between tabs and to save last settings menu that the player
+    //was on just in case they want to change graphics settings and dont want to keep going settings->gameplay->move to graphics
+    [SerializeField] private SettingsMenuTabs m_currentMenuTab = SettingsMenuTabs.Gameplay;
+    
+    //All these game objects will be the first selected objects when moving tabs / opening the settings menu.
+    [SerializeField] private GameObject m_topGameplaySettingsGameObject;
+    [SerializeField] private GameObject m_topGraphicsSettingsGameObject;
+    [SerializeField] private GameObject m_topAudioSettingsGameObject;
+    [SerializeField] private GameObject m_topControlsSettingsGameObject;
+    [SerializeField] private GameObject m_topMiscSettingsGameObject;
+    
     [SerializeField] public Button m_backToMainMenuButton;
     
     [Space(5f), Header("Gameplay Settings")]
@@ -89,6 +110,34 @@ public class SettingsMenuManager : MonoBehaviour
         });
     }
 
+    private void SubscribeInputFunctions()
+    {
+        PlayerInputProcessor.Instance.m_playerInput.Default.ChangeMenuTabLeft.performed += MoveToLeftTab;
+        PlayerInputProcessor.Instance.m_playerInput.Default.ChangeMenuTabRight.performed += MoveToRightTab;
+        PlayerInputProcessor.Instance.m_playerInput.Default.MenuBack.performed += MenuBack;
+    }
+
+    private void UnsubscribeInputFunctions()
+    {
+        PlayerInputProcessor.Instance.m_playerInput.Default.ChangeMenuTabLeft.performed -= MoveToLeftTab;
+        PlayerInputProcessor.Instance.m_playerInput.Default.ChangeMenuTabRight.performed -= MoveToRightTab;
+    }
+
+    private void MoveToRightTab(InputAction.CallbackContext context)
+    {
+        
+    }
+
+    private void MoveToLeftTab(InputAction.CallbackContext context)
+    {
+        
+    }
+    
+    private void MenuBack(InputAction.CallbackContext context)
+    {
+        
+    }
+
     private void DisableAllSettingsMenus()
     {
         m_gameplaySettingsGameObject.SetActive(false);
@@ -121,7 +170,27 @@ public class SettingsMenuManager : MonoBehaviour
         if (isActive)
         {
             SetAllValuesFromSaveData();
-            m_gameplaySettingsNavbarButton.onClick?.Invoke();
+
+            switch (m_currentMenuTab)
+            {
+                case SettingsMenuTabs.Gameplay:
+                    m_gameplaySettingsNavbarButton.onClick?.Invoke();
+                    break;
+                case SettingsMenuTabs.Graphics:
+                    m_graphicsSettingsNavbarButton.onClick?.Invoke();
+                    break;
+                case SettingsMenuTabs.Audio:
+                    m_audioSettingsNavbarButton.onClick?.Invoke();
+                    break;
+                case SettingsMenuTabs.Controls:
+                    m_controlsSettingsNavbarButton.onClick?.Invoke();
+                    break;
+                case SettingsMenuTabs.Misc:
+                    m_miscSettingsNavbarButton.onClick?.Invoke();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             MakeButtonActive(m_gameplaySettingsNavbarButton, true);
         }
         else
