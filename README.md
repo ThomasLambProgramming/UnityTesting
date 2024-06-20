@@ -1,2 +1,2 @@
 # UnityDevelopment
-Unity Project for testing shaders and graphics programming
+Unity Project for testing shaders and graphics programming.
