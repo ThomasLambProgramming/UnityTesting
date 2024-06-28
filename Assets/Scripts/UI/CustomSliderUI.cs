@@ -2,9 +2,10 @@ using System;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CustomSliderUI : MonoBehaviour
+public class CustomSliderUI : MonoBehaviour, IUpdateSelectedHandler
 {
     [SerializeField] private Slider m_slider;
     [SerializeField] private TMP_InputField m_inputField;
@@ -66,4 +67,8 @@ public class CustomSliderUI : MonoBehaviour
     }
 
     public float GetValue() => m_slider.value;
+    public void OnUpdateSelected(BaseEventData eventData)
+    {
+        Debug.LogError("On Update Selected Was Called");
+    }
 }
