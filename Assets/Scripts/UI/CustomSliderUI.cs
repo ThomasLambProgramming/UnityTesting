@@ -2,14 +2,17 @@ using System;
 using System.Globalization;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class CustomSliderUI : MonoBehaviour, IUpdateSelectedHandler
+public class CustomSliderUI : MonoBehaviour
 {
     [SerializeField] private Slider m_slider;
     [SerializeField] private TMP_InputField m_inputField;
+    [SerializeField] private Image m_sliderBackgroundImage;
 
+    [SerializeField] private Color m_selectedColor;
+    [SerializeField] private Color m_defaultColor;
+    
     private float m_minValue;
     private float m_maxValue;
 
@@ -20,6 +23,7 @@ public class CustomSliderUI : MonoBehaviour, IUpdateSelectedHandler
         
         m_inputField.onValueChanged.AddListener(OnInputValueChanged);
         m_slider.onValueChanged.AddListener(OnValueChanged);
+        SetDeSelectedColor();
     }
 
     //This acts as an override in case we want to set it all through the main menu script
@@ -67,8 +71,15 @@ public class CustomSliderUI : MonoBehaviour, IUpdateSelectedHandler
     }
 
     public float GetValue() => m_slider.value;
-    public void OnUpdateSelected(BaseEventData eventData)
+
+    public void SetSelectedColor()
     {
-        Debug.LogError("On Update Selected Was Called");
+        m_sliderBackgroundImage.color = m_selectedColor;
     }
+
+    public void SetDeSelectedColor()
+    {
+        m_sliderBackgroundImage.color = m_defaultColor;
+    }
+    
 }

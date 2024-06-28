@@ -7,7 +7,7 @@
     "Antialiasing": 2,
     "MuteAllAudio": false,
     "MasterVolume": 7.1113433837890629,
-    "MusicVolume": 4.0,
+    "MusicVolume": 4.949999809265137,
     "SoundEffectVolume": 3.0211501121520998,
     "DialogueVolume": 4.0
 }

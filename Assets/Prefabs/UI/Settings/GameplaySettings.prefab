@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6062224904910463300}
   - component: {fileID: 7060176997730448891}
+  - component: {fileID: 7692520048377062296}
   m_Layer: 5
   m_Name: GameplaySettings
   m_TagString: Untagged
@@ -58,7 +59,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 20
+  m_Spacing: 30
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -66,6 +67,24 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &7692520048377062296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7837151659836107320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ba76f2eea492d94da8d77c4b66cc2f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_uiObjects:
+  - {fileID: 7678197238976013985}
+  - {fileID: 2533223174618824980}
+  - {fileID: 2385340447017285648}
+  - {fileID: 6294216364833354815}
+  m_firstObjectToSelect: {fileID: 7678197238976013985}
 --- !u!1001 &187218640244532486
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -142,7 +161,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4598307923692681997, guid: cbc9fd4e0eab5fd44805567a07d7385f, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 132.5
+      value: 148.4
       objectReference: {fileID: 0}
     - target: {fileID: 4598307923692681997, guid: cbc9fd4e0eab5fd44805567a07d7385f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -210,6 +229,11 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 4598307923692681997, guid: cbc9fd4e0eab5fd44805567a07d7385f, type: 3}
   m_PrefabInstance: {fileID: 187218640244532486}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &6294216364833354815 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6179130222924583225, guid: cbc9fd4e0eab5fd44805567a07d7385f, type: 3}
+  m_PrefabInstance: {fileID: 187218640244532486}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2295045829770904315
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -252,7 +276,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1904805892279292926, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 80
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 1904805892279292926, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
       propertyPath: m_LocalPosition.x
@@ -302,6 +326,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5610185029451645446, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8455450784370287706, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
       propertyPath: m_Name
       value: InvertXLookInput
@@ -314,6 +342,11 @@ PrefabInstance:
 --- !u!224 &411691067270516997 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1904805892279292926, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
+  m_PrefabInstance: {fileID: 2295045829770904315}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &7678197238976013985 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8455450784370287706, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
   m_PrefabInstance: {fileID: 2295045829770904315}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6228507691250165070
@@ -358,7 +391,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1904805892279292926, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 80
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 1904805892279292926, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
       propertyPath: m_LocalPosition.x
@@ -408,6 +441,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5610185029451645446, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
+      propertyPath: m_Navigation.m_Mode
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 8455450784370287706, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
       propertyPath: m_Name
       value: InvertYLookInput
@@ -417,6 +454,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
+--- !u!1 &2533223174618824980 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8455450784370287706, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
+  m_PrefabInstance: {fileID: 6228507691250165070}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &5485138481516770992 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1904805892279292926, guid: 2538e91e4510d3348914a10bf30fa117, type: 3}
@@ -498,7 +540,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4598307923692681997, guid: cbc9fd4e0eab5fd44805567a07d7385f, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 132.5
+      value: 148.4
       objectReference: {fileID: 0}
     - target: {fileID: 4598307923692681997, guid: cbc9fd4e0eab5fd44805567a07d7385f, type: 3}
       propertyPath: m_LocalPosition.x
@@ -561,6 +603,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cbc9fd4e0eab5fd44805567a07d7385f, type: 3}
+--- !u!1 &2385340447017285648 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6179130222924583225, guid: cbc9fd4e0eab5fd44805567a07d7385f, type: 3}
+  m_PrefabInstance: {fileID: 8420253888566454569}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &5407337699596702244 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4598307923692681997, guid: cbc9fd4e0eab5fd44805567a07d7385f, type: 3}

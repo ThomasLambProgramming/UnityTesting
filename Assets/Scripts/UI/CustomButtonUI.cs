@@ -2,19 +2,16 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UI
 {
-    public class CustomButtonUI : MonoBehaviour
+    public class CustomButtonUI : MonoBehaviour, ISelectHandler, IDeselectHandler
     {
         [SerializeField] private Button m_button;
-        [SerializeField] private Color m_activeColor = Color.green;
-        [SerializeField] private Color m_nonActiveColor = Color.gray;
-
-        [SerializeField] private List<Image> m_objectsToChangeColor = new List<Image>();
         [SerializeField] private TextMeshProUGUI m_valueDisplayText;
-
+        [SerializeField] private List<Image> m_onSelectedImages = new List<Image>();
         [HideInInspector] public bool m_active;
         private event Action m_onClickAction;
 
@@ -28,12 +25,17 @@ namespace UI
             });
         }
 
+        //This is for the secondary text boxes to set the colors to be the same.
+        public void SetColorsOnMenuOpen()
+        {
+            foreach (Image image in m_onSelectedImages)
+                image.color = m_button.colors.normalColor;
+        }
+
         public void SetActive(bool active)
         {
-            foreach (Image imageToChange in m_objectsToChangeColor)
-            {
-                imageToChange.color = active ? m_activeColor : m_nonActiveColor;
-            }
+            SetDisplayValueText(active.ToString());
+            SetColorsOnMenuOpen();
         }
         
         public void SetDisplayValueText(string text)
@@ -52,6 +54,32 @@ namespace UI
         public void RemoveAllCallbacks()
         {
             m_onClickAction = null;
+        }
+        
+        public void SetSelectedColor()
+        {
+            foreach (Image image in m_onSelectedImages)
+            {
+                image.color = m_button.colors.selectedColor;
+            }
+        }
+        
+        public void SetDeSelectedColor()
+        {
+            foreach (Image image in m_onSelectedImages)
+            {
+                image.color = m_button.colors.normalColor;
+            }
+        }
+    
+        public void OnSelect(BaseEventData eventData)
+        {
+            SetSelectedColor();
+        }
+
+        public void OnDeselect(BaseEventData eventData)
+        {
+            SetDeSelectedColor();
         }
     }
 }

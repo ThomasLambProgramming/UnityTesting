@@ -25,22 +25,15 @@ public class SettingsMenuManager : MonoBehaviour
     [SerializeField] private Button m_controlsSettingsNavbarButton;
     [SerializeField] private Button m_miscSettingsNavbarButton;
     
-    [SerializeField] private GameObject m_gameplaySettingsGameObject;
-    [SerializeField] private GameObject m_graphicsSettingsGameObject;
-    [SerializeField] private GameObject m_audioSettingsGameObject;
-    [SerializeField] private GameObject m_controlsSettingsGameObject;
-    [SerializeField] private GameObject m_miscSettingsGameObject;
+    [SerializeField] private SettingsTab m_gameplaySettingsTab;
+    [SerializeField] private SettingsTab m_graphicsSettingsTab;
+    [SerializeField] private SettingsTab m_audioSettingsTab;
+    [SerializeField] private SettingsTab m_controlsSettingsTab;
+    [SerializeField] private SettingsTab m_miscSettingsTab;
     
     //this is used for controller input/ e and q movement between tabs and to save last settings menu that the player
     //was on just in case they want to change graphics settings and dont want to keep going settings->gameplay->move to graphics
     [SerializeField] private SettingsMenuTabs m_currentMenuTab = SettingsMenuTabs.Gameplay;
-    
-    //All these game objects will be the first selected objects when moving tabs / opening the settings menu.
-    [SerializeField] private GameObject m_topGameplaySettingsGameObject;
-    [SerializeField] private GameObject m_topGraphicsSettingsGameObject;
-    [SerializeField] private GameObject m_topAudioSettingsGameObject;
-    [SerializeField] private GameObject m_topControlsSettingsGameObject;
-    [SerializeField] private GameObject m_topMiscSettingsGameObject;
     
     [Space(5f), Header("Gameplay Settings")]
     [SerializeField] private CustomButtonUI m_invertXAxisLookButton;
@@ -66,10 +59,6 @@ public class SettingsMenuManager : MonoBehaviour
     [Space(5f), Header("Misc/Debug Settings")]
     [SerializeField] private GameObject m_notAnOptionJustLayoutForNowDebug;
 
-    [Space(5f), Header("Settings Settings")] 
-    [SerializeField] private Color m_activeButtonColor = Color.green;
-    [SerializeField] private Color m_disabledButtonColor = Color.gray;
-
     //Controls what is the current selected ui object, this is for controller support.
     private EventSystem m_eventSystem;
     
@@ -81,41 +70,11 @@ public class SettingsMenuManager : MonoBehaviour
 
     private void SetupNavbarOnClick()
     {
-        m_gameplaySettingsNavbarButton.onClick.AddListener(() =>
-        {
-            DisableAllSettingsMenus();
-            MakeButtonActive(m_gameplaySettingsNavbarButton, true);
-            m_gameplaySettingsGameObject.SetActive(true);
-            m_eventSystem.SetSelectedGameObject(m_topGameplaySettingsGameObject);
-        });
-        m_graphicsSettingsNavbarButton.onClick.AddListener(() =>
-        {
-            DisableAllSettingsMenus();
-            MakeButtonActive(m_graphicsSettingsNavbarButton, true);
-            m_graphicsSettingsGameObject.SetActive(true);
-            m_eventSystem.SetSelectedGameObject(m_topGraphicsSettingsGameObject);
-        });
-        m_audioSettingsNavbarButton.onClick.AddListener(() =>
-        {
-            DisableAllSettingsMenus();
-            MakeButtonActive(m_audioSettingsNavbarButton, true);
-            m_audioSettingsGameObject.SetActive(true);
-            m_eventSystem.SetSelectedGameObject(m_topAudioSettingsGameObject);
-        });
-        m_controlsSettingsNavbarButton.onClick.AddListener(() =>
-        {
-            DisableAllSettingsMenus();
-            MakeButtonActive(m_controlsSettingsNavbarButton, true);
-            m_controlsSettingsGameObject.SetActive(true);
-            m_eventSystem.SetSelectedGameObject(m_topControlsSettingsGameObject);
-        });
-        m_miscSettingsNavbarButton.onClick.AddListener(() =>
-        {
-            DisableAllSettingsMenus();
-            MakeButtonActive(m_miscSettingsNavbarButton, true);
-            m_miscSettingsGameObject.SetActive(true);
-            m_eventSystem.SetSelectedGameObject(m_topMiscSettingsGameObject);
-        });
+        m_gameplaySettingsNavbarButton.onClick.AddListener(() => SetSettingTab(SettingsMenuTabs.Gameplay));
+        m_graphicsSettingsNavbarButton.onClick.AddListener(() => SetSettingTab(SettingsMenuTabs.Graphics));
+        m_audioSettingsNavbarButton.onClick.AddListener(() => SetSettingTab(SettingsMenuTabs.Audio));
+        m_controlsSettingsNavbarButton.onClick.AddListener(() => SetSettingTab(SettingsMenuTabs.Controls));
+        m_miscSettingsNavbarButton.onClick.AddListener(() => SetSettingTab(SettingsMenuTabs.Misc));
     }
 
     private void SubscribeInputFunctions()
@@ -145,31 +104,40 @@ public class SettingsMenuManager : MonoBehaviour
     {
         m_currentMenuTab += direction;
         int enumLength = Enum.GetValues(typeof(SettingsMenuTabs)).Length - 1;
+        
         if (m_currentMenuTab < 0)
-        {
             m_currentMenuTab = (SettingsMenuTabs)enumLength;
-        }
         else if ((int)m_currentMenuTab > enumLength)
-        {
-            m_currentMenuTab = (SettingsMenuTabs)0;
-        }
+            m_currentMenuTab = 0;
+        
+        SetSettingTab(m_currentMenuTab);
+    }
 
+    private void SetSettingTab(SettingsMenuTabs settingsTab)
+    {
+        DisableAllSettingsMenus();
+        m_currentMenuTab = settingsTab;
         switch (m_currentMenuTab)
         {
             case SettingsMenuTabs.Gameplay:
-                m_gameplaySettingsNavbarButton.onClick?.Invoke();
+                MakeButtonActive(m_gameplaySettingsNavbarButton, true);
+                m_gameplaySettingsTab.Enable(ref m_eventSystem);
                 break;
             case SettingsMenuTabs.Graphics:
-                m_graphicsSettingsNavbarButton.onClick?.Invoke();
+                MakeButtonActive(m_graphicsSettingsNavbarButton, true);
+                m_graphicsSettingsTab.Enable(ref m_eventSystem);
                 break;
             case SettingsMenuTabs.Audio:
-                m_audioSettingsNavbarButton.onClick?.Invoke();
+                MakeButtonActive(m_audioSettingsNavbarButton, true);
+                m_audioSettingsTab.Enable(ref m_eventSystem);
                 break;
             case SettingsMenuTabs.Controls:
-                m_controlsSettingsNavbarButton.onClick?.Invoke();
+                MakeButtonActive(m_controlsSettingsNavbarButton, true);
+                m_controlsSettingsTab.Enable(ref m_eventSystem);
                 break;
             case SettingsMenuTabs.Misc:
-                m_miscSettingsNavbarButton.onClick?.Invoke();
+                MakeButtonActive(m_miscSettingsNavbarButton, true);
+                m_miscSettingsTab.Enable(ref m_eventSystem);
                 break;
         }
     }
@@ -181,22 +149,28 @@ public class SettingsMenuManager : MonoBehaviour
 
     private void DisableAllSettingsMenus()
     {
-        m_gameplaySettingsGameObject.SetActive(false);
-        m_graphicsSettingsGameObject.SetActive(false);
-        m_audioSettingsGameObject.SetActive(false);
-        m_controlsSettingsGameObject.SetActive(false);
-        m_miscSettingsGameObject.SetActive(false);
+        m_gameplaySettingsTab.Disable();
+        m_graphicsSettingsTab.Disable();
+        m_audioSettingsTab.Disable();
+        m_controlsSettingsTab.Disable();
+        m_miscSettingsTab.Disable();
         
         MakeButtonActive(m_gameplaySettingsNavbarButton, false);
         MakeButtonActive(m_graphicsSettingsNavbarButton, false);
         MakeButtonActive(m_audioSettingsNavbarButton, false);
         MakeButtonActive(m_controlsSettingsNavbarButton, false);
         MakeButtonActive(m_miscSettingsNavbarButton, false);
+
+        m_gameplaySettingsNavbarButton.image.enabled = false;
+        m_graphicsSettingsNavbarButton.image.enabled = false;
+        m_audioSettingsNavbarButton.image.enabled = false;
+        m_controlsSettingsNavbarButton.image.enabled = false;
+        m_miscSettingsNavbarButton.image.enabled = false;
     }
 
     private void MakeButtonActive(Button button, bool isActive)
     {
-        button.image.color = isActive ? m_activeButtonColor : m_disabledButtonColor;
+        button.image.enabled = isActive;
     }
 
     public void ToggleSettingsActive()

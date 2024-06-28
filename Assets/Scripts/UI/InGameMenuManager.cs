@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -12,6 +13,8 @@ namespace UI
         [SerializeField] private Button m_quitGameButton;
         private SettingsMenuManager m_settingsMenuManager;
 
+        //Controls what is the current selected ui object, this is for controller support.
+        private EventSystem m_eventSystem;
         //so the player manager knows that the menu has been told to resume, just wanted to avoid using callbacks.
         private bool m_isActive = false;
         private bool m_setup = false;
@@ -25,6 +28,7 @@ namespace UI
 
         private void Setup()
         {
+            m_eventSystem = FindObjectOfType<EventSystem>();
             m_settingsMenuManager = GetComponent<SettingsMenuManager>();
             m_resumeGameButton.onClick.AddListener(() => { ToggleActive(); });
             m_openSettingsButton.onClick.AddListener(() =>
@@ -46,6 +50,10 @@ namespace UI
             if (m_settingsMenuManager.m_settingsMenuContainer.activeInHierarchy)
                 m_settingsMenuManager.SetActive(false);
 
+            if (m_isActive)
+            {
+                m_eventSystem.SetSelectedGameObject(m_resumeGameButton.gameObject);
+            }
             gameObject.SetActive(m_isActive);
             m_mainMenuContainer.SetActive(m_isActive);
         }

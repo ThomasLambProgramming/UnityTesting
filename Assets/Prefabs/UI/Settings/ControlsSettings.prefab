@@ -680,6 +680,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5542576799275741341}
   - component: {fileID: 5275752928869312363}
+  - component: {fileID: -410424960084937901}
   m_Layer: 5
   m_Name: ControlsSettings
   m_TagString: Untagged
@@ -737,3 +738,17 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &-410424960084937901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8615050396157067705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ba76f2eea492d94da8d77c4b66cc2f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_uiObjects: []
+  m_firstObjectToSelect: {fileID: 6912899904456518661}
