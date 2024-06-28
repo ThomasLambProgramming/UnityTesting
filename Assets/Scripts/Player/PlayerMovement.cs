@@ -1,4 +1,5 @@
 using System.Collections;
+using UI;
 using Unity.Mathematics;
 using UnityEditor.Rendering;
 using UnityEngine;
@@ -17,41 +18,24 @@ namespace Player
 
     public class PlayerMovement : MonoBehaviour
     {
-        [SerializeField]
         public MovementState m_CurrentMovementState;
-
-        [HideInInspector]
-        public Rigidbody m_playerRigidbody;
-
-        [HideInInspector]
-        public PlayerCameraController m_playerCameraController;
-
-        [HideInInspector]
-        public PlayerAnimator m_playerAnimator;
+        [HideInInspector] public Rigidbody m_playerRigidbody;
+        [HideInInspector] public PlayerCameraController m_playerCameraController;
+        [HideInInspector] public PlayerAnimator m_playerAnimator;
+        [HideInInspector] public InGameMenuManager m_menuManager;
 
         [Header("Base Movement Variables")]
-        [SerializeField]
-        private float m_movementSpeed = 10f;
+        [SerializeField] private float m_movementSpeed = 10f;
         public float m_maxMovementSpeed = 4f;
-
-        [SerializeField]
-        private float m_slowdownPercentage = 0.98f;
-
-        [SerializeField]
-        private float m_rotateToVelocitySpeed = 10f;
+        [SerializeField] private float m_slowdownPercentage = 0.98f;
+        [SerializeField] private float m_rotateToVelocitySpeed = 10f;
         private float m_magnitudeSpeedCutoff = 0.2f;
 
         [Header("Jumping Variables")]
         private const int EnvironmentLayerMask = 1;
-
-        [SerializeField]
-        private float m_jumpForce = 20f;
-
-        [SerializeField]
-        private Transform groundCheck;
-
-        [SerializeField]
-        private float m_groundCheckDistance;
+        [SerializeField] private float m_jumpForce = 20f;
+        [SerializeField] private Transform groundCheck;
+        [SerializeField] private float m_groundCheckDistance;
 
         //this is used to stop the groundcheck from doing raycasts till the movement has moved 110% of ground check distance in y so it doesnt give false positives
         private float m_previousYPositon;
@@ -59,38 +43,21 @@ namespace Player
         private bool m_isPlayerGrounded = true;
 
         [Header("HammahWay Variables")]
-        [SerializeField]
-        private float m_HammahWayMovementSpeed;
-
-        [SerializeField]
-        private float m_HammahWayMaxSpeed;
-
-        [SerializeField]
-        private float m_HammahWayTurningSpeed;
-
-        [SerializeField]
-        private float m_HammahWayMaxTurningSpeed;
+        [SerializeField] private float m_HammahWayMovementSpeed;
+        [SerializeField] private float m_HammahWayMaxSpeed;
+        [SerializeField] private float m_HammahWayTurningSpeed;
+        [SerializeField] private float m_HammahWayMaxTurningSpeed;
 
         [Header("Gravity Variables")]
-        [SerializeField]
-        private float m_additionalBaseMovementGravity = 9.81f;
-
-        [SerializeField]
-        private float m_additionalHammahWayGravity = 9.81f;
+        [SerializeField] private float m_additionalBaseMovementGravity = 9.81f;
+        [SerializeField] private float m_additionalHammahWayGravity = 9.81f;
 
         [Header("Spline Variables")]
         [Tooltip("Units/second traveled on a spline")]
-        [SerializeField]
-        private float m_splineRideSpeed = 4f;
-
-        [SerializeField]
-        private Vector3 m_splineRidingOffset;
-
-        [SerializeField]
-        private float m_splineCorrectiveRotationSpeed = 5f;
-
-        [SerializeField]
-        private float m_splineCorrectiveRotationDuration = 1.0f;
+        [SerializeField] private float m_splineRideSpeed = 4f;
+        [SerializeField] private Vector3 m_splineRidingOffset;
+        [SerializeField] private float m_splineCorrectiveRotationSpeed = 5f;
+        [SerializeField] private float m_splineCorrectiveRotationDuration = 1.0f;
         private Coroutine m_splineCorrectiveCoroutine = null;
         private float m_splineRidingTimer = 0;
         private float m_splineDirection = 1.0f;
@@ -349,6 +316,8 @@ namespace Player
 
         public void PerformJump()
         {
+            if (m_menuManager.MenuActive)
+                return;
             if (m_CurrentMovementState == MovementState.SplineRiding)
             {
                 SetToBaseMovement();

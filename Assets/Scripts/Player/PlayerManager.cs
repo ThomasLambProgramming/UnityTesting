@@ -32,6 +32,7 @@ namespace Player
             m_playerMovement.m_playerCameraController = m_playerCamera;
             m_playerMovement.m_playerAnimator = m_playerAnimator;
             m_playerAnimator.m_playerMovement = m_playerMovement;
+            m_playerMovement.m_menuManager = m_inGameMenuManager;
             
             m_playerInteract = GetComponent<PlayerInteract>();
             m_playerInteract.m_playerMovement = m_playerMovement;
@@ -70,6 +71,9 @@ namespace Player
 
         private void UpdateComponents()
         {
+            if (m_inGameMenuManager.MenuActive)
+                return;
+            
             m_playerMovement.UpdateComponent();
             m_playerAnimator.UpdateComponent();
         }

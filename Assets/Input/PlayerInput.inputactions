@@ -148,6 +148,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "MenuAccept",
+                    "type": "Button",
+                    "id": "cd117ee4-b939-4108-86f5-535cde4061e2",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -478,6 +487,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "MenuBack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3b5a7372-2af1-44e3-a21a-50ff9ca12aad",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MenuAccept",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9a853ca8-7a6f-4fee-b1fb-5822a5216597",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MenuAccept",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

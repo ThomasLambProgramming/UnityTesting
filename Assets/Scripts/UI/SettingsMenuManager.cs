@@ -206,7 +206,6 @@ public class SettingsMenuManager : MonoBehaviour
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            MakeButtonActive(m_gameplaySettingsNavbarButton, true);
         }
         else
         {

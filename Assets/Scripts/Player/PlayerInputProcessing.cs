@@ -1,6 +1,9 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.Utilities;
+using UnityEngine.Serialization;
 
 public class PlayerInputProcessor : MonoBehaviour
 {
@@ -25,6 +28,11 @@ public class PlayerInputProcessor : MonoBehaviour
             Debug.LogError("There are two player input processors, FIX!");
         }
         SetupInput();
+    }
+
+    private void OnDestroy()
+    {
+        RemoveCallbacks();
     }
 
     /// <summary>
@@ -58,7 +66,7 @@ public class PlayerInputProcessor : MonoBehaviour
         m_playerInput.Default.ZoomCamera.performed += ZoomCameraPerformed;
         m_playerInput.Default.ZoomCamera.canceled += ZoomCameraCancelled;
     }
-
+    
     public void RemoveCallbacks()
     {
         m_playerInput.Default.Movement.started -= MovementStarted;
@@ -73,7 +81,7 @@ public class PlayerInputProcessor : MonoBehaviour
         m_playerInput.Default.ZoomCamera.performed -= ZoomCameraPerformed;
         m_playerInput.Default.ZoomCamera.canceled -= ZoomCameraCancelled;
     }
-
+    
     public void MovementStarted(InputAction.CallbackContext callback)
     {
         m_currentMoveInput = callback.ReadValue<Vector2>();
@@ -100,7 +108,7 @@ public class PlayerInputProcessor : MonoBehaviour
     }
     private void MoveCameraCancelled(InputAction.CallbackContext callbackContext)
     {
-        m_currentMouseInput = callbackContext.ReadValue<Vector2>();
+        m_currentMouseInput = Vector2.zero;
     }
     
     
