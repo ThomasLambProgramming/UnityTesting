@@ -129,7 +129,7 @@ namespace Player
         /// </summary>
         public void SwapMovement()
         {
-            if (m_CurrentMovementState == MovementState.SplineRiding || m_CurrentMovementState == MovementState.Cutscene)
+            if (m_menuManager.MenuActive || m_CurrentMovementState == MovementState.SplineRiding || m_CurrentMovementState == MovementState.Cutscene)
                 return;
 
             if (m_CurrentMovementState == MovementState.BaseMovement)

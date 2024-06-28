@@ -141,18 +141,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MenuBack",
+                    "name": "MenuAccept",
                     "type": "Button",
-                    "id": "15d1a459-e63e-4e20-91d2-8b1de9d1f2d3",
+                    "id": "cd117ee4-b939-4108-86f5-535cde4061e2",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "MenuAccept",
+                    "name": "MenuBack",
                     "type": "Button",
-                    "id": "cd117ee4-b939-4108-86f5-535cde4061e2",
+                    "id": "34307c39-3c48-4c9a-a5d8-0c1c142d4ffd",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -470,28 +470,6 @@
                 },
                 {
                     "name": "",
-                    "id": "d9ec300f-7bf0-4846-9dab-1c49ba83a1e0",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MenuBack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "914e826e-69fb-4d54-b6d6-3490cf6853c9",
-                    "path": "<Gamepad>/buttonEast",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MenuBack",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "3b5a7372-2af1-44e3-a21a-50ff9ca12aad",
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
@@ -509,6 +487,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "MenuAccept",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "11b86b46-dfb1-4dc1-b709-f414e509f9e4",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MenuBack",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "13baf7cb-e380-42c7-b7d3-6322b6c8d606",
+                    "path": "<Keyboard>/backspace",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MenuBack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

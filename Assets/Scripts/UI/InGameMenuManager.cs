@@ -62,13 +62,31 @@ namespace UI
         {
             ToggleActive();
         }
+
+        private void ExitMenuInputStart(InputAction.CallbackContext callback)
+        {
+            //If this is already open than we want to save the values.
+            if (m_settingsMenuManager.m_settingsMenuContainer.activeInHierarchy)
+            {
+                m_settingsMenuManager.SetActive(false);
+                m_mainMenuContainer.SetActive(true);   
+                m_eventSystem.SetSelectedGameObject(m_resumeGameButton.gameObject);
+            }
+            else if (m_mainMenuContainer.activeInHierarchy)
+            {
+                ToggleActive();
+            }
+
+        }
         public void SetupInputCallbacks()
         {
             PlayerInputProcessor.Instance.m_playerInput.Default.Pause.started += PauseMenuInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.MenuBack.started += ExitMenuInputStart;
         }
         public void RemoveInputCallbacks()
         {
             PlayerInputProcessor.Instance.m_playerInput.Default.Pause.started -= PauseMenuInputStart;
+            PlayerInputProcessor.Instance.m_playerInput.Default.MenuBack.started -= ExitMenuInputStart;
         }
     }
 }

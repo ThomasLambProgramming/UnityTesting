@@ -81,7 +81,7 @@ public class SettingsMenuManager : MonoBehaviour
     {
         PlayerInputProcessor.Instance.m_playerInput.Default.ChangeMenuTabLeft.performed += MoveToLeftTab;
         PlayerInputProcessor.Instance.m_playerInput.Default.ChangeMenuTabRight.performed += MoveToRightTab;
-        PlayerInputProcessor.Instance.m_playerInput.Default.MenuBack.performed += MenuBack;
+        //PlayerInputProcessor.Instance.m_playerInput.Default.MenuBack.performed += MenuBack;
     }
 
     private void UnsubscribeInputFunctions()
@@ -141,12 +141,6 @@ public class SettingsMenuManager : MonoBehaviour
                 break;
         }
     }
-    
-    private void MenuBack(InputAction.CallbackContext context)
-    {
-        
-    }
-
     private void DisableAllSettingsMenus()
     {
         m_gameplaySettingsTab.Disable();

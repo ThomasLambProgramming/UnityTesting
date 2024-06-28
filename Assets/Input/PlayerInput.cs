@@ -163,18 +163,18 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""MenuBack"",
+                    ""name"": ""MenuAccept"",
                     ""type"": ""Button"",
-                    ""id"": ""15d1a459-e63e-4e20-91d2-8b1de9d1f2d3"",
+                    ""id"": ""cd117ee4-b939-4108-86f5-535cde4061e2"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""MenuAccept"",
+                    ""name"": ""MenuBack"",
                     ""type"": ""Button"",
-                    ""id"": ""cd117ee4-b939-4108-86f5-535cde4061e2"",
+                    ""id"": ""34307c39-3c48-4c9a-a5d8-0c1c142d4ffd"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -492,28 +492,6 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""d9ec300f-7bf0-4846-9dab-1c49ba83a1e0"",
-                    ""path"": ""<Keyboard>/escape"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""MenuBack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""914e826e-69fb-4d54-b6d6-3490cf6853c9"",
-                    ""path"": ""<Gamepad>/buttonEast"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""MenuBack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""3b5a7372-2af1-44e3-a21a-50ff9ca12aad"",
                     ""path"": ""<Gamepad>/buttonSouth"",
                     ""interactions"": """",
@@ -531,6 +509,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""MenuAccept"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""11b86b46-dfb1-4dc1-b709-f414e509f9e4"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MenuBack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""13baf7cb-e380-42c7-b7d3-6322b6c8d606"",
+                    ""path"": ""<Keyboard>/backspace"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""MenuBack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -556,8 +556,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Default_Pause = m_Default.FindAction("Pause", throwIfNotFound: true);
         m_Default_ChangeMenuTabRight = m_Default.FindAction("ChangeMenuTabRight", throwIfNotFound: true);
         m_Default_ChangeMenuTabLeft = m_Default.FindAction("ChangeMenuTabLeft", throwIfNotFound: true);
-        m_Default_MenuBack = m_Default.FindAction("MenuBack", throwIfNotFound: true);
         m_Default_MenuAccept = m_Default.FindAction("MenuAccept", throwIfNotFound: true);
+        m_Default_MenuBack = m_Default.FindAction("MenuBack", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -634,8 +634,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Default_Pause;
     private readonly InputAction m_Default_ChangeMenuTabRight;
     private readonly InputAction m_Default_ChangeMenuTabLeft;
-    private readonly InputAction m_Default_MenuBack;
     private readonly InputAction m_Default_MenuAccept;
+    private readonly InputAction m_Default_MenuBack;
     public struct DefaultActions
     {
         private @PlayerInput m_Wrapper;
@@ -655,8 +655,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         public InputAction @Pause => m_Wrapper.m_Default_Pause;
         public InputAction @ChangeMenuTabRight => m_Wrapper.m_Default_ChangeMenuTabRight;
         public InputAction @ChangeMenuTabLeft => m_Wrapper.m_Default_ChangeMenuTabLeft;
-        public InputAction @MenuBack => m_Wrapper.m_Default_MenuBack;
         public InputAction @MenuAccept => m_Wrapper.m_Default_MenuAccept;
+        public InputAction @MenuBack => m_Wrapper.m_Default_MenuBack;
         public InputActionMap Get() { return m_Wrapper.m_Default; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -711,12 +711,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ChangeMenuTabLeft.started += instance.OnChangeMenuTabLeft;
             @ChangeMenuTabLeft.performed += instance.OnChangeMenuTabLeft;
             @ChangeMenuTabLeft.canceled += instance.OnChangeMenuTabLeft;
-            @MenuBack.started += instance.OnMenuBack;
-            @MenuBack.performed += instance.OnMenuBack;
-            @MenuBack.canceled += instance.OnMenuBack;
             @MenuAccept.started += instance.OnMenuAccept;
             @MenuAccept.performed += instance.OnMenuAccept;
             @MenuAccept.canceled += instance.OnMenuAccept;
+            @MenuBack.started += instance.OnMenuBack;
+            @MenuBack.performed += instance.OnMenuBack;
+            @MenuBack.canceled += instance.OnMenuBack;
         }
 
         private void UnregisterCallbacks(IDefaultActions instance)
@@ -766,12 +766,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @ChangeMenuTabLeft.started -= instance.OnChangeMenuTabLeft;
             @ChangeMenuTabLeft.performed -= instance.OnChangeMenuTabLeft;
             @ChangeMenuTabLeft.canceled -= instance.OnChangeMenuTabLeft;
-            @MenuBack.started -= instance.OnMenuBack;
-            @MenuBack.performed -= instance.OnMenuBack;
-            @MenuBack.canceled -= instance.OnMenuBack;
             @MenuAccept.started -= instance.OnMenuAccept;
             @MenuAccept.performed -= instance.OnMenuAccept;
             @MenuAccept.canceled -= instance.OnMenuAccept;
+            @MenuBack.started -= instance.OnMenuBack;
+            @MenuBack.performed -= instance.OnMenuBack;
+            @MenuBack.canceled -= instance.OnMenuBack;
         }
 
         public void RemoveCallbacks(IDefaultActions instance)
@@ -806,7 +806,7 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         void OnPause(InputAction.CallbackContext context);
         void OnChangeMenuTabRight(InputAction.CallbackContext context);
         void OnChangeMenuTabLeft(InputAction.CallbackContext context);
-        void OnMenuBack(InputAction.CallbackContext context);
         void OnMenuAccept(InputAction.CallbackContext context);
+        void OnMenuBack(InputAction.CallbackContext context);
     }
 }
