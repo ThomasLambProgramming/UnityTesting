@@ -33,13 +33,6 @@ namespace UI
                 m_settingsMenuManager.SetActive(true);
             });
             m_quitGameButton.onClick.AddListener(() => { Application.Quit(); });
-
-            m_settingsMenuManager.m_backToMainMenuButton.onClick.AddListener(() =>
-            {
-                //SetActive makes sure the values save
-                m_settingsMenuManager.SetActive(false);
-                m_mainMenuContainer.SetActive(true);
-            });
             m_setup = true;
         }
 

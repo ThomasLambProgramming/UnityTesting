@@ -14,45 +14,83 @@ namespace Player
         SplineRiding,
         Cutscene,
     }
+
     public class PlayerMovement : MonoBehaviour
     {
-        [SerializeField] public MovementState m_CurrentMovementState;
-        [HideInInspector] public Rigidbody m_playerRigidbody;
-        [HideInInspector] public PlayerCameraController m_playerCameraController;
-        [HideInInspector] public PlayerAnimator m_playerAnimator;
+        [SerializeField]
+        public MovementState m_CurrentMovementState;
 
-        [Header("Base Movement Variables")] 
-        [SerializeField] private float m_movementSpeed = 10f;
+        [HideInInspector]
+        public Rigidbody m_playerRigidbody;
+
+        [HideInInspector]
+        public PlayerCameraController m_playerCameraController;
+
+        [HideInInspector]
+        public PlayerAnimator m_playerAnimator;
+
+        [Header("Base Movement Variables")]
+        [SerializeField]
+        private float m_movementSpeed = 10f;
         public float m_maxMovementSpeed = 4f;
-        [SerializeField] private float m_slowdownPercentage = 0.98f;
-        [SerializeField] private float m_rotateToVelocitySpeed = 10f;
+
+        [SerializeField]
+        private float m_slowdownPercentage = 0.98f;
+
+        [SerializeField]
+        private float m_rotateToVelocitySpeed = 10f;
         private float m_magnitudeSpeedCutoff = 0.2f;
 
-        [Header("Jumping Variables")] 
+        [Header("Jumping Variables")]
         private const int EnvironmentLayerMask = 1;
-        [SerializeField] private float m_jumpForce = 20f;
-        [SerializeField] private Transform groundCheck;
-        [SerializeField] private float m_groundCheckDistance;
+
+        [SerializeField]
+        private float m_jumpForce = 20f;
+
+        [SerializeField]
+        private Transform groundCheck;
+
+        [SerializeField]
+        private float m_groundCheckDistance;
+
         //this is used to stop the groundcheck from doing raycasts till the movement has moved 110% of ground check distance in y so it doesnt give false positives
         private float m_previousYPositon;
         private float m_jumpYDistanceTraveled = 0f;
         private bool m_isPlayerGrounded = true;
 
-        [Header("HammahWay Variables")] 
-        [SerializeField] private float m_HammahWayMovementSpeed;
-        [SerializeField] private float m_HammahWayMaxSpeed;
-        [SerializeField] private float m_HammahWayTurningSpeed;
-        [SerializeField] private float m_HammahWayMaxTurningSpeed;
+        [Header("HammahWay Variables")]
+        [SerializeField]
+        private float m_HammahWayMovementSpeed;
 
-        [Header("Gravity Variables")] 
-        [SerializeField] private float m_additionalBaseMovementGravity = 9.81f;
-        [SerializeField] private float m_additionalHammahWayGravity = 9.81f;
+        [SerializeField]
+        private float m_HammahWayMaxSpeed;
 
-        [Header("Spline Variables")] 
-        [Tooltip("Units/second traveled on a spline")] [SerializeField] private float m_splineRideSpeed = 4f;
-        [SerializeField] private Vector3 m_splineRidingOffset;
-        [SerializeField] private float m_splineCorrectiveRotationSpeed = 5f;
-        [SerializeField] private float m_splineCorrectiveRotationDuration = 1.0f;
+        [SerializeField]
+        private float m_HammahWayTurningSpeed;
+
+        [SerializeField]
+        private float m_HammahWayMaxTurningSpeed;
+
+        [Header("Gravity Variables")]
+        [SerializeField]
+        private float m_additionalBaseMovementGravity = 9.81f;
+
+        [SerializeField]
+        private float m_additionalHammahWayGravity = 9.81f;
+
+        [Header("Spline Variables")]
+        [Tooltip("Units/second traveled on a spline")]
+        [SerializeField]
+        private float m_splineRideSpeed = 4f;
+
+        [SerializeField]
+        private Vector3 m_splineRidingOffset;
+
+        [SerializeField]
+        private float m_splineCorrectiveRotationSpeed = 5f;
+
+        [SerializeField]
+        private float m_splineCorrectiveRotationDuration = 1.0f;
         private Coroutine m_splineCorrectiveCoroutine = null;
         private float m_splineRidingTimer = 0;
         private float m_splineDirection = 1.0f;
@@ -86,29 +124,31 @@ namespace Player
             }
         }
 
-#region MovementStateSwapping 
+        #region MovementStateSwapping
         private void SetToHammahWay()
         {
             Debug.Log("SetToHammahWay");
             if (m_CurrentMovementState == MovementState.SplineRiding)
                 StartCorrectingRotationFromSpline();
-            
+
             m_CurrentMovementState = MovementState.HammahWay;
             m_playerAnimator.MoveHammerToRiding();
             m_playerAnimator.GotoHammahWayState(0.2f);
             m_playerRigidbody.useGravity = true;
         }
+
         private void SetToBaseMovement()
         {
             Debug.Log("SetToBaseMovement");
             if (m_CurrentMovementState == MovementState.SplineRiding)
                 StartCorrectingRotationFromSpline();
-                
+
             m_CurrentMovementState = MovementState.BaseMovement;
             m_playerAnimator.MoveHammerToBack();
             m_playerAnimator.GotoBaseMovementState(0.2f);
             m_playerRigidbody.useGravity = true;
         }
+
         private void SetToSplineRiding()
         {
             Debug.Log("SetToSplineRiding");
@@ -130,19 +170,19 @@ namespace Player
             else
                 SetToBaseMovement();
         }
-#endregion
+        #endregion
 
-#region MovementTypeFunctions
+        #region MovementTypeFunctions
         /// <summary>
         /// Move the player based on their input.
         /// </summary>
         private Vector3 MovePlayer()
         {
             Vector3 velocityToApply = Vector3.zero;
-            
+
             Vector3 currentVelocity = m_playerRigidbody.velocity;
             float previousY = currentVelocity.y;
-            
+
             switch (m_CurrentMovementState)
             {
                 case MovementState.BaseMovement:
@@ -156,7 +196,7 @@ namespace Player
             velocityToApply.y = previousY;
             return velocityToApply;
         }
-        
+
         private Vector3 BaseMovementMove()
         {
             Vector3 currentVelocity = m_playerRigidbody.velocity;
@@ -165,10 +205,10 @@ namespace Player
             Transform cameraTransform = m_playerCameraController.m_mainCamera.transform;
             Vector3 cameraDirectionForward = cameraTransform.forward;
             Vector3 cameraDirectionRight = cameraTransform.right;
-            
+
             Vector3 movementRight = new Vector3(cameraDirectionRight.x, 0, cameraDirectionRight.z).normalized;
             Vector3 movementForward = new Vector3(cameraDirectionForward.x, 0, cameraDirectionForward.z).normalized;
-            
+
             currentVelocity += (movementForward * PlayerInputProcessor.Instance.CurrentMoveInput.y + movementRight * PlayerInputProcessor.Instance.CurrentMoveInput.x).normalized * (m_movementSpeed * Time.deltaTime);
 
             //Reduce max speed so controller is able to walk.
@@ -184,10 +224,10 @@ namespace Player
         {
             Vector3 currentVelocity = m_playerRigidbody.velocity;
             currentVelocity.y = 0;
-            
+
             Vector3 movementForward = transform.forward;
             movementForward.y = 0;
-            
+
             if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.1f)
             {
                 Quaternion angleToRotate = Quaternion.AngleAxis(PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, Vector3.up);
@@ -209,12 +249,14 @@ namespace Player
         private void UpdateCurrentSplineMove()
         {
             m_splineRidingTimer += Time.deltaTime * m_splineDirection;
-            //length of 32 / 4 riding speed = 8 seconds, being total duration required. timer / total duration = % complete goes straight into spline get position. 
+            //length of 32 / 4 riding speed = 8 seconds, being total duration required. timer / total duration = % complete goes straight into spline get position.
             float splinePosition = m_splineRidingTimer / (m_currentSpline.CalculateLength() / m_splineRideSpeed);
-            transform.position = (Vector3)m_currentSpline.EvaluatePosition(splinePosition) + 
-                                 //Get normal of spline through cross product of up and tangent vectors and offset using spline direction and preset offset
-                                 Vector3.Cross(m_currentSpline.EvaluateTangent(splinePosition), m_currentSpline.EvaluateUpVector(splinePosition)).normalized * (m_splineRidingOffset.x * m_splineDirection) + 
-                                 (Vector3)m_currentSpline.EvaluateUpVector(splinePosition) * m_splineRidingOffset.y;
+            transform.position =
+                (Vector3)m_currentSpline.EvaluatePosition(splinePosition)
+                +
+                //Get normal of spline through cross product of up and tangent vectors and offset using spline direction and preset offset
+                Vector3.Cross(m_currentSpline.EvaluateTangent(splinePosition), m_currentSpline.EvaluateUpVector(splinePosition)).normalized * (m_splineRidingOffset.x * m_splineDirection)
+                + (Vector3)m_currentSpline.EvaluateUpVector(splinePosition) * m_splineRidingOffset.y;
 
             Vector3 splineDirection = (Vector3)m_currentSpline.EvaluatePosition(splinePosition + 0.001f * m_splineDirection) - (Vector3)m_currentSpline.EvaluatePosition(splinePosition);
             if (splineDirection != Vector3.zero)
@@ -244,16 +286,16 @@ namespace Player
             currentVelocity.y = previousY;
             return currentVelocity;
         }
-#endregion
+        #endregion
 
-#region SplineMovement
+        #region SplineMovement
 
         public void StartSplineRiding(SplineContainer splineContainer)
         {
             SetToSplineRiding();
             m_currentSpline = splineContainer;
             float positionOnSpline = GetCharacterPositionOnSpline();
-            
+
             Vector3 forwardPosition = m_currentSpline.EvaluatePosition(positionOnSpline + 0.1f);
             Vector3 backwardPosition = m_currentSpline.EvaluatePosition(positionOnSpline - 0.1f);
 
@@ -263,9 +305,9 @@ namespace Player
 
             m_splineDirection = dotForward > dotBackward ? 1.0f : -1.0f;
             m_splineRidingTimer = positionOnSpline * (m_currentSpline.CalculateLength() / m_splineRideSpeed);
-            
+
             m_playerRigidbody.velocity = Vector3.zero;
-            //While updating the player position gravity will continue to apply so by the end of the velocity the player could already have -100s of y velocity 
+            //While updating the player position gravity will continue to apply so by the end of the velocity the player could already have -100s of y velocity
             m_playerRigidbody.useGravity = false;
         }
 
@@ -294,16 +336,16 @@ namespace Player
                 forwardDirection.y = 0;
                 forwardDirection = forwardDirection.normalized;
                 transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(forwardDirection), m_splineCorrectiveRotationSpeed * Time.deltaTime);
-                
+
                 yield return null;
             }
 
             m_splineCorrectiveCoroutine = null;
         }
 
-#endregion
+        #endregion
 
-#region JumpingAndGroundCheckingFunction
+        #region JumpingAndGroundCheckingFunction
 
         public void PerformJump()
         {
@@ -322,6 +364,7 @@ namespace Player
                 m_previousYPositon = transform.position.y;
             }
         }
+
         private void GroundCheckUpdate()
         {
             //Until the player has gone up more than ground distance check so no false positives
@@ -349,9 +392,9 @@ namespace Player
             }
         }
 
-#endregion
+        #endregion
 
-#region InputProcessing
+        #region InputProcessing
         public void SetupInputCallbacks()
         {
             PlayerInputProcessor.Instance.m_playerInput.Default.SwapMovement.performed += SwapMovementInputStart;
@@ -359,6 +402,7 @@ namespace Player
             PlayerInputProcessor.Instance.m_playerInput.Default.Jump.performed += JumpInputStart;
             PlayerInputProcessor.Instance.m_playerInput.Default.Jump.canceled += JumpInputEnd;
         }
+
         public void RemoveInputCallbacks()
         {
             PlayerInputProcessor.Instance.m_playerInput.Default.SwapMovement.performed -= SwapMovementInputStart;
@@ -366,33 +410,30 @@ namespace Player
             PlayerInputProcessor.Instance.m_playerInput.Default.Jump.performed -= JumpInputStart;
             PlayerInputProcessor.Instance.m_playerInput.Default.Jump.canceled -= JumpInputEnd;
         }
-        
+
         private void SwapMovementInputStart(InputAction.CallbackContext callback)
         {
             SwapMovement();
         }
-        private void SwapMovementInputEnd(InputAction.CallbackContext callback)
-        {
-            
-        }
+
+        private void SwapMovementInputEnd(InputAction.CallbackContext callback) { }
+
         private void JumpInputStart(InputAction.CallbackContext callback)
         {
             PerformJump();
         }
-        private void JumpInputEnd(InputAction.CallbackContext callback)
-        {
-            
-        }
 
-#endregion
+        private void JumpInputEnd(InputAction.CallbackContext callback) { }
 
-#region DebuggingFunctions
+        #endregion
+
+        #region DebuggingFunctions
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawSphere(groundCheck.position, m_groundCheckDistance);
             Gizmos.color = Color.gray;
         }
-#endregion
+        #endregion
     }
 }

@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UI;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
@@ -41,8 +42,6 @@ public class SettingsMenuManager : MonoBehaviour
     [SerializeField] private GameObject m_topControlsSettingsGameObject;
     [SerializeField] private GameObject m_topMiscSettingsGameObject;
     
-    [SerializeField] public Button m_backToMainMenuButton;
-    
     [Space(5f), Header("Gameplay Settings")]
     [SerializeField] private CustomButtonUI m_invertXAxisLookButton;
     [SerializeField] private CustomButtonUI m_invertYAxisLookButton;
@@ -71,8 +70,12 @@ public class SettingsMenuManager : MonoBehaviour
     [SerializeField] private Color m_activeButtonColor = Color.green;
     [SerializeField] private Color m_disabledButtonColor = Color.gray;
 
+    //Controls what is the current selected ui object, this is for controller support.
+    private EventSystem m_eventSystem;
+    
     void Start()
     {
+        m_eventSystem = FindObjectOfType<EventSystem>();
         SetupNavbarOnClick();
     }
 
@@ -83,30 +86,35 @@ public class SettingsMenuManager : MonoBehaviour
             DisableAllSettingsMenus();
             MakeButtonActive(m_gameplaySettingsNavbarButton, true);
             m_gameplaySettingsGameObject.SetActive(true);
+            m_eventSystem.SetSelectedGameObject(m_topGameplaySettingsGameObject);
         });
         m_graphicsSettingsNavbarButton.onClick.AddListener(() =>
         {
             DisableAllSettingsMenus();
             MakeButtonActive(m_graphicsSettingsNavbarButton, true);
             m_graphicsSettingsGameObject.SetActive(true);
+            m_eventSystem.SetSelectedGameObject(m_topGraphicsSettingsGameObject);
         });
         m_audioSettingsNavbarButton.onClick.AddListener(() =>
         {
             DisableAllSettingsMenus();
             MakeButtonActive(m_audioSettingsNavbarButton, true);
             m_audioSettingsGameObject.SetActive(true);
+            m_eventSystem.SetSelectedGameObject(m_topAudioSettingsGameObject);
         });
         m_controlsSettingsNavbarButton.onClick.AddListener(() =>
         {
             DisableAllSettingsMenus();
             MakeButtonActive(m_controlsSettingsNavbarButton, true);
             m_controlsSettingsGameObject.SetActive(true);
+            m_eventSystem.SetSelectedGameObject(m_topControlsSettingsGameObject);
         });
         m_miscSettingsNavbarButton.onClick.AddListener(() =>
         {
             DisableAllSettingsMenus();
             MakeButtonActive(m_miscSettingsNavbarButton, true);
             m_miscSettingsGameObject.SetActive(true);
+            m_eventSystem.SetSelectedGameObject(m_topMiscSettingsGameObject);
         });
     }
 
@@ -125,12 +133,45 @@ public class SettingsMenuManager : MonoBehaviour
 
     private void MoveToRightTab(InputAction.CallbackContext context)
     {
-        
+        MoveToNewTab(1);
     }
 
     private void MoveToLeftTab(InputAction.CallbackContext context)
     {
-        
+        MoveToNewTab(-1);
+    }
+
+    private void MoveToNewTab(int direction)
+    {
+        m_currentMenuTab += direction;
+        int enumLength = Enum.GetValues(typeof(SettingsMenuTabs)).Length - 1;
+        if (m_currentMenuTab < 0)
+        {
+            m_currentMenuTab = (SettingsMenuTabs)enumLength;
+        }
+        else if ((int)m_currentMenuTab > enumLength)
+        {
+            m_currentMenuTab = (SettingsMenuTabs)0;
+        }
+
+        switch (m_currentMenuTab)
+        {
+            case SettingsMenuTabs.Gameplay:
+                m_gameplaySettingsNavbarButton.onClick?.Invoke();
+                break;
+            case SettingsMenuTabs.Graphics:
+                m_graphicsSettingsNavbarButton.onClick?.Invoke();
+                break;
+            case SettingsMenuTabs.Audio:
+                m_audioSettingsNavbarButton.onClick?.Invoke();
+                break;
+            case SettingsMenuTabs.Controls:
+                m_controlsSettingsNavbarButton.onClick?.Invoke();
+                break;
+            case SettingsMenuTabs.Misc:
+                m_miscSettingsNavbarButton.onClick?.Invoke();
+                break;
+        }
     }
     
     private void MenuBack(InputAction.CallbackContext context)
@@ -170,7 +211,7 @@ public class SettingsMenuManager : MonoBehaviour
         if (isActive)
         {
             SetAllValuesFromSaveData();
-
+            SubscribeInputFunctions();
             switch (m_currentMenuTab)
             {
                 case SettingsMenuTabs.Gameplay:
@@ -194,7 +235,10 @@ public class SettingsMenuManager : MonoBehaviour
             MakeButtonActive(m_gameplaySettingsNavbarButton, true);
         }
         else
+        {
             SettingsData.Instance.SaveData(GetDataFromUI());
+            UnsubscribeInputFunctions();   
+        }
     }
 
     /// <summary>
