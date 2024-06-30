@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -134,6 +133,68 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c88274a117c5bdd4287b50b8009b80f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &176693889
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 176693890}
+  m_Layer: 3
+  m_Name: HammerLeftSuspensionPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &176693890
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 176693889}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: -0.9659258, w: 0.2588191}
+  m_LocalPosition: {x: -0, y: 0, z: 0.4270002}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1562816273}
+  m_LocalEulerAnglesHint: {x: 180, y: 180, z: 30}
+--- !u!1 &298419759
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 298419760}
+  m_Layer: 3
+  m_Name: HammerRightSuspensionPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &298419760
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298419759}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: -0.9659258, w: 0.2588191}
+  m_LocalPosition: {x: 0.001, y: 0, z: -0.434}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1562816273}
+  m_LocalEulerAnglesHint: {x: 180, y: 180, z: 30}
 --- !u!1001 &375225806
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -256,6 +317,7 @@ Terrain:
   m_DetailObjectDensity: 1
   m_HeightmapPixelError: 5
   m_SplatMapDistance: 1000
+  m_HeightmapMinimumLODSimplification: 0
   m_HeightmapMaximumLOD: 0
   m_ShadowCastingMode: 2
   m_DrawHeightmap: 1
@@ -363,7 +425,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 467817382}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.30160308, y: 0.2695423, z: -0.06637021, w: 0.91212803}
+  m_LocalRotation: {x: 0.30160302, y: 0.2695423, z: -0.06637021, w: 0.91212803}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1108,6 +1170,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 59dd59d170464964aa03209f1a950262, type: 3}
+--- !u!4 &1562816273 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6953326265976369746, guid: 65578293871f02143957633284c3c154, type: 3}
+  m_PrefabInstance: {fileID: 8737503100299545270}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1577988616
 GameObject:
   m_ObjectHideFlags: 3
@@ -1179,7 +1246,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1577988616}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.24609773, y: 0.27305156, z: -0.05000924, w: 0.92864305}
+  m_LocalRotation: {x: 0.2460977, y: 0.27305144, z: -0.050009195, w: 0.9286431}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1574,7 +1641,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1864529529}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.30160308, y: 0.2695423, z: -0.06637021, w: 0.91212803}
+  m_LocalRotation: {x: 0.30160302, y: 0.2695423, z: -0.06637021, w: 0.91212803}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2487,9 +2554,27 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 8488225164969821320, guid: 65578293871f02143957633284c3c154, type: 3}
+      propertyPath: m_leftHammerSide
+      value: 
+      objectReference: {fileID: 176693890}
+    - target: {fileID: 8488225164969821320, guid: 65578293871f02143957633284c3c154, type: 3}
+      propertyPath: m_rightHammerSide
+      value: 
+      objectReference: {fileID: 298419760}
+    - target: {fileID: 8488225164969821320, guid: 65578293871f02143957633284c3c154, type: 3}
+      propertyPath: m_CurrentMovementState
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 6953326265976369746, guid: 65578293871f02143957633284c3c154, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 176693890}
+    - targetCorrespondingSourceObject: {fileID: 6953326265976369746, guid: 65578293871f02143957633284c3c154, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 298419760}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 65578293871f02143957633284c3c154, type: 3}
 --- !u!4 &8771763161665510568
@@ -2500,7 +2585,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2814164259050035777}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.26130036, y: 0.31635857, z: -0.09110245, w: 0.9073807}
+  m_LocalRotation: {x: 0.26130033, y: 0.31635854, z: -0.09110242, w: 0.9073807}
   m_LocalPosition: {x: 0.45783806, y: 15.195001, z: 17.410992}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2602,12 +2687,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!114 &8984725284613893264
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UI;
 using Unity.Mathematics;
@@ -47,6 +48,14 @@ namespace Player
         [SerializeField] private float m_HammahWayMaxSpeed;
         [SerializeField] private float m_HammahWayTurningSpeed;
         [SerializeField] private float m_HammahWayMaxTurningSpeed;
+        
+        [Header("Hammer Suspension Variables")]
+        [SerializeField] private Transform m_leftHammerSide;
+        [SerializeField] private Transform m_rightHammerSide;
+        [SerializeField] private float m_springRestDistance = 1;
+        [SerializeField] private float m_springStrength = 10f;
+        [SerializeField] private float m_springDamping = 5f;
+        [SerializeField] private float m_wheelCheckDistance = 4f;
 
         [Header("Gravity Variables")]
         [SerializeField] private float m_additionalBaseMovementGravity = 9.81f;
@@ -63,25 +72,43 @@ namespace Player
         private float m_splineDirection = 1.0f;
         private SplineContainer m_currentSpline;
 
+        
+        public void BeginPlay()
+        {
+            switch (m_CurrentMovementState)
+            {
+                case MovementState.BaseMovement:
+                    SetToBaseMovement();
+                    break;
+                case MovementState.HammahWay:
+                    SetToHammahWay();
+                    break;
+                case MovementState.SplineRiding:
+                    SetToBaseMovement();
+                    break;
+            }
+        }
+
         public void UpdateComponent()
         {
             switch (m_CurrentMovementState)
             {
                 case MovementState.BaseMovement:
-                case MovementState.HammahWay:
                     //All updates should be done through a intermediate Vector3 so velocity is only being set once per frame otherwise jittering occurs with the camera.
-                    Vector3 newVelocity;
-                    if (PlayerInputProcessor.Instance.CurrentMoveInput.magnitude < m_magnitudeSpeedCutoff)
-                        newVelocity = SlowDownPlayerNoInput();
-                    else
-                        newVelocity = MovePlayer();
+                    Vector3 newVelocity = 
+                        PlayerInputProcessor.Instance.CurrentMoveInput.magnitude < m_magnitudeSpeedCutoff ? SlowDownPlayerNoInput() : MovePlayer();
 
                     if (m_isPlayerGrounded == false)
                         GroundCheckUpdate();
 
-                    //if (Mathf.Abs(newVelocity.y) > 1)
-                    //    newVelocity.y -= m_additionalGravity;
                     m_playerRigidbody.velocity = newVelocity;
+                    break;
+                case MovementState.HammahWay:
+                    //All updates should be done through a intermediate Vector3 so velocity is only being set once per frame otherwise jittering occurs with the camera.
+                    Vector3 hammerVelocity = MovePlayer();
+                    if (m_isPlayerGrounded == false)
+                        GroundCheckUpdate();
+                    //m_playerRigidbody.velocity = hammerVelocity;
                     break;
                 case MovementState.SplineRiding:
                     UpdateCurrentSplineMove();
@@ -189,28 +216,52 @@ namespace Player
 
         private Vector3 HammahWayMove()
         {
-            Vector3 currentVelocity = m_playerRigidbody.velocity;
-            currentVelocity.y = 0;
+            //sprintDirection = up
+            //getvelocity at point for each half
+            //offset = rest distance - raydistance
+            //project halfpoint velocity onto spring direction
+            //force = offset * springstrength - projection * springDamping
+            //apply force at position.
+            
+            WheelSuspensionForce(m_leftHammerSide);
+            WheelSuspensionForce(m_rightHammerSide);
+            
+            //Vector3 currentVelocity = m_playerRigidbody.velocity;
+            //currentVelocity.y = 0;
+            //
+            //Vector3 movementForward = transform.forward;
+            //movementForward.y = 0;
+            //
+            //if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.1f)
+            //{
+            //    Quaternion angleToRotate = Quaternion.AngleAxis(PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, Vector3.up);
+            //    movementForward = angleToRotate * movementForward;
+            //    movementForward.y = 0;
+            //    movementForward = movementForward.normalized;
+            //}
+            //
+            //currentVelocity += (movementForward) * (PlayerInputProcessor.Instance.CurrentMoveInput.y * m_HammahWayMovementSpeed * Time.deltaTime);
+            //
+            //float adjustedMaxSpeed = m_HammahWayMaxSpeed * PlayerInputProcessor.Instance.CurrentMoveInput.y;
+            //if (currentVelocity.magnitude > adjustedMaxSpeed)
+            //    currentVelocity = currentVelocity.normalized * adjustedMaxSpeed;
+            //
+            //transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, movementForward, m_HammahWayMaxTurningSpeed * Time.deltaTime, 1));
+            return Vector3.zero;
 
-            Vector3 movementForward = transform.forward;
-            movementForward.y = 0;
-
-            if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.1f)
+        }
+        void WheelSuspensionForce(Transform wheelTransform)
+        {
+            Vector3 wheelCheckDirection = -Vector3.up;
+            if (Physics.Raycast(wheelTransform.position, wheelCheckDirection, out RaycastHit hitInformation, m_wheelCheckDistance, 1 << LayerMask.NameToLayer("Default")))
             {
-                Quaternion angleToRotate = Quaternion.AngleAxis(PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, Vector3.up);
-                movementForward = angleToRotate * movementForward;
-                movementForward.y = 0;
-                movementForward = movementForward.normalized;
+                Vector3 springDirection = Vector3.up;
+                Vector3 hammerVelocityAtWheel = m_playerRigidbody.GetPointVelocity(wheelTransform.position);
+                float offset = m_springRestDistance - hitInformation.distance;
+                float projectedVelocity = Vector3.Dot(springDirection, hammerVelocityAtWheel);
+                float force = (offset * m_springStrength) - (projectedVelocity * m_springDamping);
+                m_playerRigidbody.AddForceAtPosition(springDirection * force, wheelTransform.position);
             }
-
-            currentVelocity += (movementForward) * (PlayerInputProcessor.Instance.CurrentMoveInput.y * m_HammahWayMovementSpeed * Time.deltaTime);
-
-            float adjustedMaxSpeed = m_HammahWayMaxSpeed * PlayerInputProcessor.Instance.CurrentMoveInput.y;
-            if (currentVelocity.magnitude > adjustedMaxSpeed)
-                currentVelocity = currentVelocity.normalized * adjustedMaxSpeed;
-
-            transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, movementForward, m_HammahWayMaxTurningSpeed * Time.deltaTime, 1));
-            return currentVelocity;
         }
 
         private void UpdateCurrentSplineMove()
@@ -399,8 +450,14 @@ namespace Player
         #region DebuggingFunctions
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawSphere(groundCheck.position, m_groundCheckDistance);
+            //Gizmos.color = Color.cyan;
+            //Gizmos.DrawSphere(groundCheck.position, m_groundCheckDistance);
+            //Gizmos.color = Color.gray;
+            
+            Gizmos.color = Color.green;
+            Vector3 wheelCheckDirection = -Vector3.up;
+            Gizmos.DrawLine(m_leftHammerSide.position, m_leftHammerSide.position + wheelCheckDirection * m_wheelCheckDistance);
+            Gizmos.DrawLine(m_rightHammerSide.position, m_rightHammerSide.position + wheelCheckDirection * m_wheelCheckDistance);
             Gizmos.color = Color.gray;
         }
         #endregion

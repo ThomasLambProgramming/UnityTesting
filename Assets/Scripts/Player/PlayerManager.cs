@@ -39,6 +39,7 @@ namespace Player
             
             Cursor.lockState = CursorLockMode.Locked;
             SetupInputCallbacks();
+            m_playerMovement.BeginPlay();
         }
 
         private void Update()
