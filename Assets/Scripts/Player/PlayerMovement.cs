@@ -5,6 +5,7 @@ using Unity.Mathematics;
 using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 using UnityEngine.Splines;
 
 namespace Player
@@ -47,15 +48,19 @@ namespace Player
         [SerializeField] private float m_HammahWayMovementSpeed;
         [SerializeField] private float m_HammahWayMaxSpeed;
         [SerializeField] private float m_HammahWayTurningSpeed;
-        [SerializeField] private float m_HammahWayMaxTurningSpeed;
+        [SerializeField] private float m_hammahWayMaxTurningAngle;
         
         [Header("Hammer Suspension Variables")]
         [SerializeField] private Transform m_leftHammerSide;
         [SerializeField] private Transform m_rightHammerSide;
+        [SerializeField] private Transform m_leftHammerHalfTransform;
+        [SerializeField] private Transform m_rightHammerHalfTransform;
         [SerializeField] private float m_springRestDistance = 1;
         [SerializeField] private float m_springStrength = 10f;
         [SerializeField] private float m_springDamping = 5f;
         [SerializeField] private float m_wheelCheckDistance = 4f;
+        [SerializeField] private float m_wheelGripFactor = 0.80f;
+        [SerializeField] private float m_wheelMass = 3.0f;
 
         [Header("Gravity Variables")]
         [SerializeField] private float m_additionalBaseMovementGravity = 9.81f;
@@ -129,6 +134,12 @@ namespace Player
             m_playerAnimator.MoveHammerToRiding();
             m_playerAnimator.GotoHammahWayState(0.2f);
             m_playerRigidbody.useGravity = true;
+            
+            Vector3 heightOffset = Vector3.up;
+            m_leftHammerSide.position = m_leftHammerHalfTransform.position + heightOffset;
+            m_rightHammerSide.position = m_rightHammerHalfTransform.position + heightOffset;
+            m_leftHammerHalfTransform.parent = m_leftHammerSide;
+            m_rightHammerHalfTransform.parent = m_rightHammerSide;
         }
 
         private void SetToBaseMovement()
@@ -183,7 +194,7 @@ namespace Player
                     velocityToApply = BaseMovementMove();
                     break;
                 case MovementState.HammahWay:
-                    velocityToApply = HammahWayMove();
+                    HammahWayMove();
                     break;
             }
 
@@ -214,53 +225,83 @@ namespace Player
             return currentVelocity;
         }
 
-        private Vector3 HammahWayMove()
+        private void HammahWayMove()
         {
-            //sprintDirection = up
-            //getvelocity at point for each half
-            //offset = rest distance - raydistance
-            //project halfpoint velocity onto spring direction
-            //force = offset * springstrength - projection * springDamping
-            //apply force at position.
-            
-            WheelSuspensionForce(m_leftHammerSide);
-            WheelSuspensionForce(m_rightHammerSide);
-            
-            //Vector3 currentVelocity = m_playerRigidbody.velocity;
-            //currentVelocity.y = 0;
-            //
-            //Vector3 movementForward = transform.forward;
-            //movementForward.y = 0;
-            //
-            //if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.1f)
-            //{
-            //    Quaternion angleToRotate = Quaternion.AngleAxis(PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, Vector3.up);
-            //    movementForward = angleToRotate * movementForward;
-            //    movementForward.y = 0;
-            //    movementForward = movementForward.normalized;
-            //}
-            //
-            //currentVelocity += (movementForward) * (PlayerInputProcessor.Instance.CurrentMoveInput.y * m_HammahWayMovementSpeed * Time.deltaTime);
-            //
-            //float adjustedMaxSpeed = m_HammahWayMaxSpeed * PlayerInputProcessor.Instance.CurrentMoveInput.y;
-            //if (currentVelocity.magnitude > adjustedMaxSpeed)
-            //    currentVelocity = currentVelocity.normalized * adjustedMaxSpeed;
-            //
-            //transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, movementForward, m_HammahWayMaxTurningSpeed * Time.deltaTime, 1));
-            return Vector3.zero;
+            Vector3 heightOffset = Vector3.up;
 
+            if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.01f)
+            {
+                Vector3 playerForward = transform.forward;
+                Vector3 wheelForward = m_leftHammerSide.forward;
+                Vector3 currentTurningAmount = Quaternion.AngleAxis(PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, Vector3.up) * wheelForward;
+                currentTurningAmount = currentTurningAmount.normalized;
+
+                float angleBetween = Vector3.Angle(playerForward, currentTurningAmount);
+                //if (angleBetween > m_hammahWayMaxTurningAngle)
+                //    currentTurningAmount = Quaternion.AngleAxis(Mathf.Sign(PlayerInputProcessor.Instance.CurrentMoveInput.x) * m_hammahWayMaxTurningAngle, Vector3.up) * playerForward;
+
+                //m_leftHammerSide.rotation = Quaternion.Euler(currentTurningAmount);
+                //m_rightHammerSide.rotation = Quaternion.Euler(currentTurningAmount);
+                m_leftHammerSide.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime,0));
+                m_rightHammerSide.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime,0));
+            }
+
+            ProcessWheel(m_leftHammerSide, m_leftHammerSide.position - heightOffset);
+            ProcessWheel(m_rightHammerSide, m_rightHammerSide.position - heightOffset);
+
+            Vector3 currentVel = m_playerRigidbody.velocity;
+            currentVel.y = 0;
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(currentVel.normalized, Vector3.up), 0.2f);
         }
-        void WheelSuspensionForce(Transform wheelTransform)
+
+        void ProcessWheel(Transform wheelTransform, Vector3 actualWheelPosition)
         {
+            Vector3 currentVelocity = m_playerRigidbody.velocity;
+            float currentYVelocity = currentVelocity.y;
+            currentVelocity.y = 0;
             Vector3 wheelCheckDirection = -Vector3.up;
+
             if (Physics.Raycast(wheelTransform.position, wheelCheckDirection, out RaycastHit hitInformation, m_wheelCheckDistance, 1 << LayerMask.NameToLayer("Default")))
             {
-                Vector3 springDirection = Vector3.up;
-                Vector3 hammerVelocityAtWheel = m_playerRigidbody.GetPointVelocity(wheelTransform.position);
-                float offset = m_springRestDistance - hitInformation.distance;
-                float projectedVelocity = Vector3.Dot(springDirection, hammerVelocityAtWheel);
-                float force = (offset * m_springStrength) - (projectedVelocity * m_springDamping);
-                m_playerRigidbody.AddForceAtPosition(springDirection * force, wheelTransform.position);
+                WheelSuspensionForce(actualWheelPosition, hitInformation);
+                //Make sure that the current velocity isn't 0 so friction isn't applied to it.
+                if (currentVelocity.sqrMagnitude > 0.01f)
+                    WheelSteeringForce(wheelTransform.right, actualWheelPosition);
+                WheelAccelerationForce(wheelTransform.forward, actualWheelPosition);
+            }
+        }
+
+        void WheelSuspensionForce(Vector3 wheelPosition, RaycastHit hitInformation)
+        {
+            Vector3 springDirection = Vector3.up;
+            Vector3 hammerVelocityAtWheel = m_playerRigidbody.GetPointVelocity(wheelPosition);
+            float offset = m_springRestDistance - hitInformation.distance;
+            float projectedVelocity = Vector3.Dot(springDirection, hammerVelocityAtWheel);
+            float force = (offset * m_springStrength) - (projectedVelocity * m_springDamping);
+            m_playerRigidbody.AddForceAtPosition(springDirection * force, wheelPosition);
+        }
+
+        void WheelSteeringForce(Vector3 wheelRight, Vector3 wheelPosition)
+        {
+            Vector3 steeringDirection = wheelRight;
+            Vector3 wheelVelocity = m_playerRigidbody.GetPointVelocity(wheelPosition);
+            float steeringVelocity = Vector3.Dot(steeringDirection, wheelVelocity);
+            float desiredVelocityChance = -steeringVelocity * m_wheelGripFactor;
+            float desiredAcceleration = desiredVelocityChance / Time.deltaTime;
+            m_playerRigidbody.AddForceAtPosition(steeringDirection * (m_wheelMass * desiredAcceleration), wheelPosition);
+        }
+
+        void WheelAccelerationForce(Vector3 wheelForward, Vector3 wheelPosition)
+        {
+            Vector3 accelerationDir = wheelForward;
+            if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.y) > 0.01f)
+            {
+                float hammerSpeed = Vector3.Dot(wheelForward, m_playerRigidbody.velocity);
+                float normalizedSpeed = Mathf.Clamp01(Mathf.Abs((hammerSpeed)) / m_HammahWayMaxSpeed);
+                //This needs to be changed to a powercurve / lookup curve so the speed is not just a linear force but it has difference in acceleration at all stages of speed.
+                float avaliableTorque = 0.70f; //powerCurve.evaluate(normalizedspeed) * accelInput;
+                
+                m_playerRigidbody.AddForceAtPosition(Mathf.Sign(PlayerInputProcessor.Instance.CurrentMoveInput.y) * accelerationDir * (avaliableTorque * m_HammahWayMovementSpeed), wheelPosition);
             }
         }
 
@@ -448,6 +489,30 @@ namespace Player
         #endregion
 
         #region DebuggingFunctions
+
+        //d_ is for debugging variables (so it is possible to search for all debugging related variables / to note not to use these variables for core gameplay)
+        private Vector3 d_leftWheelUpDirection;
+        private Vector3 d_rightWheelUpDirection;
+        
+        private Vector3 d_leftWheelRaycastHitNormal;
+        private Vector3 d_rightWheelRaycastHitNormal;
+        
+        private Vector3 d_leftWheelRaycastHitLocation;
+        private Vector3 d_rightWheelRaycastHitLocation;
+
+        //Draw both the rest position and the difference currently from the ground or above from goal.
+        private Vector3 d_leftWheelRestPosition;
+        private Vector3 d_rightWheelRestPosition;
+
+        private Vector3 d_leftWheelForceApplied;
+        private Vector3 d_rightWheelForceApplied;
+
+        private Vector3 d_leftWheelDesiredAcceleration;
+        private Vector3 d_rightWheelDesiredAcceleration;
+
+        private Vector3 d_leftWheelDesiredVelocity;
+        private Vector3 d_rightWheelDesiredVelocity;
+        
         private void OnDrawGizmos()
         {
             //Gizmos.color = Color.cyan;

@@ -81,21 +81,21 @@ namespace Player
             m_hammerWayObject.transform.parent = m_backAttachSocket;
             m_hammerWayObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
             m_hammerWayObject.transform.localPosition = Vector3.zero;
-            m_hammerWayObject.GetComponentInChildren<Collider>().enabled = false;
+            //m_hammerWayObject.GetComponentInChildren<Collider>().enabled = false;
         }
         public void MoveHammerToHand()
         {
             m_hammerWayObject.transform.parent = m_handAttachSocket;
             m_hammerWayObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
             m_hammerWayObject.transform.localPosition = Vector3.zero;
-            m_hammerWayObject.GetComponentInChildren<Collider>().enabled = false;
+            //m_hammerWayObject.GetComponentInChildren<Collider>().enabled = false;
         }
         public void MoveHammerToRiding()
         {
             m_hammerWayObject.transform.parent = m_groundAttachSocket;
             m_hammerWayObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
             m_hammerWayObject.transform.localPosition = Vector3.zero;
-            m_hammerWayObject.GetComponentInChildren<Collider>().enabled = true;
+            //m_hammerWayObject.GetComponentInChildren<Collider>().enabled = true;
         }
     }
 }
