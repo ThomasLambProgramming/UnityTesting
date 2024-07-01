@@ -191,15 +191,15 @@ namespace Player
                 m_leftHammerWheel.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime,0));
                 m_rightHammerWheel.rotation = m_leftHammerWheel.rotation;
 
-                Vector3 wheelRotation = m_leftHammerWheel.rotation.eulerAngles;
+                Vector3 wheelRotation = m_leftHammerWheel.localRotation.eulerAngles;
                 
                 if (wheelRotation.y > m_hammahWayMaxTurningAngle && wheelRotation.y < 180)
                     wheelRotation.y = m_hammahWayMaxTurningAngle;
                 else if (wheelRotation.y < 360 - m_hammahWayMaxTurningAngle && wheelRotation.y > 180)
                     wheelRotation.y = 360 - m_hammahWayMaxTurningAngle;
                 
-                m_leftHammerWheel.rotation = Quaternion.Euler(wheelRotation);
-                m_rightHammerWheel.rotation = Quaternion.Euler(wheelRotation);
+                m_leftHammerWheel.localRotation = Quaternion.Euler(wheelRotation);
+                m_rightHammerWheel.localRotation = Quaternion.Euler(wheelRotation);
             }
 
             ProcessWheel(m_leftHammerWheel, m_leftHammerWheel.position + m_hammahWayRaycastCheckOffset);
@@ -207,21 +207,24 @@ namespace Player
 
             Vector3 currentVel = m_playerRigidbody.velocity;
             currentVel.y = 0;
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(currentVel.normalized, Vector3.up), m_correctiveRotationSpeed * Time.deltaTime);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(m_leftHammerWheel.forward, Vector3.up), m_correctiveRotationSpeed * Time.deltaTime);
 
             Vector3 playerForward = transform.rotation.eulerAngles;
             playerForward.x = 0;
             playerForward.z = 0;
             //rotate the wheels back by 10%
-            m_leftHammerWheel.rotation = Quaternion.RotateTowards(m_leftHammerWheel.rotation, Quaternion.Euler(playerForward), 0.01f * m_correctiveRotationSpeed * Time.deltaTime);
-            m_rightHammerWheel.rotation = m_leftHammerWheel.rotation;
-
-            if (Vector3.Dot(m_leftHammerWheel.forward, transform.forward) > 0.95f)
-            {
-                m_leftHammerWheel.rotation = Quaternion.Euler(playerForward);
-                m_rightHammerWheel.rotation = m_leftHammerWheel.rotation;
-            }
             
+            if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.05f)
+            {
+                m_leftHammerWheel.localRotation = Quaternion.RotateTowards(m_leftHammerWheel.localRotation, Quaternion.Euler(playerForward), 0.01f * m_correctiveRotationSpeed * Time.deltaTime);
+                m_rightHammerWheel.localRotation = m_leftHammerWheel.localRotation;
+
+                if (Vector3.Dot(m_leftHammerWheel.forward, transform.forward) > 0.95f)
+                {
+                    m_leftHammerWheel.rotation = Quaternion.Euler(playerForward);
+                    m_rightHammerWheel.rotation = m_leftHammerWheel.rotation;
+                }
+            }
         }
 
         void ProcessWheel(Transform wheelTransform, Vector3 wheelCheckPosition)
