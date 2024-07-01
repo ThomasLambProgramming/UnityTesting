@@ -32,6 +32,7 @@ namespace Player
         [SerializeField] private float m_slowdownPercentage = 0.98f;
         [SerializeField] private float m_rotateToVelocitySpeed = 10f;
         private float m_magnitudeSpeedCutoff = 0.2f;
+        [SerializeField] private float m_baseMovementTurningSpeed = 0.4f;
 
         [Header("Jumping Variables")]
         private const int EnvironmentLayerMask = 1;
@@ -61,6 +62,7 @@ namespace Player
         [SerializeField] private float m_wheelCheckDistance = 4f;
         [SerializeField] private float m_wheelGripFactor = 0.80f;
         [SerializeField] private float m_wheelMass = 3.0f;
+        [SerializeField] private float m_correctiveRotationSpeed = 10f;
 
         [Header("Gravity Variables")]
         [SerializeField] private float m_additionalBaseMovementGravity = 9.81f;
@@ -83,105 +85,18 @@ namespace Player
             switch (m_CurrentMovementState)
             {
                 case MovementState.BaseMovement:
-                    SetToBaseMovement();
+                    BeginBaseMovementState();
                     break;
                 case MovementState.HammahWay:
-                    SetToHammahWay();
+                    BeginHammahWayState();
                     break;
                 case MovementState.SplineRiding:
-                    SetToBaseMovement();
+                    BeginBaseMovementState();
                     break;
             }
         }
 
         public void UpdateComponent()
-        {
-            switch (m_CurrentMovementState)
-            {
-                case MovementState.BaseMovement:
-                    //All updates should be done through a intermediate Vector3 so velocity is only being set once per frame otherwise jittering occurs with the camera.
-                    Vector3 newVelocity = 
-                        PlayerInputProcessor.Instance.CurrentMoveInput.magnitude < m_magnitudeSpeedCutoff ? SlowDownPlayerNoInput() : MovePlayer();
-
-                    if (m_isPlayerGrounded == false)
-                        GroundCheckUpdate();
-
-                    m_playerRigidbody.velocity = newVelocity;
-                    break;
-                case MovementState.HammahWay:
-                    //All updates should be done through a intermediate Vector3 so velocity is only being set once per frame otherwise jittering occurs with the camera.
-                    Vector3 hammerVelocity = MovePlayer();
-                    if (m_isPlayerGrounded == false)
-                        GroundCheckUpdate();
-                    //m_playerRigidbody.velocity = hammerVelocity;
-                    break;
-                case MovementState.SplineRiding:
-                    UpdateCurrentSplineMove();
-                    break;
-                case MovementState.Cutscene:
-                    break;
-            }
-        }
-
-        #region MovementStateSwapping
-        private void SetToHammahWay()
-        {
-            Debug.Log("SetToHammahWay");
-            if (m_CurrentMovementState == MovementState.SplineRiding)
-                StartCorrectingRotationFromSpline();
-
-            m_CurrentMovementState = MovementState.HammahWay;
-            m_playerAnimator.MoveHammerToRiding();
-            m_playerAnimator.GotoHammahWayState(0.2f);
-            m_playerRigidbody.useGravity = true;
-            
-            Vector3 heightOffset = Vector3.up;
-            m_leftHammerSide.position = m_leftHammerHalfTransform.position + heightOffset;
-            m_rightHammerSide.position = m_rightHammerHalfTransform.position + heightOffset;
-            m_leftHammerHalfTransform.parent = m_leftHammerSide;
-            m_rightHammerHalfTransform.parent = m_rightHammerSide;
-        }
-
-        private void SetToBaseMovement()
-        {
-            Debug.Log("SetToBaseMovement");
-            if (m_CurrentMovementState == MovementState.SplineRiding)
-                StartCorrectingRotationFromSpline();
-
-            m_CurrentMovementState = MovementState.BaseMovement;
-            m_playerAnimator.MoveHammerToBack();
-            m_playerAnimator.GotoBaseMovementState(0.2f);
-            m_playerRigidbody.useGravity = true;
-        }
-
-        private void SetToSplineRiding()
-        {
-            Debug.Log("SetToSplineRiding");
-            m_CurrentMovementState = MovementState.SplineRiding;
-            m_playerAnimator.GotoSplineMovementState(0.2f);
-            m_playerAnimator.MoveHammerToHand();
-        }
-
-        /// <summary>
-        /// Swap movement to hammahway or basemovement unless
-        /// </summary>
-        public void SwapMovement()
-        {
-            if (m_menuManager.MenuActive || m_CurrentMovementState == MovementState.SplineRiding || m_CurrentMovementState == MovementState.Cutscene)
-                return;
-
-            if (m_CurrentMovementState == MovementState.BaseMovement)
-                SetToHammahWay();
-            else
-                SetToBaseMovement();
-        }
-        #endregion
-
-        #region MovementTypeFunctions
-        /// <summary>
-        /// Move the player based on their input.
-        /// </summary>
-        private Vector3 MovePlayer()
         {
             Vector3 velocityToApply = Vector3.zero;
 
@@ -199,12 +114,87 @@ namespace Player
             }
 
             velocityToApply.y = previousY;
-            return velocityToApply;
+            //return velocityToApply;
+            
+            switch (m_CurrentMovementState)
+            {
+                case MovementState.BaseMovement:
+                    m_playerRigidbody.velocity = PlayerInputProcessor.Instance.CurrentMoveInput.magnitude > m_magnitudeSpeedCutoff ? BaseMovementMove() : SlowDownPlayerNoInput();
+                    break;
+                case MovementState.HammahWay:
+                    HammahWayMove();
+                    break;
+                case MovementState.SplineRiding:
+                    UpdateCurrentSplineMove();
+                    break;
+                case MovementState.Cutscene:
+                    break;
+            }
+            
+            if ((m_CurrentMovementState != MovementState.Cutscene || m_CurrentMovementState != MovementState.SplineRiding) && !m_isPlayerGrounded)
+                GroundCheckUpdate();
         }
+
+        #region MovementStateSwapping
+        private void BeginHammahWayState()
+        {
+            Debug.Log("SetToHammahWay");
+            if (m_CurrentMovementState == MovementState.SplineRiding)
+                StartCorrectingRotationFromSpline();
+
+            m_CurrentMovementState = MovementState.HammahWay;
+            m_playerAnimator.MoveHammerToRiding();
+            m_playerAnimator.GotoHammahWayState(0.2f);
+            m_playerRigidbody.useGravity = true;
+            
+            Vector3 heightOffset = Vector3.up;
+            m_leftHammerSide.position = m_leftHammerHalfTransform.position + heightOffset;
+            m_rightHammerSide.position = m_rightHammerHalfTransform.position + heightOffset;
+            m_leftHammerHalfTransform.parent = m_leftHammerSide;
+            m_rightHammerHalfTransform.parent = m_rightHammerSide;
+        }
+
+        private void BeginBaseMovementState()
+        {
+            Debug.Log("SetToBaseMovement");
+            if (m_CurrentMovementState == MovementState.SplineRiding)
+                StartCorrectingRotationFromSpline();
+
+            m_CurrentMovementState = MovementState.BaseMovement;
+            m_playerAnimator.MoveHammerToBack();
+            m_playerAnimator.GotoBaseMovementState(0.2f);
+            m_playerRigidbody.useGravity = true;
+        }
+
+        private void BeginSplineRidingState()
+        {
+            Debug.Log("SetToSplineRiding");
+            m_CurrentMovementState = MovementState.SplineRiding;
+            m_playerAnimator.GotoSplineMovementState(0.2f);
+            m_playerAnimator.MoveHammerToHand();
+        }
+
+        /// <summary>
+        /// Swap movement to hammahway or basemovement unless
+        /// </summary>
+        public void SwapMovement()
+        {
+            if (m_menuManager.MenuActive || m_CurrentMovementState == MovementState.SplineRiding || m_CurrentMovementState == MovementState.Cutscene)
+                return;
+
+            if (m_CurrentMovementState == MovementState.BaseMovement)
+                BeginHammahWayState();
+            else
+                BeginBaseMovementState();
+        }
+        #endregion
+
+        #region MovementTypeFunctions
 
         private Vector3 BaseMovementMove()
         {
             Vector3 currentVelocity = m_playerRigidbody.velocity;
+            float previousYVel = currentVelocity.y;
             currentVelocity.y = 0;
 
             Transform cameraTransform = m_playerCameraController.m_mainCamera.transform;
@@ -220,8 +210,10 @@ namespace Player
             float adjustedMaxSpeed = m_maxMovementSpeed * PlayerInputProcessor.Instance.CurrentMoveInput.magnitude;
             if (currentVelocity.magnitude > adjustedMaxSpeed)
                 currentVelocity = currentVelocity.normalized * adjustedMaxSpeed;
-
-            transform.rotation = Quaternion.LookRotation(Vector3.RotateTowards(transform.forward, currentVelocity.normalized, m_rotateToVelocitySpeed * Time.deltaTime, 1));
+            
+            transform.rotation = Quaternion.LookRotation(Quaternion.AngleAxis(Mathf.Clamp(Vector3.SignedAngle(transform.forward, currentVelocity.normalized, Vector3.up) * m_baseMovementTurningSpeed * Time.deltaTime, -m_hammahWayMaxTurningAngle, m_hammahWayMaxTurningAngle), Vector3.up) * transform.forward, Vector3.up);
+            
+            currentVelocity.y = previousYVel;
             return currentVelocity;
         }
 
@@ -240,8 +232,6 @@ namespace Player
                 //if (angleBetween > m_hammahWayMaxTurningAngle)
                 //    currentTurningAmount = Quaternion.AngleAxis(Mathf.Sign(PlayerInputProcessor.Instance.CurrentMoveInput.x) * m_hammahWayMaxTurningAngle, Vector3.up) * playerForward;
 
-                //m_leftHammerSide.rotation = Quaternion.Euler(currentTurningAmount);
-                //m_rightHammerSide.rotation = Quaternion.Euler(currentTurningAmount);
                 m_leftHammerSide.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime,0));
                 m_rightHammerSide.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime,0));
             }
@@ -251,7 +241,7 @@ namespace Player
 
             Vector3 currentVel = m_playerRigidbody.velocity;
             currentVel.y = 0;
-            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(currentVel.normalized, Vector3.up), 0.2f);
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(currentVel.normalized, Vector3.up), m_correctiveRotationSpeed * Time.deltaTime);
         }
 
         void ProcessWheel(Transform wheelTransform, Vector3 actualWheelPosition)
@@ -329,7 +319,7 @@ namespace Player
             //the 0.9 >= is to account for floating point errors and we want to cut off before the above checking distance so comparisons between spline 1.0 and 1.0 arent done giving zero vectors.
             if ((m_splineDirection >= 0.9f && splinePosition > 0.98f) || (m_splineDirection <= -0.9f && splinePosition < 0.02f))
             {
-                SetToBaseMovement();
+                BeginBaseMovementState();
             }
         }
 
@@ -351,7 +341,7 @@ namespace Player
 
         public void StartSplineRiding(SplineContainer splineContainer)
         {
-            SetToSplineRiding();
+            BeginSplineRidingState();
             m_currentSpline = splineContainer;
             float positionOnSpline = GetCharacterPositionOnSpline();
 
@@ -412,7 +402,7 @@ namespace Player
                 return;
             if (m_CurrentMovementState == MovementState.SplineRiding)
             {
-                SetToBaseMovement();
+                BeginBaseMovementState();
                 return;
             }
 
