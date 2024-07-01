@@ -1,8 +1,6 @@
-using System;
 using System.Collections;
 using UI;
 using Unity.Mathematics;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -54,7 +52,7 @@ namespace Player
         [Header("Hammer Suspension Variables")]
         [SerializeField] private Transform m_leftHammerSide;
         [SerializeField] private Transform m_rightHammerSide;
-        [SerializeField] private Transform m_leftHammerHalfTransform;
+        [SerializeField] private Transform m_leftHammerWheel;
         [SerializeField] private Transform m_rightHammerHalfTransform;
         [SerializeField] private float m_springRestDistance = 1;
         [SerializeField] private float m_springStrength = 10f;
@@ -148,9 +146,9 @@ namespace Player
             m_playerRigidbody.useGravity = true;
             
             Vector3 heightOffset = Vector3.up;
-            m_leftHammerSide.position = m_leftHammerHalfTransform.position + heightOffset;
+            m_leftHammerSide.position = m_leftHammerWheel.position + heightOffset;
             m_rightHammerSide.position = m_rightHammerHalfTransform.position + heightOffset;
-            m_leftHammerHalfTransform.parent = m_leftHammerSide;
+            m_leftHammerWheel.parent = m_leftHammerSide;
             m_rightHammerHalfTransform.parent = m_rightHammerSide;
         }
 
