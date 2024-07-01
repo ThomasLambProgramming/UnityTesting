@@ -3,7 +3,6 @@ using UI;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 using UnityEngine.Splines;
 
 namespace Player
@@ -50,10 +49,10 @@ namespace Player
         [SerializeField] private float m_hammahWayMaxTurningAngle;
         
         [Header("Hammer Suspension Variables")]
-        [SerializeField] private Transform m_leftHammerSide;
-        [SerializeField] private Transform m_rightHammerSide;
         [SerializeField] private Transform m_leftHammerWheel;
-        [SerializeField] private Transform m_rightHammerHalfTransform;
+        [SerializeField] private Transform m_rightHammerWheel;
+        [SerializeField] private AnimationCurve m_powerCurve;
+        [SerializeField] private Vector3 m_hammahWayRaycastCheckOffset = Vector3.up;
         [SerializeField] private float m_springRestDistance = 1;
         [SerializeField] private float m_springStrength = 10f;
         [SerializeField] private float m_springDamping = 5f;
@@ -96,24 +95,6 @@ namespace Player
 
         public void UpdateComponent()
         {
-            Vector3 velocityToApply = Vector3.zero;
-
-            Vector3 currentVelocity = m_playerRigidbody.velocity;
-            float previousY = currentVelocity.y;
-
-            switch (m_CurrentMovementState)
-            {
-                case MovementState.BaseMovement:
-                    velocityToApply = BaseMovementMove();
-                    break;
-                case MovementState.HammahWay:
-                    HammahWayMove();
-                    break;
-            }
-
-            velocityToApply.y = previousY;
-            //return velocityToApply;
-            
             switch (m_CurrentMovementState)
             {
                 case MovementState.BaseMovement:
@@ -123,7 +104,7 @@ namespace Player
                     HammahWayMove();
                     break;
                 case MovementState.SplineRiding:
-                    UpdateCurrentSplineMove();
+                    SplineMovementUpdate();
                     break;
                 case MovementState.Cutscene:
                     break;
@@ -136,25 +117,17 @@ namespace Player
         #region MovementStateSwapping
         private void BeginHammahWayState()
         {
-            Debug.Log("SetToHammahWay");
             if (m_CurrentMovementState == MovementState.SplineRiding)
                 StartCorrectingRotationFromSpline();
 
             m_CurrentMovementState = MovementState.HammahWay;
-            m_playerAnimator.MoveHammerToRiding();
+            m_playerAnimator.MoveHammerToGround();
             m_playerAnimator.GotoHammahWayState(0.2f);
             m_playerRigidbody.useGravity = true;
-            
-            Vector3 heightOffset = Vector3.up;
-            m_leftHammerSide.position = m_leftHammerWheel.position + heightOffset;
-            m_rightHammerSide.position = m_rightHammerHalfTransform.position + heightOffset;
-            m_leftHammerWheel.parent = m_leftHammerSide;
-            m_rightHammerHalfTransform.parent = m_rightHammerSide;
         }
 
         private void BeginBaseMovementState()
         {
-            Debug.Log("SetToBaseMovement");
             if (m_CurrentMovementState == MovementState.SplineRiding)
                 StartCorrectingRotationFromSpline();
 
@@ -166,16 +139,12 @@ namespace Player
 
         private void BeginSplineRidingState()
         {
-            Debug.Log("SetToSplineRiding");
             m_CurrentMovementState = MovementState.SplineRiding;
             m_playerAnimator.GotoSplineMovementState(0.2f);
             m_playerAnimator.MoveHammerToHand();
         }
 
-        /// <summary>
-        /// Swap movement to hammahway or basemovement unless
-        /// </summary>
-        public void SwapMovement()
+        private void SwapMovementInputReceived()
         {
             if (m_menuManager.MenuActive || m_CurrentMovementState == MovementState.SplineRiding || m_CurrentMovementState == MovementState.Cutscene)
                 return;
@@ -217,51 +186,63 @@ namespace Player
 
         private void HammahWayMove()
         {
-            Vector3 heightOffset = Vector3.up;
-
             if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.01f)
             {
-                Vector3 playerForward = transform.forward;
-                Vector3 wheelForward = m_leftHammerSide.forward;
-                Vector3 currentTurningAmount = Quaternion.AngleAxis(PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, Vector3.up) * wheelForward;
-                currentTurningAmount = currentTurningAmount.normalized;
+                m_leftHammerWheel.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime,0));
+                m_rightHammerWheel.rotation = m_leftHammerWheel.rotation;
 
-                float angleBetween = Vector3.Angle(playerForward, currentTurningAmount);
-                //if (angleBetween > m_hammahWayMaxTurningAngle)
-                //    currentTurningAmount = Quaternion.AngleAxis(Mathf.Sign(PlayerInputProcessor.Instance.CurrentMoveInput.x) * m_hammahWayMaxTurningAngle, Vector3.up) * playerForward;
-
-                m_leftHammerSide.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime,0));
-                m_rightHammerSide.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime,0));
+                Vector3 wheelRotation = m_leftHammerWheel.rotation.eulerAngles;
+                
+                if (wheelRotation.y > m_hammahWayMaxTurningAngle && wheelRotation.y < 180)
+                    wheelRotation.y = m_hammahWayMaxTurningAngle;
+                else if (wheelRotation.y < 360 - m_hammahWayMaxTurningAngle && wheelRotation.y > 180)
+                    wheelRotation.y = 360 - m_hammahWayMaxTurningAngle;
+                
+                m_leftHammerWheel.rotation = Quaternion.Euler(wheelRotation);
+                m_rightHammerWheel.rotation = Quaternion.Euler(wheelRotation);
             }
 
-            ProcessWheel(m_leftHammerSide, m_leftHammerSide.position - heightOffset);
-            ProcessWheel(m_rightHammerSide, m_rightHammerSide.position - heightOffset);
+            ProcessWheel(m_leftHammerWheel, m_leftHammerWheel.position + m_hammahWayRaycastCheckOffset);
+            ProcessWheel(m_rightHammerWheel, m_rightHammerWheel.position + m_hammahWayRaycastCheckOffset);
 
             Vector3 currentVel = m_playerRigidbody.velocity;
             currentVel.y = 0;
             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(currentVel.normalized, Vector3.up), m_correctiveRotationSpeed * Time.deltaTime);
+
+            Vector3 playerForward = transform.rotation.eulerAngles;
+            playerForward.x = 0;
+            playerForward.z = 0;
+            //rotate the wheels back by 10%
+            m_leftHammerWheel.rotation = Quaternion.RotateTowards(m_leftHammerWheel.rotation, Quaternion.Euler(playerForward), 0.01f * m_correctiveRotationSpeed * Time.deltaTime);
+            m_rightHammerWheel.rotation = m_leftHammerWheel.rotation;
+
+            if (Vector3.Dot(m_leftHammerWheel.forward, transform.forward) > 0.95f)
+            {
+                m_leftHammerWheel.rotation = Quaternion.Euler(playerForward);
+                m_rightHammerWheel.rotation = m_leftHammerWheel.rotation;
+            }
+            
         }
 
-        void ProcessWheel(Transform wheelTransform, Vector3 actualWheelPosition)
+        void ProcessWheel(Transform wheelTransform, Vector3 wheelCheckPosition)
         {
             Vector3 currentVelocity = m_playerRigidbody.velocity;
-            float currentYVelocity = currentVelocity.y;
             currentVelocity.y = 0;
-            Vector3 wheelCheckDirection = -Vector3.up;
+            Vector3 wheelCheckDirection = -wheelTransform.up;
 
-            if (Physics.Raycast(wheelTransform.position, wheelCheckDirection, out RaycastHit hitInformation, m_wheelCheckDistance, 1 << LayerMask.NameToLayer("Default")))
+            if (Physics.Raycast(wheelCheckPosition, wheelCheckDirection, out RaycastHit hitInformation, m_wheelCheckDistance, 1 << LayerMask.NameToLayer("Default")))
             {
-                WheelSuspensionForce(actualWheelPosition, hitInformation);
+                WheelSuspensionForce(wheelTransform.position, hitInformation);
                 //Make sure that the current velocity isn't 0 so friction isn't applied to it.
                 if (currentVelocity.sqrMagnitude > 0.01f)
-                    WheelSteeringForce(wheelTransform.right, actualWheelPosition);
-                WheelAccelerationForce(wheelTransform.forward, actualWheelPosition);
+                    WheelSteeringForce(wheelTransform.right, wheelTransform.position);
+                WheelAccelerationForce(wheelTransform.forward, wheelTransform.position);
             }
         }
 
         void WheelSuspensionForce(Vector3 wheelPosition, RaycastHit hitInformation)
         {
-            Vector3 springDirection = Vector3.up;
+            Vector3 springDirection = m_leftHammerWheel.up;
             Vector3 hammerVelocityAtWheel = m_playerRigidbody.GetPointVelocity(wheelPosition);
             float offset = m_springRestDistance - hitInformation.distance;
             float projectedVelocity = Vector3.Dot(springDirection, hammerVelocityAtWheel);
@@ -287,13 +268,13 @@ namespace Player
                 float hammerSpeed = Vector3.Dot(wheelForward, m_playerRigidbody.velocity);
                 float normalizedSpeed = Mathf.Clamp01(Mathf.Abs((hammerSpeed)) / m_HammahWayMaxSpeed);
                 //This needs to be changed to a powercurve / lookup curve so the speed is not just a linear force but it has difference in acceleration at all stages of speed.
-                float avaliableTorque = 0.70f; //powerCurve.evaluate(normalizedspeed) * accelInput;
+                float avaliableTorque = m_powerCurve.Evaluate(normalizedSpeed) * PlayerInputProcessor.Instance.CurrentMoveInput.y;
                 
-                m_playerRigidbody.AddForceAtPosition(Mathf.Sign(PlayerInputProcessor.Instance.CurrentMoveInput.y) * accelerationDir * (avaliableTorque * m_HammahWayMovementSpeed), wheelPosition);
+                m_playerRigidbody.AddForceAtPosition(accelerationDir * (avaliableTorque * m_HammahWayMovementSpeed), wheelPosition);
             }
         }
 
-        private void UpdateCurrentSplineMove()
+        private void SplineMovementUpdate()
         {
             m_splineRidingTimer += Time.deltaTime * m_splineDirection;
             //length of 32 / 4 riding speed = 8 seconds, being total duration required. timer / total duration = % complete goes straight into spline get position.
@@ -462,7 +443,7 @@ namespace Player
 
         private void SwapMovementInputStart(InputAction.CallbackContext callback)
         {
-            SwapMovement();
+            SwapMovementInputReceived();
         }
 
         private void SwapMovementInputEnd(InputAction.CallbackContext callback) { }
@@ -508,9 +489,8 @@ namespace Player
             //Gizmos.color = Color.gray;
             
             Gizmos.color = Color.green;
-            Vector3 wheelCheckDirection = -Vector3.up;
-            Gizmos.DrawLine(m_leftHammerSide.position, m_leftHammerSide.position + wheelCheckDirection * m_wheelCheckDistance);
-            Gizmos.DrawLine(m_rightHammerSide.position, m_rightHammerSide.position + wheelCheckDirection * m_wheelCheckDistance);
+            Gizmos.DrawLine(m_leftHammerWheel.position + m_hammahWayRaycastCheckOffset , m_leftHammerWheel.position + (-m_leftHammerWheel.up * m_wheelCheckDistance));
+            Gizmos.DrawLine(m_rightHammerWheel.position + m_hammahWayRaycastCheckOffset , m_rightHammerWheel.position + (-m_leftHammerWheel.up* m_wheelCheckDistance));
             Gizmos.color = Color.gray;
         }
         #endregion

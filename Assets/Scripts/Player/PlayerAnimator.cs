@@ -9,7 +9,8 @@ namespace Player
         [SerializeField] private float m_animatorLerpSpeed = 7;
         
         [Header("Attaching Sockets for hammer")] 
-        [SerializeField] private GameObject m_hammerWayObject;
+        [SerializeField] private GameObject m_hammahWayOnBack;
+        [SerializeField] private GameObject m_hammahWayOnGround;
         [SerializeField] private Transform m_backAttachSocket;
         [SerializeField] private Transform m_handAttachSocket;
         [SerializeField] private Transform m_groundAttachSocket;
@@ -82,6 +83,8 @@ namespace Player
             //m_hammerWayObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
             //m_hammerWayObject.transform.localPosition = Vector3.zero;
             //m_hammerWayObject.GetComponentInChildren<Collider>().enabled = false;
+            m_hammahWayOnBack.SetActive(true);
+            m_hammahWayOnGround.SetActive(false);
         }
         public void MoveHammerToHand()
         {
@@ -90,12 +93,14 @@ namespace Player
             //m_hammerWayObject.transform.localPosition = Vector3.zero;
             //m_hammerWayObject.GetComponentInChildren<Collider>().enabled = false;
         }
-        public void MoveHammerToRiding()
+        public void MoveHammerToGround()
         {
             //m_hammerWayObject.transform.parent = m_groundAttachSocket;
             //m_hammerWayObject.transform.localRotation = Quaternion.Euler(0, 0, 0);
             //m_hammerWayObject.transform.localPosition = Vector3.zero;
             //m_hammerWayObject.GetComponentInChildren<Collider>().enabled = true;
+            m_hammahWayOnBack.SetActive(false);
+            m_hammahWayOnGround.SetActive(true);
         }
     }
 }
