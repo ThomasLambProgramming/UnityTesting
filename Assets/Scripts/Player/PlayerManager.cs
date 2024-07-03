@@ -7,7 +7,8 @@ namespace Player
     //RequireComponent has a limit.
     [
         RequireComponent(typeof(PlayerInputProcessor), typeof(Rigidbody), typeof(PlayerMovement)),
-        RequireComponent(typeof(PlayerCameraController), typeof(PlayerInteract), typeof(PlayerAnimator))
+        RequireComponent(typeof(PlayerCameraController), typeof(PlayerInteract), typeof(PlayerAnimator)),
+        RequireComponent(typeof(PlayerDebug))
     ]
     public class PlayerManager : MonoBehaviour
     {
