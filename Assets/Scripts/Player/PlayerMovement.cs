@@ -63,8 +63,13 @@ namespace Player
         [SerializeField] private Transform m_rightFrontWheel;
         [SerializeField] private Transform m_leftBackWheel;
         [SerializeField] private Transform m_rightBackwheel;
+        [SerializeField] private bool m_applyFriction = true;
+        [SerializeField] private bool m_applyAcceleration = true;
+        [SerializeField] private bool m_applySuspension = true;
+        
+        [SerializeField] private AnimationCurve m_frictionCurve;
         [SerializeField] private AnimationCurve m_powerCurve;
-        [SerializeField] private Vector3 m_hammahWayRaycastCheckOffset = Vector3.up;
+        [SerializeField] private float m_hammahWayRaycastCheckOffset = 1;
         [SerializeField] private float m_springRestDistance = 1;
         [SerializeField] private float m_springStrength = 10f;
         [SerializeField] private float m_springDamping = 5f;
@@ -197,6 +202,7 @@ namespace Player
         }
 
         private float m_wheelRotationAmount = 0;
+
         private void HammahWayMove()
         {
             Vector3 currentVel = m_playerRigidbody.velocity;
@@ -204,28 +210,28 @@ namespace Player
 
             if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.01f)
             {
-                if (Mathf.Abs(PlayerInputProcessor.Instance.CurrentMoveInput.x) > 0.01f)
-                {
-                    m_leftFrontWheel.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, 0));
-                    m_rightFrontWheel.rotation = m_leftFrontWheel.rotation;
+                m_leftFrontWheel.Rotate(new Vector3(0, PlayerInputProcessor.Instance.CurrentMoveInput.x * m_HammahWayTurningSpeed * Time.deltaTime, 0));
+                m_rightFrontWheel.rotation = m_leftFrontWheel.rotation;
 
-                    Vector3 wheelRotation = m_leftFrontWheel.localRotation.eulerAngles;
+                Vector3 wheelRotation = m_leftFrontWheel.localRotation.eulerAngles;
 
-                    if (wheelRotation.y > m_hammahWayMaxTurningAngle && wheelRotation.y < 180)
-                        wheelRotation.y = m_hammahWayMaxTurningAngle;
-                    else if (wheelRotation.y < 360 - m_hammahWayMaxTurningAngle && wheelRotation.y > 180)
-                        wheelRotation.y = 360 - m_hammahWayMaxTurningAngle;
+                if (wheelRotation.y > m_hammahWayMaxTurningAngle && wheelRotation.y < 180)
+                    wheelRotation.y = m_hammahWayMaxTurningAngle;
+                else if (wheelRotation.y < 360 - m_hammahWayMaxTurningAngle && wheelRotation.y > 180)
+                    wheelRotation.y = 360 - m_hammahWayMaxTurningAngle;
 
-                    m_leftFrontWheel.localRotation = Quaternion.Euler(wheelRotation);
-                    m_rightFrontWheel.localRotation = Quaternion.Euler(wheelRotation);
-                }
+                m_leftFrontWheel.localRotation = Quaternion.Euler(wheelRotation);
+                m_rightFrontWheel.localRotation = Quaternion.Euler(wheelRotation);
             }
             else
             {
-                m_wheelRotationAmount += m_correctiveRotationSpeed * Time.deltaTime * (m_wheelRotationAmount > 0 ? -1 : 1);
+                float signedAngleToForward = Vector3.SignedAngle(m_leftFrontWheel.forward, transform.forward, transform.up);
+                
+                
             }
-            PlayerDebug.Instance.SetWheelTransformInformation(new []{m_leftFrontWheel, m_rightFrontWheel, m_leftBackWheel, m_rightBackwheel});
-            
+
+            PlayerDebug.Instance.SetWheelTransformInformation(new[] { m_leftFrontWheel, m_rightFrontWheel, m_leftBackWheel, m_rightBackwheel });
+
             //Process 4 fake springs + 4 wheels to give stability to the hammahway as 2 wheels require rotation work to keep stable and upright, only front wheels will turn for steering.
             ProcessWheel(m_leftFrontWheel, 0);
             ProcessWheel(m_rightFrontWheel, 1);
@@ -233,46 +239,72 @@ namespace Player
             ProcessWheel(m_rightBackwheel, 3);
         }
 
+        [SerializeField] private float m_heightOffsetArtWheel = 0.2f;
         void ProcessWheel(Transform wheelTransform, int debugIndex)
         {
             Vector3 currentVelocity = m_playerRigidbody.velocity;
             currentVelocity.y = 0;
 
-            if (Physics.Raycast(wheelTransform.position + m_hammahWayRaycastCheckOffset, -wheelTransform.up, out RaycastHit hitInformation, m_wheelCheckDistance, 1 << LayerMask.NameToLayer("Default")))
+            if (Physics.Raycast(wheelTransform.position + m_hammahWayRaycastCheckOffset * wheelTransform.up, -wheelTransform.up, out RaycastHit hitInformation, m_wheelCheckDistance, 1 << LayerMask.NameToLayer("Default")))
             {
+                wheelTransform.GetChild(0).position = hitInformation.point + new Vector3(0, m_heightOffsetArtWheel, 0);
                 PlayerDebug.Instance.m_wheelRaycastHitLocations[debugIndex] = hitInformation.point;
                 
                 Vector3 suspensionForce = WheelSuspensionForce(wheelTransform.position, hitInformation);
-                Vector3 steeringForce = Vector3.zero;//WheelSteeringForce(wheelTransform.right, wheelTransform.position);
+                Vector3 steeringForce = WheelSteeringForce(wheelTransform.right, wheelTransform.position);
                 Vector3 accelerationForce = WheelAccelerationForce(wheelTransform.forward);
-                Vector3 totalForce = suspensionForce + steeringForce + accelerationForce;
                 
+                if (m_applySuspension)
+                    m_playerRigidbody.AddForceAtPosition(suspensionForce, wheelTransform.position);
+                if (m_applyFriction && currentVelocity.magnitude > 0.1f)
+                    m_playerRigidbody.AddForceAtPosition(steeringForce, wheelTransform.position);
+                if (m_applyAcceleration)
+                    m_playerRigidbody.AddForceAtPosition(accelerationForce, wheelTransform.position);
+                
+                Vector3 totalForce = suspensionForce + steeringForce + accelerationForce;
                 PlayerDebug.Instance.m_wheelForcesApplied[debugIndex] = totalForce;
-                m_playerRigidbody.AddForceAtPosition(totalForce, wheelTransform.position);
             }
             else
             {
                 PlayerDebug.Instance.m_wheelRaycastHitLocations[debugIndex] = Vector3.zero;
+                wheelTransform.GetChild(0).localPosition = Vector3.zero;
             }
+            
         }
 
         Vector3 WheelSuspensionForce(Vector3 wheelPosition, RaycastHit hitInformation)
         {
             Vector3 springDirection = m_leftFrontWheel.up;
             Vector3 hammerVelocityAtWheel = m_playerRigidbody.GetPointVelocity(wheelPosition);
-            float offset = m_springRestDistance - (hitInformation.distance - m_hammahWayRaycastCheckOffset.magnitude);
+            float offset = m_springRestDistance - (hitInformation.distance - m_hammahWayRaycastCheckOffset);
             float projectedVelocity = Vector3.Dot(springDirection, hammerVelocityAtWheel);
             float force = (offset * m_springStrength) - (projectedVelocity * m_springDamping);
             return springDirection * force;
         }
 
+        public Vector3 GetLinearVelocityAtPoint(Vector3 aLocalPoint)
+        {
+            var p = aLocalPoint - m_playerRigidbody.centerOfMass;
+            var v = Vector3.Cross(m_playerRigidbody.angularVelocity, p);
+            v = m_playerRigidbody.transform.TransformDirection(v);
+            v += m_playerRigidbody.velocity;
+            return v;
+        }
+
+        [SerializeField] private float m_steeringForceScaling = 20f;
         Vector3 WheelSteeringForce(Vector3 wheelRight, Vector3 wheelPosition)
         {
             Vector3 steeringDirection = wheelRight;
             Vector3 wheelVelocity = m_playerRigidbody.GetPointVelocity(wheelPosition);
+
+            float dotRight = Vector3.Dot(wheelVelocity, wheelRight);
+            float dotLeft = Vector3.Dot(wheelVelocity, -wheelRight);
+            if (dotRight < dotLeft)
+                steeringDirection = -wheelRight;
+            
             float steeringVelocity = Vector3.Dot(steeringDirection, wheelVelocity);
-            float desiredVelocityChance = -steeringVelocity * m_wheelGripFactor;
-            float desiredAcceleration = desiredVelocityChance / Time.deltaTime;
+            float desiredVelocityChance = -steeringVelocity * m_frictionCurve.Evaluate(Vector3.Dot(steeringDirection, wheelVelocity.normalized));
+            float desiredAcceleration = desiredVelocityChance * Time.deltaTime * m_steeringForceScaling;
             return steeringDirection * (m_wheelMass * desiredAcceleration);
         }
 
