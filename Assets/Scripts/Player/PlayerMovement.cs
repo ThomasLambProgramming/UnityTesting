@@ -225,9 +225,8 @@ namespace Player
             }
             else
             {
-                float signedAngleToForward = Vector3.SignedAngle(m_leftFrontWheel.forward, transform.forward, transform.up);
-                
-                
+                m_leftFrontWheel.rotation = Quaternion.Lerp(m_leftFrontWheel.rotation, Quaternion.LookRotation(transform.forward), Time.deltaTime * m_correctiveRotationSpeed);
+                m_rightFrontWheel.rotation = m_leftFrontWheel.rotation;
             }
 
             PlayerDebug.Instance.SetWheelTransformInformation(new[] { m_leftFrontWheel, m_rightFrontWheel, m_leftBackWheel, m_rightBackwheel });
@@ -247,7 +246,7 @@ namespace Player
 
             if (Physics.Raycast(wheelTransform.position + m_hammahWayRaycastCheckOffset * wheelTransform.up, -wheelTransform.up, out RaycastHit hitInformation, m_wheelCheckDistance, 1 << LayerMask.NameToLayer("Default")))
             {
-                wheelTransform.GetChild(0).position = hitInformation.point + new Vector3(0, m_heightOffsetArtWheel, 0);
+                wheelTransform.GetChild(0).position = Vector3.Lerp(wheelTransform.GetChild(0).position, hitInformation.point + new Vector3(0, m_heightOffsetArtWheel, 0), Time.deltaTime * 3);
                 PlayerDebug.Instance.m_wheelRaycastHitLocations[debugIndex] = hitInformation.point;
                 
                 Vector3 suspensionForce = WheelSuspensionForce(wheelTransform.position, hitInformation);
@@ -267,7 +266,7 @@ namespace Player
             else
             {
                 PlayerDebug.Instance.m_wheelRaycastHitLocations[debugIndex] = Vector3.zero;
-                wheelTransform.GetChild(0).localPosition = Vector3.zero;
+                wheelTransform.GetChild(0).localPosition = Vector3.Lerp(wheelTransform.GetChild(0).localPosition, Vector3.zero, Time.deltaTime * 3);
             }
             
         }
