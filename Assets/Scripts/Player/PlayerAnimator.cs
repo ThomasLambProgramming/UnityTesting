@@ -32,7 +32,7 @@ namespace Player
         {
             Vector3 currentVel = m_playerMovement.m_playerRigidbody.velocity;
             currentVel.y = 0;
-            float currentHorizontalVelocity = currentVel.magnitude / m_playerMovement.m_maxMovementSpeed;
+            float currentHorizontalVelocity = currentVel.magnitude / m_playerMovement.m_baseMovementMaxMovementSpeed;
             float animatorSpeedValue = Mathf.Lerp(m_previousAnimatorSpeedValue, currentHorizontalVelocity, m_animatorLerpSpeed * Time.deltaTime);
             m_previousAnimatorSpeedValue = animatorSpeedValue;
 
