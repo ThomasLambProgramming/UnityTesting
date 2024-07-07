@@ -50,10 +50,6 @@ Shader "Unlit/DiffuseLightingExample"
             sampler2D _MainTex;
             sampler2D _SpecularTex;
             float4 _MainTex_ST;
-
-            //The _ST add tiling and offset ot the texture, but the transformation done by this is not needed as textures or specular makes dont need them due to their consistent nature.
-            //float4 _SpecularTex_ST;
-
             float _LightIntensity;
             float _SpecularIntensity;
             float _SpecularPower;
